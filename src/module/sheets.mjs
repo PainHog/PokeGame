@@ -98,7 +98,7 @@ export class PokemonSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   /** Action: use one of this Pokémon's moves against the current target. */
   _useMove(target) {
     const move = this.actor.items.get(target?.dataset?.itemId);
-    if (move && game.pokemonMasters?.battle) game.pokemonMasters.battle.useMove(this.actor, move);
+    if (move && game.pokemonMasters?.battle) game.pokemonMasters.battle.useMove(this.actor, move, null, { autoRetaliate: true });
   }
 
   async _prepareContext(options) {

@@ -54,8 +54,14 @@ export function currentTarget() {
   return { token: t.document, actor: t.actor };
 }
 
-/** Resolve a move from `attacker` against `target` (defaults to the user's target). */
-export async function useMove(attacker, move, target = null) {
+/**
+ * Resolve a move from `attacker` against `target` (defaults to the user's
+ * target). When `autoRetaliate` is set (a player picking a move on their sheet),
+ * a surviving wild/NPC target fights back automatically with its best move — so
+ * battles play out turn-by-turn with the player choosing and the NPC responding,
+ * no GM required.
+ */
+export async function useMove(attacker, move, target = null, { autoRetaliate = false } = {}) {
   if (!attacker || attacker.type !== "pokemon") return ui.notifications?.warn("Only a Pokémon can use a move.");
   target ??= currentTarget();
   if (!target?.actor) return ui.notifications?.warn("Target a Pokémon first.");
@@ -129,6 +135,13 @@ export async function useMove(attacker, move, target = null) {
   });
 
   if (fainted) Hooks.callAll("pmPokemonFainted", { attacker, target: tgt });
+
+  // The wild/NPC target fights back on its own (players never wait on a GM).
+  if (autoRetaliate && (tgt.system.hp?.value ?? 0) > 0 && !tgt.hasPlayerOwner) {
+    const npc = await import("./npc.mjs");
+    const npcMove = npc.chooseBestMove(npc.combatantFromActor(tgt), npc.combatantFromActor(attacker));
+    if (npcMove) await useMove(tgt, npcMove, { actor: attacker }, { autoRetaliate: false });
+  }
   return result;
 }
 
