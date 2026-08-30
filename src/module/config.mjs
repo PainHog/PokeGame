@@ -73,6 +73,16 @@ PM.rarities = {
   legendary: "Legendary"
 };
 
+/** Status conditions (used by battle, catch bonuses, and healing items). */
+PM.statuses = {
+  none: "Healthy",
+  poison: "Poisoned",
+  burn: "Burned",
+  paralysis: "Paralyzed",
+  sleep: "Asleep",
+  freeze: "Frozen"
+};
+
 /** Baseline catch rate per rarity (0–255, higher = easier). */
 PM.catchRateByRarity = {
   common: 190,

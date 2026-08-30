@@ -34,7 +34,7 @@ export function ballBonus(ballName, ctx = {}) {
     case "timer ball": return clamp(1 + (ctx.turn ?? 1) * 0.3, 1, 4);
     case "nest ball": return clamp((41 - (ctx.targetLevel ?? 20)) / 10, 1, 4);
     case "repeat ball": return ctx.caughtBefore ? 3.5 : 1;
-    case "dream ball": return ctx.status === "asleep" ? 4 : 1;
+    case "dream ball": return ctx.status === "sleep" ? 4 : 1;
     case "fast ball": return (ctx.baseSpe ?? 0) >= 100 ? 4 : 1;
     case "moon ball": return /moon stone/i.test(ctx.evoItem ?? "") ? 4 : 1;
     case "love ball": return (ctx.sameSpecies && ctx.oppositeGender) ? 8 : 1;

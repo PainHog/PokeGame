@@ -18,6 +18,7 @@
         <label>Ability <input type="text" name="system.ability" value="{{system.ability}}"></label>
         <label>Gender <input type="text" name="system.gender" value="{{system.gender}}" placeholder="—"></label>
         <label>Catch rate <input type="number" name="system.catchRate" value="{{system.catchRate}}" min="1" max="255"></label>
+        <label>Status <select name="system.status">{{selectOptions statuses selected=system.status}}</select></label>
       </div>
     </div>
   </header>
@@ -27,6 +28,7 @@
     <input type="number" name="system.hp.value" value="{{system.hp.value}}" min="0" max="{{system.hp.max}}">
     <span>/ {{system.hp.max}}</span>
     <div class="pm-hptrack"><div class="pm-hpfill" style="width: {{hpPct}}%"></div></div>
+    <button type="button" class="pm-usemove" data-action="useItem">Use Item</button>
   </section>
 
   <section class="pm-section">

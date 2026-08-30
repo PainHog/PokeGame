@@ -92,6 +92,7 @@ export class PokemonData extends foundry.abstract.TypeDataModel {
       nature: new fields.StringField({ required: true, blank: true, initial: "serious" }),
       gender: new fields.StringField({ required: false, blank: true, initial: "" }),
       shiny: new fields.BooleanField({ initial: false }),
+      status: new fields.StringField({ required: true, blank: false, initial: "none", choices: PM.statuses }),
       rarity: new fields.StringField({ required: true, blank: false, initial: "common", choices: PM.rarities }),
       /** Max that may exist in the world at once (0 = unlimited; legendaries = 1). */
       populationCap: new fields.NumberField({ required: true, integer: true, min: 0, initial: 0 }),

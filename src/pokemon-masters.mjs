@@ -20,6 +20,7 @@ import { registerStorageApi } from "./module/storage.mjs";
 import { registerOrgApi } from "./module/organizations.mjs";
 import { registerNpcApi } from "./module/npc.mjs";
 import { registerDexApi } from "./module/dex.mjs";
+import { registerItemsApi } from "./module/items.mjs";
 
 Hooks.once("init", () => {
   console.log("Pokémon Masters | Initializing system");
@@ -90,5 +91,6 @@ Hooks.once("ready", () => {
   registerOrgApi();
   registerNpcApi();
   registerDexApi();
+  registerItemsApi();
   console.log("Pokémon Masters | Ready");
 });

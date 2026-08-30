@@ -19,11 +19,11 @@ import { markCaught, hasCaught } from "./dex.mjs";
 /** Status multipliers on the catch rate (classic values). */
 export const STATUS_BONUS = {
   none: 1,
-  asleep: 2,
-  frozen: 2,
-  paralyzed: 1.5,
-  burned: 1.5,
-  poisoned: 1.5
+  sleep: 2,
+  freeze: 2,
+  paralysis: 1.5,
+  burn: 1.5,
+  poison: 1.5
 };
 
 /**
@@ -198,6 +198,7 @@ export async function throwAtTarget() {
     speciesName: actor.system.species?.name || actor.name,
     level: actor.system.level ?? 5,
     hpFraction,
+    status: actor.system.status ?? "none",
     shiny: actor.system.shiny,
     token: target.document
   });
@@ -237,6 +238,7 @@ export function registerCatchHooks() {
           speciesName: token.actor.system.species?.name || token.actor.name,
           level: token.actor.system.level ?? 5,
           hpFraction: hp.max ? (hp.value ?? hp.max) / hp.max : 1,
+          status: token.actor.system.status ?? "none",
           shiny: token.actor.system.shiny,
           token
         });
