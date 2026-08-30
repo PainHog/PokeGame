@@ -103,6 +103,7 @@ export class PokemonData extends foundry.abstract.TypeDataModel {
       catchRate: new fields.NumberField({ required: true, integer: true, min: 1, max: 255, initial: 45 }),
       ability: new fields.StringField({ required: false, blank: true, initial: "" }),
       abilities: new fields.ArrayField(new fields.StringField({ blank: false })),
+      hiddenAbility: new fields.StringField({ required: false, blank: true, initial: "" }),
       /** Breeding data. */
       eggGroups: new fields.ArrayField(new fields.StringField({ blank: false })),
       eggSpecies: new fields.StringField({ required: false, blank: true, initial: "" }),

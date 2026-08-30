@@ -28,11 +28,11 @@ export function rollShiny(rng = Math.random) {
   return rng() < (PM.shinyRate ?? 1 / 4096);
 }
 
-/** Regular ability most of the time; the Hidden Ability (last slot) rarely. */
+/** A regular ability, chosen evenly (50/50 for two). Hidden Abilities don't
+ *  appear from ordinary wild encounters, so they're not rolled here. */
 export function rollAbility(system, rng = Math.random) {
   const abilities = system.abilities ?? [];
   if (!abilities.length) return system.ability ?? "";
-  if (abilities.length === 1 || rng() < 0.8) return abilities[0];
   return abilities[Math.floor(rng() * abilities.length)];
 }
 

@@ -66,8 +66,22 @@ export async function useMove(attacker, move, target = null) {
   const d = tgt.system;
   const isPhysical = facts.category === "Physical";
 
-  // Accuracy check (Status/always-hit moves skip).
-  if (!facts.alwaysHits && facts.category !== "Status" && facts.accuracy > 0
+  // Can the attacker act? (sleep / freeze / paralysis)
+  if (a.status === "paralysis" && Math.random() < 0.25) {
+    await ChatMessage.create({ speaker: { alias: attacker.name }, content: `<div class="pm-battle-card"><p>${attacker.name} is paralyzed and can't move!</p></div>` });
+    return { skipped: true };
+  }
+  if (a.status === "freeze") {
+    if (Math.random() < 0.2) await attacker.update({ "system.status": "none" });
+    else { await ChatMessage.create({ speaker: { alias: attacker.name }, content: `<div class="pm-battle-card"><p>${attacker.name} is frozen solid!</p></div>` }); return { skipped: true }; }
+  }
+  if (a.status === "sleep") {
+    if (Math.random() < 0.33) await attacker.update({ "system.status": "none" });
+    else { await ChatMessage.create({ speaker: { alias: attacker.name }, content: `<div class="pm-battle-card"><p>${attacker.name} is fast asleep!</p></div>` }); return { skipped: true }; }
+  }
+
+  // Accuracy — always-hit moves skip; Status moves with <100% accuracy can still miss.
+  if (!facts.alwaysHits && facts.accuracy > 0
       && Math.floor(Math.random() * 100) >= facts.accuracy) {
     await ChatMessage.create({ speaker: { alias: attacker.name }, content: `<div class="pm-battle-card"><h3>${attacker.name} used ${facts.name}!</h3><p><em>But it missed!</em></p></div>` });
     return { missed: true };

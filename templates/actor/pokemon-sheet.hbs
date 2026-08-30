@@ -75,13 +75,10 @@
 
   <section class="pm-section">
     <h2>Evolution</h2>
-    {{#if system.evolution.into.length}}
-      <p>Evolves into
-        {{#each system.evolution.into as |e|}}<strong>{{e}}</strong>{{#unless @last}}, {{/unless}}{{/each}}
-        {{#if system.evolution.level}}at <strong>Lv {{system.evolution.level}}</strong>{{/if}}
-        {{#if system.evolution.item}}using <strong>{{system.evolution.item}}</strong>{{/if}}
-        {{#if system.evolution.condition}}<em>({{system.evolution.condition}})</em>{{/if}}.
-      </p>
+    {{#if evolutions.length}}
+      <ul class="pm-movelist">
+        {{#each evolutions as |evo|}}<li>→ <strong>{{evo.name}}</strong> {{evo.requirement}}</li>{{/each}}
+      </ul>
     {{else}}
       <p class="pm-empty">Final stage{{#if system.evolution.from}} — evolves from {{system.evolution.from}}{{/if}}.</p>
     {{/if}}

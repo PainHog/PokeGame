@@ -103,7 +103,7 @@ function evoSatisfied(pokemon, targetEvo, trigger, itemName) {
     case "levelExtra":
       return trigger === "level" && !!targetEvo.level && lvl >= targetEvo.level;
     case "levelFriendship":
-      return trigger === "level" && friendship >= 220;
+      return trigger === "level" && friendship >= 160; // Gen 8+ threshold
     case "useItem":
       return trigger === "item" && !!itemName && (targetEvo.item || "").toLowerCase() === itemName.toLowerCase();
     case "trade":
@@ -192,6 +192,7 @@ async function doEvolve(pokemon, species) {
     "system.types": s.types,
     "system.baseStats": s.baseStats,
     "system.abilities": s.abilities,
+    "system.hiddenAbility": s.hiddenAbility,
     "system.rarity": s.rarity,
     "system.catchRate": s.catchRate,
     "system.learnset": s.learnset,

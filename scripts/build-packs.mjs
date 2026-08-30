@@ -224,7 +224,10 @@ async function buildSpecies() {
         level: 5,
         rarity,
         catchRate: CATCH_RATE[rarity],
-        abilities: Object.values(s.abilities).filter(Boolean),
+        // Regular abilities only; the Hidden Ability is kept separate so it
+        // doesn't leak into ordinary wild encounters.
+        abilities: [s.abilities?.["0"], s.abilities?.["1"]].filter(Boolean),
+        hiddenAbility: s.abilities?.["H"] ?? "",
         ability: s.abilities?.["0"] ?? "",
         baseStats: { hp: bs.hp, atk: bs.atk, def: bs.def, spa: bs.spa, spd: bs.spd, spe: bs.spe },
         hp: { value: null, max: 0 },

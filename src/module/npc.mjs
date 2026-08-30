@@ -85,7 +85,7 @@ export function simulateBattle(teamAIn, teamBIn, { maxTurns = 300, rng = Math.ra
 
   const strike = (attacker, defender) => {
     const move = chooseBestMove(attacker, defender);
-    if (!move.alwaysHits && move.category !== "Status" && (move.accuracy ?? 100) > 0
+    if (!move.alwaysHits && (move.accuracy ?? 100) > 0
         && Math.floor(rng() * 100) >= move.accuracy) { log.push(`${attacker.name}'s ${move.name} missed!`); return; }
     const isPhysical = move.category === "Physical";
     const crit = move.category !== "Status" && rng() < CRIT_CHANCE;

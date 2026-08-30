@@ -118,6 +118,23 @@ export class PokemonSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       .filter((l) => l.level > 0 && l.level <= sys.level)
       .sort((a, b) => a.level - b.level);
     context.otherMoves = (sys.learnset ?? []).filter((l) => !l.level);
+
+    // Resolve each evolution target's OWN requirement (it lives on the target
+    // species, not on this one) so the sheet shows the correct rule.
+    context.evolutions = [];
+    const pack = game.packs.get("pokemon-masters.species");
+    for (const name of (sys.evolution?.into ?? [])) {
+      const entry = pack?.index?.find((e) => e.name.toLowerCase() === name.toLowerCase());
+      const tgt = entry ? await pack.getDocument(entry._id) : null;
+      const e = tgt?.system?.evolution ?? {};
+      const parts = [];
+      if (e.method === "useItem" && e.item) parts.push(`using ${e.item}`);
+      else if (e.method === "trade") parts.push("by trade");
+      else if (e.method === "levelFriendship") parts.push("with high friendship");
+      else if (e.level) parts.push(`at Lv ${e.level}`);
+      if (e.condition) parts.push(`(${e.condition})`);
+      context.evolutions.push({ name, requirement: parts.join(" ") || "—" });
+    }
     return context;
   }
 }
