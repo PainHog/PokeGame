@@ -10,6 +10,7 @@ import { PM } from "./config.mjs";
 import { rankTitle, nextRankThreshold } from "./organizations.mjs";
 import { getStorage } from "./storage.mjs";
 import { dexProgress } from "./dex.mjs";
+import { levelCap } from "./gyms.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2, ItemSheetV2 } = foundry.applications.sheets;
@@ -52,6 +53,7 @@ export class TrainerSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     context.party = await this.actor.getParty();
     context.storage = await getStorage(this.actor);
     context.dex = dexProgress(this.actor);
+    context.levelCap = levelCap(this.actor);
     context.affiliations = (this.actor.system.affiliations ?? []).map((a) => {
       const org = PM.organizations[a.org];
       const isMax = a.rank >= (org?.ranks.length ?? 1) - 1;

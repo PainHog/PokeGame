@@ -83,11 +83,11 @@
   </section>
 
   <section class="pm-section">
-    <h2>Badges</h2>
+    <h2>Badges <small>· level cap {{levelCap}}</small></h2>
     {{#if system.badges.length}}
       <ul class="pm-badges">{{#each system.badges as |b|}}<li class="pm-badge">{{b}}</li>{{/each}}</ul>
     {{else}}
-      <p class="pm-empty">No badges yet.</p>
+      <p class="pm-empty">No badges yet. Beat gym leaders to earn them (and raise your level cap).</p>
     {{/if}}
   </section>
 

@@ -82,6 +82,10 @@ export function simulateBattle(teamAIn, teamBIn, { maxTurns = 300, rng = Math.ra
   };
 
   while (a < A.length && b < B.length && turns < maxTurns) {
+    // Skip past any fainted lead (e.g. HP carried in from a previous gauntlet fight).
+    while (a < A.length && A[a].hp.value <= 0) a++;
+    while (b < B.length && B[b].hp.value <= 0) b++;
+    if (a >= A.length || b >= B.length) break;
     turns++;
     const atkA = A[a]; const atkB = B[b];
     // Faster acts first; ties broken randomly.
@@ -100,7 +104,7 @@ export function simulateBattle(teamAIn, teamBIn, { maxTurns = 300, rng = Math.ra
   }
 
   const winner = a >= A.length && b >= B.length ? "draw" : a >= A.length ? "B" : b >= B.length ? "A" : "draw";
-  return { winner, log, turns };
+  return { winner, log, turns, A, B };
 }
 
 /* -------------------------------------------- */
@@ -122,7 +126,7 @@ export function combatantFromActor(actor) {
   };
 }
 
-async function teamOf(trainer) {
+export async function teamOf(trainer) {
   const party = trainer.type === "trainer" ? await trainer.getParty() : [trainer];
   return party.filter((p) => p?.type === "pokemon").map(combatantFromActor);
 }

@@ -322,6 +322,18 @@ PM.organizations = {
 /** Reputation needed to advance one rank (rank N needs N × this in total). */
 PM.reputationPerRank = 100;
 
+/** Sample gym-badge names per region (GMs can rename; drives the League ladder). */
+PM.leagueBadges = {
+  kanto: ["Boulder", "Cascade", "Thunder", "Rainbow", "Soul", "Marsh", "Volcano", "Earth"],
+  johto: ["Zephyr", "Hive", "Plain", "Fog", "Storm", "Mineral", "Glacier", "Rising"],
+  hoenn: ["Stone", "Knuckle", "Dynamo", "Heat", "Balance", "Feather", "Mind", "Rain"],
+  sinnoh: ["Coal", "Forest", "Cobble", "Fen", "Relic", "Mine", "Icicle", "Beacon"]
+};
+
+/** Base level cap and how much each badge raises it (obedience-style soft cap). */
+PM.levelCapBase = 15;
+PM.levelCapPerBadge = 10;
+
 /**
  * Default habitats a type suggests, used to seed each Pokémon's encounter
  * requirements at build time. A Pokémon is only eligible to appear on a tile
