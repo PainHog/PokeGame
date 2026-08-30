@@ -1,0 +1,42 @@
+{
+  "TYPES": {
+    "Actor": {
+      "trainer": "Trainer",
+      "pokemon": "Pokémon"
+    },
+    "Item": {
+      "move": "Move",
+      "ability": "Ability",
+      "gear": "Item / Gear"
+    },
+    "RegionBehavior": {
+      "pokemon-masters.encounter": "Wild Encounter (Pokémon Masters)",
+      "pokemon-masters.zoneTransit": "Zone Transit (Pokémon Masters)"
+    }
+  },
+  "PM": {
+    "RegionBehavior": {
+      "Encounter": {
+        "FIELDS": {
+          "category": { "label": "Encounter Table", "hint": "Which habitat table wild Pokémon are drawn from." },
+          "chance": { "label": "Encounter Chance (%)", "hint": "Chance to trigger a wild Pokémon on each qualifying step." },
+          "minLevel": { "label": "Minimum Level", "hint": "Lowest level a wild Pokémon can be (unless the row overrides it)." },
+          "maxLevel": { "label": "Maximum Level", "hint": "Highest level a wild Pokémon can be (unless the row overrides it)." },
+          "onEveryStep": { "label": "Trigger On Every Step", "hint": "Roll while moving through the region, not only on entry." },
+          "useDefaultTable": { "label": "Use Default Table", "hint": "Use the built-in table for the chosen category instead of a custom one." },
+          "table": { "label": "Custom Encounter Table" },
+          "announceOnly": { "label": "Announce Only", "hint": "Post a chat card instead of also spawning a wild token." }
+        }
+      },
+      "ZoneTransit": {
+        "FIELDS": {
+          "zoneName": { "label": "Zone Name", "hint": "Name announced when a trainer enters this region." },
+          "announce": { "label": "Announce Entry", "hint": "Post a chat message when a trainer enters." },
+          "destX": { "label": "Destination X (px)", "hint": "Same-scene warp target. Leave 0 to disable." },
+          "destY": { "label": "Destination Y (px)", "hint": "Same-scene warp target. Leave 0 to disable." },
+          "destinationScene": { "label": "Destination Scene", "hint": "Scene to view on entry (GM side)." }
+        }
+      }
+    }
+  }
+}

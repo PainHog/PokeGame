@@ -1,0 +1,55 @@
+{
+  "id": "pokemon-masters",
+  "title": "Pokémon Masters",
+  "description": "A trainer-driven Pokémon tabletop system for Foundry VTT. Players join a shared world as Trainers, roam tile/region-automated maps, and encounter, catch, and battle Pokémon. Pokédex, moves, abilities and items are compiled from an offline dataset (no external API required).",
+  "version": "0.1.0",
+  "compatibility": {
+    "minimum": "13",
+    "verified": "14"
+  },
+  "authors": [
+    { "name": "PokéGame" }
+  ],
+  "esmodules": ["src/pokemon-masters.mjs"],
+  "styles": ["styles/pokemon-masters.css"],
+  "languages": [
+    { "lang": "en", "name": "English", "path": "lang/en.json" }
+  ],
+  "packs": [
+    { "name": "species", "label": "Pokédex", "path": "packs/species", "type": "Actor", "system": "pokemon-masters" },
+    { "name": "moves", "label": "Moves", "path": "packs/moves", "type": "Item", "system": "pokemon-masters" },
+    { "name": "abilities", "label": "Abilities", "path": "packs/abilities", "type": "Item", "system": "pokemon-masters" },
+    { "name": "gear", "label": "Items & Poké Balls", "path": "packs/gear", "type": "Item", "system": "pokemon-masters" }
+  ],
+  "packFolders": [
+    {
+      "name": "Pokémon Masters",
+      "sorting": "m",
+      "packs": ["species", "moves", "abilities", "gear"]
+    }
+  ],
+  "documentTypes": {
+    "Actor": {
+      "trainer": { "htmlFields": ["biography"] },
+      "pokemon": { "htmlFields": ["notes"] }
+    },
+    "Item": {
+      "move": { "htmlFields": ["description"] },
+      "ability": { "htmlFields": ["description"] },
+      "gear": { "htmlFields": ["description"] }
+    },
+    "RegionBehavior": {
+      "encounter": {},
+      "zoneTransit": {}
+    }
+  },
+  "grid": {
+    "type": 1,
+    "distance": 1,
+    "units": "sq"
+  },
+  "primaryTokenAttribute": "hp",
+  "url": "https://github.com/painhog/pokegame",
+  "manifest": "https://github.com/painhog/pokegame/releases/latest/download/system.json",
+  "download": "https://github.com/painhog/pokegame/releases/latest/download/pokemon-masters.zip"
+}

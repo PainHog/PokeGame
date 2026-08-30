@@ -1,0 +1,14 @@
+# Dependencies
+node_modules/
+
+# Generated Pokédex data (rebuild with `npm run build`)
+# Source JSON is derived from @pkmn/data; compiled LevelDB packs are the runtime artifact.
+src/packs/
+packs/
+
+# OS / editor
+.DS_Store
+*.log
+npm-debug.log*
+.vscode/
+.idea/

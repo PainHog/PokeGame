@@ -1,0 +1,17 @@
+{
+  "name": "pokemon-masters",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Foundry VTT system: Pokémon Masters",
+  "scripts": {
+    "build": "node scripts/build-packs.mjs",
+    "build:limit": "node scripts/build-packs.mjs --limit=60",
+    "clean": "node -e \"import('node:fs').then(fs=>{for(const d of ['packs','src/packs']){fs.rmSync(d,{recursive:true,force:true})}})\""
+  },
+  "devDependencies": {
+    "@foundryvtt/foundryvtt-cli": "^3.0.4",
+    "@pkmn/data": "^0.10.11",
+    "@pkmn/dex": "^0.10.11"
+  }
+}

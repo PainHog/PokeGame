@@ -1,0 +1,45 @@
+<form class="pm-sheet pm-item">
+  <header class="pm-header">
+    <img class="pm-portrait" src="{{item.img}}" data-edit="img" alt="{{item.name}}">
+    <div class="pm-header-fields">
+      <input type="text" name="name" value="{{item.name}}" placeholder="Name">
+      <div class="pm-typerow"><span class="pm-badge">{{item.type}}</span></div>
+    </div>
+  </header>
+
+  {{#if isMove}}
+    <section class="pm-section">
+      <div class="pm-row">
+        <label>Type <input type="text" name="system.moveType" value="{{system.moveType}}"></label>
+        <label>Category
+          <select name="system.category">
+            {{selectOptions moveCategories selected=system.category}}
+          </select>
+        </label>
+      </div>
+      <div class="pm-row">
+        <label>Power <input type="number" name="system.power" value="{{system.power}}" min="0"></label>
+        <label>Accuracy <input type="number" name="system.accuracy" value="{{system.accuracy}}" min="0" max="100"></label>
+        <label>PP <input type="number" name="system.pp" value="{{system.pp}}" min="0"></label>
+        <label>Priority <input type="number" name="system.priority" value="{{system.priority}}"></label>
+      </div>
+      <label class="pm-check">Always hits <input type="checkbox" name="system.alwaysHits" {{checked system.alwaysHits}}></label>
+    </section>
+  {{/if}}
+
+  {{#if isGear}}
+    <section class="pm-section">
+      <div class="pm-row">
+        <label>Category <input type="text" name="system.category" value="{{system.category}}"></label>
+        <label>Quantity <input type="number" name="system.quantity" value="{{system.quantity}}" min="0"></label>
+        <label>Price <input type="number" name="system.price" value="{{system.price}}" min="0"></label>
+        <label>Catch × <input type="number" name="system.catchModifier" value="{{system.catchModifier}}" step="0.1" min="0"></label>
+      </div>
+    </section>
+  {{/if}}
+
+  <section class="pm-section">
+    <h2>Description</h2>
+    <textarea name="system.description" rows="6">{{system.description}}</textarea>
+  </section>
+</form>

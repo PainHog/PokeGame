@@ -1,0 +1,86 @@
+<form class="pm-sheet pm-pokemon">
+  <header class="pm-header">
+    <img class="pm-portrait" src="{{actor.img}}" data-edit="img" alt="{{actor.name}}">
+    <div class="pm-header-fields">
+      <input type="text" name="name" value="{{actor.name}}" placeholder="Nickname / species">
+      <div class="pm-typerow">
+        {{#each system.types as |t|}}<span class="pm-type pm-type-{{pmLower t}}">{{t}}</span>{{/each}}
+        <span class="pm-dex">#{{system.species.num}}</span>
+      </div>
+      <div class="pm-row">
+        <label>Level <input type="number" name="system.level" value="{{system.level}}" min="1" max="100" step="1"></label>
+        <label>Rarity
+          <select name="system.rarity">{{selectOptions rarities selected=system.rarity}}</select>
+        </label>
+        <label class="pm-check">Shiny <input type="checkbox" name="system.shiny" {{checked system.shiny}}></label>
+      </div>
+      <div class="pm-row">
+        <label>Ability <input type="text" name="system.ability" value="{{system.ability}}"></label>
+        <label>Gender <input type="text" name="system.gender" value="{{system.gender}}" placeholder="—"></label>
+        <label>Catch rate <input type="number" name="system.catchRate" value="{{system.catchRate}}" min="1" max="255"></label>
+      </div>
+    </div>
+  </header>
+
+  <section class="pm-hpbar">
+    <label>HP</label>
+    <input type="number" name="system.hp.value" value="{{system.hp.value}}" min="0" max="{{system.hp.max}}">
+    <span>/ {{system.hp.max}}</span>
+    <div class="pm-hptrack"><div class="pm-hpfill" style="width: {{hpPct}}%"></div></div>
+  </section>
+
+  <section class="pm-section">
+    <h2>Stats <small>(Lv {{system.level}})</small></h2>
+    <table class="pm-stats">
+      <thead><tr><th>HP</th><th>Atk</th><th>Def</th><th>Sp.A</th><th>Sp.D</th><th>Spe</th><th>BST</th></tr></thead>
+      <tbody>
+        <tr class="pm-stat-derived">
+          <td>{{stats.hp}}</td><td>{{stats.atk}}</td><td>{{stats.def}}</td>
+          <td>{{stats.spa}}</td><td>{{stats.spd}}</td><td>{{stats.spe}}</td>
+          <td>{{system.bst}}</td>
+        </tr>
+        <tr class="pm-stat-base">
+          <td>{{system.baseStats.hp}}</td><td>{{system.baseStats.atk}}</td><td>{{system.baseStats.def}}</td>
+          <td>{{system.baseStats.spa}}</td><td>{{system.baseStats.spd}}</td><td>{{system.baseStats.spe}}</td>
+          <td>base</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="pm-section">
+    <h2>Evolution</h2>
+    {{#if system.evolution.into.length}}
+      <p>Evolves into
+        {{#each system.evolution.into as |e|}}<strong>{{e}}</strong>{{#unless @last}}, {{/unless}}{{/each}}
+        {{#if system.evolution.level}}at <strong>Lv {{system.evolution.level}}</strong>{{/if}}
+        {{#if system.evolution.item}}using <strong>{{system.evolution.item}}</strong>{{/if}}
+        {{#if system.evolution.condition}}<em>({{system.evolution.condition}})</em>{{/if}}.
+      </p>
+    {{else}}
+      <p class="pm-empty">Final stage{{#if system.evolution.from}} — evolves from {{system.evolution.from}}{{/if}}.</p>
+    {{/if}}
+  </section>
+
+  <section class="pm-section">
+    <h2>Level-up Moves</h2>
+    {{#if levelMoves.length}}
+      <ul class="pm-movelist">
+        {{#each levelMoves as |m|}}<li><span class="pm-badge">Lv {{m.level}}</span> {{m.move}}</li>{{/each}}
+      </ul>
+    {{else}}
+      <p class="pm-empty">No level-up moves at or below level {{system.level}}.</p>
+    {{/if}}
+    <details>
+      <summary>Full learnset ({{system.learnset.length}} moves)</summary>
+      <ul class="pm-movelist pm-learnlist">
+        {{#each system.learnset as |m|}}<li>{{m.move}}{{#if m.level}} <span class="pm-badge">Lv {{m.level}}</span>{{/if}}</li>{{/each}}
+      </ul>
+    </details>
+  </section>
+
+  <section class="pm-section">
+    <h2>Notes</h2>
+    <textarea name="system.notes" rows="3">{{system.notes}}</textarea>
+  </section>
+</form>
