@@ -9,7 +9,7 @@
  * `applyHeal` is pure and unit tested.
  */
 
-import { awardXp, xpToNext } from "./progression.mjs";
+import { awardXp, xpToNext, evolveWithItem } from "./progression.mjs";
 
 /** name (lower-case) → effect descriptor. */
 export const ITEM_EFFECTS = {
@@ -51,7 +51,18 @@ export function applyHeal(value, max, amount) {
 export async function useItem(pokemon, itemName, { gearItem = null } = {}) {
   if (pokemon?.type !== "pokemon") return ui.notifications?.warn("Use items on a Pokémon.");
   const effect = ITEM_EFFECTS[String(itemName).toLowerCase()];
-  if (!effect) return ui.notifications?.info(`${itemName} has no usable effect yet.`);
+  if (!effect) {
+    // Maybe it's an evolution stone/item.
+    const evolvedInto = await evolveWithItem(pokemon, itemName);
+    if (evolvedInto) {
+      if (gearItem && typeof gearItem.system?.quantity === "number") {
+        const q = Math.max(0, gearItem.system.quantity - 1);
+        if (q === 0) await gearItem.delete(); else await gearItem.update({ "system.quantity": q });
+      }
+      return `evolved into ${evolvedInto}`;
+    }
+    return ui.notifications?.info(`${itemName} has no usable effect yet.`);
+  }
 
   const sys = pokemon.system;
   const max = sys.hp?.max ?? sys.stats?.hp ?? 1;

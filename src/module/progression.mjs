@@ -61,7 +61,8 @@ export async function awardXp(pokemon, amount) {
     level += 1;
     gained.push(level);
   }
-  await pokemon.update({ "system.level": level, "system.xp": xp });
+  const friendship = Math.min(255, (pokemon.system.friendship ?? 0) + (gained.length ? 5 * gained.length : 2));
+  await pokemon.update({ "system.level": level, "system.xp": xp, "system.friendship": friendship });
 
   await ChatMessage.create({
     speaker: { alias: pokemon.name },
@@ -72,22 +73,104 @@ export async function awardXp(pokemon, amount) {
   if (gained.length) await maybeEvolve(pokemon);
 }
 
-/** Evolve if a level-based evolution is now satisfied. */
-export async function maybeEvolve(pokemon) {
-  const evo = pokemon.system.evolution;
-  if (!evo?.into?.length || !evo.level) return;
-  if ((pokemon.system.level ?? 1) < evo.level) return;
-  return evolve(pokemon, evo.into[0]);
+/** Rough day/night read from the current scene's darkness (0 = day … 1 = night). */
+function isDaytime() {
+  const d = canvas?.scene?.environment?.darknessLevel ?? canvas?.scene?.darkness ?? 0;
+  return d < 0.5;
 }
 
-/** Transform a Pokémon into a target species, keeping level/XP/HP-ratio/nickname. */
+/** Does a non-level condition string (gender / time) hold for this Pokémon? */
+function conditionMatches(pokemon, evo) {
+  const cond = (evo.condition || "").toLowerCase();
+  if (cond.includes("day") && !isDaytime()) return false;
+  if (cond.includes("night") && isDaytime()) return false;
+  if (cond.includes("female") && pokemon.system.gender !== "F") return false;
+  if (cond.includes("male") && !cond.includes("female") && pokemon.system.gender !== "M") return false;
+  return true;
+}
+
+/**
+ * Is the transition into `targetEvo` (the evolved species' own evolution data,
+ * describing how the prevo becomes it) satisfied for this trigger?
+ */
+function evoSatisfied(pokemon, targetEvo, trigger, itemName) {
+  if (!conditionMatches(pokemon, targetEvo)) return false;
+  const method = targetEvo.method || "level";
+  const lvl = pokemon.system.level ?? 1;
+  const friendship = pokemon.system.friendship ?? 0;
+  switch (method) {
+    case "level":
+    case "levelExtra":
+      return trigger === "level" && !!targetEvo.level && lvl >= targetEvo.level;
+    case "levelFriendship":
+      return trigger === "level" && friendship >= 220;
+    case "useItem":
+      return trigger === "item" && !!itemName && (targetEvo.item || "").toLowerCase() === itemName.toLowerCase();
+    case "trade":
+      return trigger === "trade";
+    case "levelMove":   // needs a specific known move (data not captured)
+    case "levelHold":   // needs a held item (held items not yet modeled)
+    case "other":
+      return false;
+    default:
+      return trigger === "level" && !!targetEvo.level && lvl >= targetEvo.level;
+  }
+}
+
+/**
+ * Evolve if any of this Pokémon's `into` targets is now satisfied for `trigger`
+ * ("level" | "item" | "trade"). Branches (Eevee, Tyrogue…) prompt a choice.
+ * Returns the evolved species name, or null.
+ */
+export async function maybeEvolve(pokemon, { trigger = "level", itemName = null } = {}) {
+  const into = pokemon.system.evolution?.into ?? [];
+  if (!into.length) return null;
+
+  const candidates = [];
+  for (const name of into) {
+    const sp = await findInPack("pokemon-masters.species", name);
+    if (sp && evoSatisfied(pokemon, sp.system.evolution, trigger, itemName)) candidates.push(sp);
+  }
+  if (!candidates.length) return null;
+
+  let target = candidates[0];
+  if (candidates.length > 1) {
+    const DialogV2 = foundry.applications?.api?.DialogV2;
+    if (DialogV2) {
+      const opts = candidates.map((c) => `<option value="${c.name}">${c.name}</option>`).join("");
+      const chosen = await DialogV2.prompt({
+        window: { title: `${pokemon.name} is evolving` },
+        content: `<p>Into which Pokémon?</p><select name="t" style="width:100%">${opts}</select>`,
+        ok: { label: "Evolve", callback: (event, button) => button.form.elements.t.value }
+      }).catch(() => null);
+      target = candidates.find((c) => c.name === chosen) ?? null;
+    }
+  }
+  return target ? doEvolve(pokemon, target) : null;
+}
+
+/** Use an evolution stone/item: evolve if it matches an into target's requirement. */
+export async function evolveWithItem(pokemon, itemName) {
+  return maybeEvolve(pokemon, { trigger: "item", itemName });
+}
+
+/** Trade evolution trigger (called by the trade flow). */
+export async function evolveByTrade(pokemon) {
+  return maybeEvolve(pokemon, { trigger: "trade" });
+}
+
+/** Manually evolve into a named target (GM/console), skipping requirement checks. */
 export async function evolve(pokemon, targetName) {
   const species = await findInPack("pokemon-masters.species", targetName);
   if (!species) {
     console.warn(`Pokémon Masters | Evolution target not found: ${targetName}`);
-    return;
+    return null;
   }
+  return doEvolve(pokemon, species);
+}
 
+/** Transform a Pokémon into a target species, keeping level/XP/HP-ratio/nickname. */
+async function doEvolve(pokemon, species) {
   const DialogV2 = foundry.applications?.api?.DialogV2;
   let allow = true;
   try {
@@ -98,7 +181,7 @@ export async function evolve(pokemon, targetName) {
       });
     }
   } catch (err) { /* fall through and evolve */ }
-  if (!allow) return;
+  if (!allow) return null;
 
   const isNicknamed = pokemon.name !== (pokemon.system.species?.name ?? pokemon.name);
   const hpRatio = pokemon.system.hp?.max ? (pokemon.system.hp.value ?? pokemon.system.hp.max) / pokemon.system.hp.max : 1;
@@ -115,6 +198,12 @@ export async function evolve(pokemon, targetName) {
     "system.evolution": s.evolution,
     "system.nativeRegion": s.nativeRegion,
     "system.variantRegion": s.variantRegion,
+    "system.populationCap": s.populationCap,
+    "system.ultraBeast": s.ultraBeast,
+    "system.eggGroups": s.eggGroups,
+    "system.eggSpecies": s.eggSpecies,
+    "system.genderless": s.genderless,
+    "system.femaleRate": s.femaleRate,
     "system.hp.value": null // re-topped from new max next prepare; keep ratio below
   };
   if (!isNicknamed) update.name = species.name;
@@ -129,6 +218,7 @@ export async function evolve(pokemon, targetName) {
     speaker: { alias: "Evolution" },
     content: `<div class="pm-encounter-card"><h3>${isNicknamed ? pokemon.name : species.name} evolved into ${species.name}!</h3></div>`
   });
+  return species.name;
 }
 
 export function registerProgressionHooks() {
@@ -138,6 +228,6 @@ export function registerProgressionHooks() {
     }
   });
   game.pokemonMasters = Object.assign(game.pokemonMasters ?? {}, {
-    progression: { awardXp, evolve, maybeEvolve, xpToNext, xpFromDefeat }
+    progression: { awardXp, evolve, maybeEvolve, evolveWithItem, evolveByTrade, xpToNext, xpFromDefeat }
   });
 }
