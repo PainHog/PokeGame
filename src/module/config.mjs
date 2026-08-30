@@ -73,6 +73,21 @@ PM.rarities = {
   legendary: "Legendary"
 };
 
+/**
+ * The 25 natures. `plus`/`minus` name the stat raised/lowered by 10%; the five
+ * neutral natures have neither. Applied in the Pokémon's derived-stat calc.
+ */
+PM.natures = {
+  hardy: {}, lonely: { plus: "atk", minus: "def" }, brave: { plus: "atk", minus: "spe" }, adamant: { plus: "atk", minus: "spa" }, naughty: { plus: "atk", minus: "spd" },
+  bold: { plus: "def", minus: "atk" }, docile: {}, relaxed: { plus: "def", minus: "spe" }, impish: { plus: "def", minus: "spa" }, lax: { plus: "def", minus: "spd" },
+  timid: { plus: "spe", minus: "atk" }, hasty: { plus: "spe", minus: "def" }, serious: {}, jolly: { plus: "spe", minus: "spa" }, naive: { plus: "spe", minus: "spd" },
+  modest: { plus: "spa", minus: "atk" }, mild: { plus: "spa", minus: "def" }, quiet: { plus: "spa", minus: "spe" }, bashful: {}, rash: { plus: "spa", minus: "spd" },
+  calm: { plus: "spd", minus: "atk" }, gentle: { plus: "spd", minus: "def" }, sassy: { plus: "spd", minus: "spe" }, careful: { plus: "spd", minus: "spa" }, quirky: {}
+};
+
+/** Shiny odds (Gen 6+ base rate). */
+PM.shinyRate = 1 / 4096;
+
 /** Status conditions (used by battle, catch bonuses, and healing items). */
 PM.statuses = {
   none: "Healthy",

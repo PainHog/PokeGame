@@ -17,7 +17,7 @@
       <div class="pm-row">
         <label>Ability <input type="text" name="system.ability" value="{{system.ability}}"></label>
         <label>Gender <input type="text" name="system.gender" value="{{system.gender}}" placeholder="—"></label>
-        <label>Catch rate <input type="number" name="system.catchRate" value="{{system.catchRate}}" min="1" max="255"></label>
+        <label>Nature <select name="system.nature">{{selectOptions natures selected=system.nature}}</select></label>
         <label>Status <select name="system.status">{{selectOptions statuses selected=system.status}}</select></label>
       </div>
     </div>
@@ -45,6 +45,11 @@
           <td>{{system.baseStats.hp}}</td><td>{{system.baseStats.atk}}</td><td>{{system.baseStats.def}}</td>
           <td>{{system.baseStats.spa}}</td><td>{{system.baseStats.spd}}</td><td>{{system.baseStats.spe}}</td>
           <td>base</td>
+        </tr>
+        <tr class="pm-stat-base">
+          <td>{{system.ivs.hp}}</td><td>{{system.ivs.atk}}</td><td>{{system.ivs.def}}</td>
+          <td>{{system.ivs.spa}}</td><td>{{system.ivs.spd}}</td><td>{{system.ivs.spe}}</td>
+          <td>IV</td>
         </tr>
       </tbody>
     </table>

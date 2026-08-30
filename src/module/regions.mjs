@@ -26,6 +26,7 @@ import { catchButtonHtml } from "./catch.mjs";
 import { eligibleSpecies, methodForCategory } from "./eligibility.mjs";
 import { markSeen } from "./dex.mjs";
 import { isResponsible } from "./permissions.mjs";
+import { applyIndividuality } from "./individuality.mjs";
 
 const fields = foundry.data.fields;
 
@@ -244,6 +245,7 @@ export class WildTileBehaviorType extends foundry.data.regionBehaviors.RegionBeh
     source.folder = null;
     source.system.level = level;
     source.system.hp = { value: null, max: 0 };
+    applyIndividuality(source.system);
     const created = await Actor.implementation.create(source);
     if (!created) return;
 

@@ -12,6 +12,7 @@
 
 import { addToParty } from "./storage.mjs";
 import { markCaught } from "./dex.mjs";
+import { applyIndividuality } from "./individuality.mjs";
 
 const isDitto = (m) => (m.eggGroups ?? []).includes("Ditto");
 const undiscovered = (m) => (m.eggGroups ?? []).includes("Undiscovered");
@@ -80,6 +81,7 @@ export async function breed(trainer, momActor, dadActor) {
   source.system.level = 1;
   source.system.hp = { value: null, max: 0 };
   if (trainer) source.system.trainer = trainer.uuid;
+  applyIndividuality(source.system);
   const baby = await Actor.implementation.create(source);
   if (!baby) return;
 

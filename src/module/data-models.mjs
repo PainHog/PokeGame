@@ -107,6 +107,18 @@ export class PokemonData extends foundry.abstract.TypeDataModel {
       eggGroups: new fields.ArrayField(new fields.StringField({ blank: false })),
       eggSpecies: new fields.StringField({ required: false, blank: true, initial: "" }),
       genderless: new fields.BooleanField({ initial: false }),
+      femaleRate: new fields.NumberField({ required: true, min: 0, max: 1, initial: 0.5 }),
+      /** Individual Values (0–31 per stat). */
+      ivs: new fields.SchemaField({
+        hp: new fields.NumberField({ required: true, integer: true, min: 0, max: 31, initial: 0 }),
+        atk: new fields.NumberField({ required: true, integer: true, min: 0, max: 31, initial: 0 }),
+        def: new fields.NumberField({ required: true, integer: true, min: 0, max: 31, initial: 0 }),
+        spa: new fields.NumberField({ required: true, integer: true, min: 0, max: 31, initial: 0 }),
+        spd: new fields.NumberField({ required: true, integer: true, min: 0, max: 31, initial: 0 }),
+        spe: new fields.NumberField({ required: true, integer: true, min: 0, max: 31, initial: 0 })
+      }),
+      /** Friendship (0–255), drives friendship evolutions. */
+      friendship: new fields.NumberField({ required: true, integer: true, min: 0, max: 255, initial: 70 }),
       baseStats: statBlock(1),
       /** Current HP. `max` is derived from base stats + level in prepareDerivedData. */
       hp: new fields.SchemaField({
@@ -134,19 +146,21 @@ export class PokemonData extends foundry.abstract.TypeDataModel {
     };
   }
 
-  /** Derive fighting stats from base stats and level (simplified Gen-style curve). */
+  /** Derive fighting stats from base stats, level, IVs, and nature (canon curve, EV=0). */
   prepareDerivedData() {
     const lvl = this.level ?? 1;
     const b = this.baseStats;
-    const stat = (base) => Math.floor((2 * base * lvl) / 100) + 5;
-    const hpStat = (base) => Math.floor((2 * base * lvl) / 100) + lvl + 10;
+    const iv = this.ivs ?? {};
+    const nature = PM.natures[this.nature] ?? {};
+    const mod = (key) => (nature.plus === key ? 1.1 : nature.minus === key ? 0.9 : 1);
+    const point = (base, key) => Math.floor(((2 * base + (iv[key] ?? 0)) * lvl) / 100);
     this.stats = {
-      hp: hpStat(b.hp),
-      atk: stat(b.atk),
-      def: stat(b.def),
-      spa: stat(b.spa),
-      spd: stat(b.spd),
-      spe: stat(b.spe)
+      hp: point(b.hp, "hp") + lvl + 10,
+      atk: Math.floor((point(b.atk, "atk") + 5) * mod("atk")),
+      def: Math.floor((point(b.def, "def") + 5) * mod("def")),
+      spa: Math.floor((point(b.spa, "spa") + 5) * mod("spa")),
+      spd: Math.floor((point(b.spd, "spd") + 5) * mod("spd")),
+      spe: Math.floor((point(b.spe, "spe") + 5) * mod("spe"))
     };
     this.bst = b.hp + b.atk + b.def + b.spa + b.spd + b.spe;
     // Keep the HP resource sensible without clobbering a set (e.g. damaged) value.

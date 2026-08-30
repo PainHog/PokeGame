@@ -9,6 +9,7 @@ import { PM } from "./config.mjs";
 import { resolveTrainer } from "./catch.mjs";
 import { addToParty } from "./storage.mjs";
 import { markCaught } from "./dex.mjs";
+import { applyIndividuality } from "./individuality.mjs";
 
 async function findSpecies(name) {
   const pack = game.packs.get("pokemon-masters.species");
@@ -29,6 +30,7 @@ export async function grantStarter(trainer, speciesName) {
   source.system.level = 5;
   source.system.hp = { value: null, max: 0 };
   source.system.trainer = trainer.uuid;
+  applyIndividuality(source.system);
 
   const created = await Actor.implementation.create(source);
   if (!created) return;

@@ -111,6 +111,7 @@ export class PokemonSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     context.stats = sys.stats ?? {};
     context.knownMoves = this.actor.items.filter((i) => i.type === "move");
     context.statuses = PM.statuses;
+    context.natures = Object.fromEntries(Object.keys(PM.natures).map((n) => [n, n.charAt(0).toUpperCase() + n.slice(1)]));
     context.hpPct = sys.hp?.max ? Math.round(((sys.hp.value ?? 0) / sys.hp.max) * 100) : 0;
     // Level-up moves available at or below this Pokémon's level.
     context.levelMoves = (sys.learnset ?? [])

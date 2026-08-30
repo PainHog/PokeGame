@@ -15,6 +15,7 @@ import { PM } from "./config.mjs";
 import { addToParty } from "./storage.mjs";
 import { ballBonus, BALL_NAMES } from "./balls.mjs";
 import { markCaught, hasCaught } from "./dex.mjs";
+import { applyIndividuality } from "./individuality.mjs";
 
 /** Status multipliers on the catch rate (classic values). */
 export const STATUS_BONUS = {
@@ -176,9 +177,10 @@ async function finalizeCapture({ trainer, species, level, shiny, token }) {
     delete source._id;
     source.folder = null;
     source.system.level = level;
-    source.system.shiny = !!shiny;
     source.system.hp = { value: null, max: 0 };
     if (trainer) source.system.trainer = trainer.uuid;
+    applyIndividuality(source.system);
+    if (shiny) source.system.shiny = true;
     created = await Actor.implementation.create(source);
   }
   if (!created) return;

@@ -216,6 +216,7 @@ async function buildSpecies() {
         eggGroups: s.eggGroups ?? [],
         eggSpecies: eggSpeciesOf(s),
         genderless: isGenderless(s),
+        femaleRate: s.genderRatio?.F ?? (isGenderless(s) ? 0 : 0.5),
         types: s.types,
         level: 5,
         rarity,
