@@ -194,6 +194,16 @@ export class MoveData extends foundry.abstract.TypeDataModel {
       inflictStatus: new fields.StringField({ required: false, blank: true, initial: "" }),
       secondaryStatus: new fields.StringField({ required: false, blank: true, initial: "" }),
       secondaryChance: new fields.NumberField({ required: true, integer: true, min: 0, max: 100, initial: 0 }),
+      // Stat-stage changes and damage extras.
+      boosts: new fields.ObjectField({ required: false, nullable: true, initial: null }),
+      boostTarget: new fields.StringField({ required: false, blank: true, initial: "target" }),
+      secondaryBoosts: new fields.ObjectField({ required: false, nullable: true, initial: null }),
+      drain: new fields.NumberField({ required: true, min: 0, max: 1, initial: 0 }),
+      recoil: new fields.NumberField({ required: true, min: 0, max: 1, initial: 0 }),
+      healSelf: new fields.NumberField({ required: true, min: 0, max: 1, initial: 0 }),
+      flinchChance: new fields.NumberField({ required: true, integer: true, min: 0, max: 100, initial: 0 }),
+      multihit: new fields.ArrayField(new fields.NumberField({ integer: true, min: 1 }), { required: false, nullable: true, initial: null }),
+      contact: new fields.BooleanField({ initial: false }),
       description: new fields.HTMLField({ required: false, blank: true })
     };
   }

@@ -284,7 +284,18 @@ function buildMoves() {
         // move's secondary chance to inflict one.
         inflictStatus: mapStatus(m.status),
         secondaryStatus: mapStatus(m.secondary?.status),
-        secondaryChance: m.secondary?.status ? (m.secondary?.chance ?? 0) : 0,
+        secondaryChance: (m.secondary?.status || m.secondary?.boosts) ? (m.secondary?.chance ?? 0) : 0,
+        // Stat-stage changes: primary (Status moves) and secondary (on-hit chance).
+        boosts: m.boosts ?? (m.self?.boosts ?? null),
+        boostTarget: m.boosts ? (m.target === "self" ? "self" : "target") : (m.self?.boosts ? "self" : "target"),
+        secondaryBoosts: m.secondary?.boosts ?? null,
+        // Damage extras.
+        drain: Array.isArray(m.drain) ? m.drain[0] / m.drain[1] : 0,
+        recoil: Array.isArray(m.recoil) ? m.recoil[0] / m.recoil[1] : 0,
+        flinchChance: m.secondary?.volatileStatus === "flinch" ? (m.secondary?.chance ?? 0) : 0,
+        multihit: Array.isArray(m.multihit) ? m.multihit : (typeof m.multihit === "number" ? [m.multihit, m.multihit] : null),
+        contact: !!m.flags?.contact,
+        healSelf: Array.isArray(m.heal) ? m.heal[0] / m.heal[1] : 0,
         description: m.shortDesc || m.desc || ""
       }
     });

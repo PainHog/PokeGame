@@ -38,6 +38,14 @@ export function chooseBestMove(attacker, defender) {
     const score = expectedDamage(move, attacker, defender);
     if (score > bestScore) { bestScore = score; best = move; }
   }
+  // While healthy, a setup sweeper first raises its own offensive stat (to +2)
+  // instead of attacking — so Swords Dance / Nasty Plot actually get used.
+  const hpFrac = (attacker.hp?.value ?? 1) / (attacker.hp?.max ?? 1);
+  if (hpFrac > 0.7) {
+    const setup = moves.find((m) => m.category === "Status" && m.boosts && m.boostTarget === "self"
+      && Object.entries(m.boosts).some(([st, v]) => v > 0 && ["atk", "spa", "spe"].includes(st) && (attacker.boosts?.[st] ?? 0) < 2));
+    if (setup) return setup;
+  }
   return best;
 }
 
@@ -51,10 +59,16 @@ function prep(c) {
     stats: { ...c.stats },
     status: c.status ?? "none",
     statusTurns: 0,
+    boosts: { atk: 0, def: 0, spa: 0, spd: 0, spe: 0 },
+    flinch: false,
     moves: (c.moves ?? []).map((m) => ({ ...m })),
     hp: { value: c.hp?.value ?? maxHp, max: maxHp }
   };
 }
+
+/** Stat-stage multiplier (−6…+6). */
+const stageMult = (s) => (s >= 0 ? (2 + s) / 2 : 2 / (2 - s));
+const clampStage = (s) => Math.max(-6, Math.min(6, s));
 
 /**
  * Resolve a full battle between two teams of combatants.
@@ -69,6 +83,7 @@ export function simulateBattle(teamAIn, teamBIn, { maxTurns = 300, rng = Math.ra
 
   // Can this Pokémon act? Handles sleep (1–3 turns), freeze (20% thaw), paralysis (25% skip).
   const canAct = (mon) => {
+    if (mon.flinch) { mon.flinch = false; log.push(`${mon.name} flinched!`); return false; }
     if (mon.status === "sleep") {
       if (mon.statusTurns <= 0) mon.statusTurns = 1 + Math.floor(rng() * 3);
       mon.statusTurns--;
@@ -83,6 +98,16 @@ export function simulateBattle(teamAIn, teamBIn, { maxTurns = 300, rng = Math.ra
     return true;
   };
 
+  const applyBoosts = (mon, boosts) => {
+    if (!boosts) return;
+    for (const [stat, delta] of Object.entries(boosts)) {
+      if (!(stat in mon.boosts) || !delta) continue;
+      const before = mon.boosts[stat];
+      mon.boosts[stat] = clampStage(before + delta);
+      if (mon.boosts[stat] !== before) log.push(`${mon.name}'s ${stat} ${delta > 0 ? "rose" : "fell"}${Math.abs(delta) > 1 ? " sharply" : ""}.`);
+    }
+  };
+
   const strike = (attacker, defender) => {
     const move = chooseBestMove(attacker, defender);
     if (!move.alwaysHits && (move.accuracy ?? 100) > 0
@@ -90,29 +115,41 @@ export function simulateBattle(teamAIn, teamBIn, { maxTurns = 300, rng = Math.ra
     const isPhysical = move.category === "Physical";
     const crit = move.category !== "Status" && rng() < CRIT_CHANCE;
     const burned = attacker.status === "burn" && isPhysical;
+
     if (move.category !== "Status") {
-      const res = damageCalc({
-        level: attacker.level, power: move.power,
-        atk: isPhysical ? attacker.stats.atk : attacker.stats.spa,
-        def: isPhysical ? defender.stats.def : defender.stats.spd,
-        stab: attacker.types.includes(move.moveType) ? 1.5 : 1,
-        typeMult: typeMultiplier(move.moveType, defender.types),
-        crit, burn: burned, rng
-      });
-      defender.hp.value = Math.max(0, defender.hp.value - res.damage);
-      log.push(`${attacker.name} used ${move.name} → ${res.damage}${crit ? " (crit!)" : ""} (${defender.name} ${defender.hp.value}/${defender.hp.max})`);
+      const atkStage = isPhysical ? attacker.boosts.atk : attacker.boosts.spa;
+      const defStage = isPhysical ? defender.boosts.def : defender.boosts.spd;
+      // Crits ignore the attacker's negative and the defender's positive stages.
+      const atk = (isPhysical ? attacker.stats.atk : attacker.stats.spa) * stageMult(crit ? Math.max(0, atkStage) : atkStage);
+      const def = (isPhysical ? defender.stats.def : defender.stats.spd) * stageMult(crit ? Math.min(0, defStage) : defStage);
+      const hits = move.multihit ? (move.multihit[0] === move.multihit[1] ? move.multihit[0] : move.multihit[0] + Math.floor(rng() * (move.multihit[1] - move.multihit[0] + 1))) : 1;
+      let total = 0;
+      for (let h = 0; h < hits && defender.hp.value > 0; h++) {
+        const res = damageCalc({
+          level: attacker.level, power: move.power, atk, def,
+          stab: attacker.types.includes(move.moveType) ? 1.5 : 1,
+          typeMult: typeMultiplier(move.moveType, defender.types), crit, burn: burned, rng
+        });
+        defender.hp.value = Math.max(0, defender.hp.value - res.damage);
+        total += res.damage;
+      }
+      log.push(`${attacker.name} used ${move.name} → ${total}${hits > 1 ? ` (${hits} hits)` : ""}${crit ? " (crit!)" : ""} (${defender.name} ${defender.hp.value}/${defender.hp.max})`);
+      if (move.drain && total > 0) attacker.hp.value = Math.min(attacker.hp.max, attacker.hp.value + Math.max(1, Math.floor(total * move.drain)));
+      if (move.recoil && total > 0) attacker.hp.value = Math.max(0, attacker.hp.value - Math.max(1, Math.floor(total * move.recoil)));
+      if (defender.hp.value > 0 && defender.status === "none" && move.secondaryStatus && move.secondaryChance && Math.floor(rng() * 100) < move.secondaryChance) {
+        defender.status = move.secondaryStatus; defender.statusTurns = 0; log.push(`${defender.name} was ${move.secondaryStatus}!`);
+      }
+      if (defender.hp.value > 0 && move.secondaryBoosts && move.secondaryChance && Math.floor(rng() * 100) < move.secondaryChance) applyBoosts(defender, move.secondaryBoosts);
+      if (defender.hp.value > 0 && move.flinchChance && Math.floor(rng() * 100) < move.flinchChance) defender.flinch = true;
     } else {
       log.push(`${attacker.name} used ${move.name}.`);
-    }
-    if (defender.hp.value > 0 && defender.status === "none") {
-      let inflict = null;
-      if (move.category === "Status" && move.inflictStatus) inflict = move.inflictStatus;
-      else if (move.secondaryStatus && move.secondaryChance && Math.floor(rng() * 100) < move.secondaryChance) inflict = move.secondaryStatus;
-      if (inflict) { defender.status = inflict; defender.statusTurns = 0; log.push(`${defender.name} was ${inflict}!`); }
+      if (defender.hp.value > 0 && defender.status === "none" && move.inflictStatus) { defender.status = move.inflictStatus; defender.statusTurns = 0; log.push(`${defender.name} was ${move.inflictStatus}!`); }
+      if (move.boosts) applyBoosts(move.boostTarget === "self" ? attacker : defender, move.boosts);
+      if (move.healSelf) { attacker.hp.value = Math.min(attacker.hp.max, attacker.hp.value + Math.max(1, Math.floor(attacker.hp.max * move.healSelf))); log.push(`${attacker.name} restored HP.`); }
     }
   };
 
-  const speed = (mon) => mon.stats.spe * (mon.status === "paralysis" ? 0.5 : 1);
+  const speed = (mon) => mon.stats.spe * stageMult(mon.boosts.spe) * (mon.status === "paralysis" ? 0.5 : 1);
 
   while (a < A.length && b < B.length && turns < maxTurns) {
     // Skip past any fainted lead (e.g. HP carried in from a previous gauntlet fight).
@@ -138,6 +175,7 @@ export function simulateBattle(teamAIn, teamBIn, { maxTurns = 300, rng = Math.ra
 
     // End-of-turn chip (burn/poison) on the still-standing actives.
     for (const [mon, isA] of [[atkA, true], [atkB, false]]) {
+      mon.flinch = false;
       if (mon.hp.value <= 0) continue;
       const frac = STATUS_CHIP[mon.status];
       if (!frac) continue;
@@ -169,7 +207,10 @@ export function combatantFromActor(actor) {
     moves: actor.items.filter((i) => i.type === "move").map((m) => ({
       name: m.name, moveType: m.system.moveType, category: m.system.category, power: m.system.power,
       priority: m.system.priority ?? 0, accuracy: m.system.accuracy ?? 100, alwaysHits: !!m.system.alwaysHits,
-      inflictStatus: m.system.inflictStatus ?? "", secondaryStatus: m.system.secondaryStatus ?? "", secondaryChance: m.system.secondaryChance ?? 0
+      inflictStatus: m.system.inflictStatus ?? "", secondaryStatus: m.system.secondaryStatus ?? "", secondaryChance: m.system.secondaryChance ?? 0,
+      boosts: m.system.boosts ?? null, boostTarget: m.system.boostTarget ?? "target", secondaryBoosts: m.system.secondaryBoosts ?? null,
+      drain: m.system.drain ?? 0, recoil: m.system.recoil ?? 0, healSelf: m.system.healSelf ?? 0,
+      flinchChance: m.system.flinchChance ?? 0, multihit: m.system.multihit ?? null
     }))
   };
 }
