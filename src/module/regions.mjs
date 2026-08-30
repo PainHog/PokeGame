@@ -21,6 +21,7 @@
  */
 
 import { PM } from "./config.mjs";
+import { catchButtonHtml } from "./catch.mjs";
 
 const fields = foundry.data.fields;
 
@@ -214,6 +215,7 @@ export class WildTileBehaviorType extends foundry.data.regionBehaviors.RegionBeh
           <p><b>Level:</b> ${level} &nbsp; <b>Type:</b> ${types}</p>
           <p><b>Rarity:</b> ${rarityLabel} &nbsp; <b>Catch rate:</b> ${s.catchRate}</p>
           <p><em>${token.name} startled it in ${regionLabel} (${PM.encounterCategories[this.category] ?? "wild"}).</em></p>
+          <p>${catchButtonHtml({ speciesUuid: speciesActor.uuid, level })}</p>
         </div>`
     });
   }

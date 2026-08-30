@@ -259,3 +259,31 @@
   margin: 0 0 4px;
   border: none;
 }
+
+.pm-catch-btn {
+  margin-top: 4px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.pm-wobble {
+  font-size: 1.3rem;
+  letter-spacing: 4px;
+  margin: 2px 0;
+}
+
+.pm-caught {
+  color: var(--pm-accent, #cc0000);
+  font-weight: 700;
+  margin: 4px 0 0;
+}
+
+.pm-broke {
+  color: #555;
+  font-style: italic;
+  margin: 4px 0 0;
+}
+
+.control-icon.pm-hud-catch {
+  font-size: 1.1rem;
+}

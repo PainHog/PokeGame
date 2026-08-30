@@ -12,6 +12,7 @@ import { PokemonMastersActor, PokemonMastersItem } from "./module/documents.mjs"
 import { TrainerSheet, PokemonSheet, PMItemSheet } from "./module/sheets.mjs";
 import { WildTileBehaviorType, SafeZoneBehaviorType, ZoneTransitBehaviorType } from "./module/regions.mjs";
 import { registerWorldHooks } from "./module/world.mjs";
+import { registerCatchHooks } from "./module/catch.mjs";
 
 Hooks.once("init", () => {
   console.log("Pokémon Masters | Initializing system");
@@ -74,5 +75,6 @@ Hooks.once("init", () => {
 });
 
 Hooks.once("ready", () => {
+  registerCatchHooks();
   console.log("Pokémon Masters | Ready");
 });
