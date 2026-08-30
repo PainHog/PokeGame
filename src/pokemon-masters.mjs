@@ -21,11 +21,14 @@ import { registerOrgApi } from "./module/organizations.mjs";
 import { registerNpcApi } from "./module/npc.mjs";
 import { registerDexApi } from "./module/dex.mjs";
 import { registerItemsApi } from "./module/items.mjs";
+import { registerSystemSettings } from "./module/permissions.mjs";
 
 Hooks.once("init", () => {
   console.log("Pokémon Masters | Initializing system");
 
   CONFIG.PM = PM;
+
+  registerSystemSettings();
 
   // Small Handlebars helpers used by the sheet templates.
   Handlebars.registerHelper("pmLower", (s) => String(s ?? "").toLowerCase());

@@ -17,13 +17,15 @@
  *   • Zone Transit— named-zone entry announcement + same-scene warp.
  *
  * Region events fire on every connected client, so all world mutations are gated
- * to the single active GM (`isDriver`) to avoid duplicates.
+ * to a single responsible client (`isResponsible`: the active GM, or the
+ * token's primary owner when no GM is online) to avoid duplicates.
  */
 
 import { PM } from "./config.mjs";
 import { catchButtonHtml } from "./catch.mjs";
 import { eligibleSpecies, methodForCategory } from "./eligibility.mjs";
 import { markSeen } from "./dex.mjs";
+import { isResponsible } from "./permissions.mjs";
 
 const fields = foundry.data.fields;
 
@@ -33,11 +35,6 @@ const EVENTS = {
   TOKEN_MOVE_IN: "tokenMoveIn",
   TOKEN_MOVE_WITHIN: "tokenMoveWithin"
 };
-
-/** True only on the one client that should perform world writes. */
-function isDriver() {
-  return game.users.activeGM?.isSelf ?? false;
-}
 
 /** Resolve the moving/entering actor from a region event, if it's a Trainer. */
 function trainerFromEvent(event) {
@@ -145,9 +142,9 @@ export class WildTileBehaviorType extends foundry.data.regionBehaviors.RegionBeh
   };
 
   static async _roll(event) {
-    if (!isDriver()) return;
     const { token, actor } = trainerFromEvent(event);
     if (!actor) return;
+    if (!isResponsible(token)) return;
 
     // Gate: does anything happen on this step at all?
     if (randInt(1, 100) > this.chance) return;
@@ -318,9 +315,9 @@ export class SafeZoneBehaviorType extends foundry.data.regionBehaviors.RegionBeh
 
   static events = {
     [EVENTS.TOKEN_ENTER]: async function (event) {
-      if (!isDriver()) return;
       const { token, actor } = trainerFromEvent(event);
       if (!actor) return;
+      if (!isResponsible(token)) return;
 
       if (this.kind === "center" && this.healOnEnter) {
         const party = await actor.getParty();
@@ -369,14 +366,14 @@ export class ZoneTransitBehaviorType extends foundry.data.regionBehaviors.Region
       const { token, actor } = trainerFromEvent(event);
       if (!actor) return;
 
-      if (this.announce && this.zoneName && isDriver()) {
+      if (this.announce && this.zoneName && isResponsible(token)) {
         await ChatMessage.create({
           speaker: { alias: "World" },
           content: `<p><strong>${token.name}</strong> entered <strong>${this.zoneName}</strong>.</p>`
         });
       }
 
-      if (!isDriver()) return;
+      if (!isResponsible(token)) return;
 
       if (this.destX || this.destY) {
         await token.update({ x: this.destX, y: this.destY });
