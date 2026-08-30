@@ -45,11 +45,13 @@ export function methodForCategory(category) {
 /** Pure predicate: does `requirements` allow this context? Exported for testing. */
 export function matchesContext(requirements = {}, { habitat, region, method, time } = {}) {
   const r = requirements ?? {};
-  const axis = (allowed, value) => !allowed?.length || (value && allowed.includes(value));
-  return axis(r.habitats, habitat)
+  const axis = (allowed, value) => !allowed?.length || (!!value && allowed.includes(value));
+  return Boolean(
+    axis(r.habitats, habitat)
     && axis(r.regions, region)
     && axis(r.methods, method)
-    && axis(r.times, time);
+    && axis(r.times, time)
+  );
 }
 
 /** Relative encounter weight per rarity (rarer → far less common). */

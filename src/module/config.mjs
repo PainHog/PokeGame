@@ -334,18 +334,17 @@ PM.leagueBadges = {
 PM.levelCapBase = 15;
 PM.levelCapPerBadge = 10;
 
-/** HM / field moves that double as traversal gates (a party member must know it). */
+/**
+ * HM / field moves that double as traversal gates (a party member must know it).
+ * Restricted to moves that actually exist in the Gen-9 learnsets we compile —
+ * Cut/Rock Smash/Strength/Flash/Whirlpool/Defog were dropped from Gen 9, so
+ * gating on them would be impassable. (Re-add them if HM learnsets are injected.)
+ */
 PM.fieldMoves = {
-  cut: "Cut",
   fly: "Fly",
   surf: "Surf",
-  strength: "Strength",
-  rocksmash: "Rock Smash",
   waterfall: "Waterfall",
-  dive: "Dive",
-  flash: "Flash",
-  whirlpool: "Whirlpool",
-  defog: "Defog"
+  dive: "Dive"
 };
 
 /**

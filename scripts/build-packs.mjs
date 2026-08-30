@@ -259,7 +259,8 @@ function buildMoves() {
     if (!m.exists || !okNs(m)) continue;
     count++;
     docs.push({
-      _id: stableId("move", m.id),
+      // Key by name: some variants (all 17 Hidden Powers) share the source id.
+      _id: stableId("move", m.name),
       name: m.name,
       type: "move",
       img: "icons/svg/sword.svg",

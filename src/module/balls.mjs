@@ -7,9 +7,17 @@
  *
  * Context fields (all optional):
  *   targetTypes[], targetLevel, userLevel, baseSpe, method ("walk"/"surf"/"fishing"),
- *   turn, status ("none"/"asleep"/…), night, cave, caughtBefore, ultraBeast,
+ *   turn, status ("none"/"sleep"/…), night, cave, caughtBefore, ultraBeast,
  *   sameSpecies, oppositeGender, evoItem
  */
+
+/** Proper names of the special balls plus the standard set (for the throw dialog). */
+export const BALL_NAMES = [
+  "Poké Ball", "Great Ball", "Ultra Ball", "Master Ball",
+  "Net Ball", "Dive Ball", "Lure Ball", "Dusk Ball", "Quick Ball", "Timer Ball",
+  "Nest Ball", "Repeat Ball", "Dream Ball", "Fast Ball", "Moon Ball", "Love Ball",
+  "Beast Ball", "Level Ball", "Heal Ball", "Luxury Ball", "Premier Ball"
+];
 
 function clamp(n, lo, hi) { return Math.max(lo, Math.min(hi, n)); }
 

@@ -98,6 +98,8 @@ export class PokemonData extends foundry.abstract.TypeDataModel {
       rarity: new fields.StringField({ required: true, blank: false, initial: "common", choices: PM.rarities }),
       /** Max that may exist in the world at once (0 = unlimited; legendaries = 1). */
       populationCap: new fields.NumberField({ required: true, integer: true, min: 0, initial: 0 }),
+      /** Ultra Beast (drives Beast Ball). */
+      ultraBeast: new fields.BooleanField({ initial: false }),
       catchRate: new fields.NumberField({ required: true, integer: true, min: 1, max: 255, initial: 45 }),
       ability: new fields.StringField({ required: false, blank: true, initial: "" }),
       abilities: new fields.ArrayField(new fields.StringField({ blank: false })),

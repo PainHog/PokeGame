@@ -13,7 +13,7 @@
 
 import { PM } from "./config.mjs";
 import { addToParty } from "./storage.mjs";
-import { ballBonus } from "./balls.mjs";
+import { ballBonus, BALL_NAMES } from "./balls.mjs";
 import { markCaught, hasCaught } from "./dex.mjs";
 
 /** Status multipliers on the catch rate (classic values). */
@@ -93,7 +93,7 @@ async function pickBall(trainer) {
   const DialogV2 = foundry.applications?.api?.DialogV2;
   // Balls the trainer carries, then the standard list.
   const owned = (trainer?.items ?? []).filter((i) => i.type === "gear" && i.system.category === "ball").map((i) => i.name);
-  const names = [...new Set([...owned, "Poké Ball", "Great Ball", "Ultra Ball"])];
+  const names = [...new Set([...owned, ...BALL_NAMES])];
   try {
     if (!DialogV2) return names[0];
     const options = names.map((n) => `<option value="${n}">${n} (${(PM.ballModifiers[n.toLowerCase()] ?? 1)}×)</option>`).join("");
@@ -164,25 +164,33 @@ async function finalizeCapture({ trainer, species, level, shiny, token }) {
     ui.notifications?.info(`${species.name} was caught — ask your GM to add it to your party.`);
     return;
   }
-  const source = species.toObject();
-  delete source._id;
-  source.folder = null;
-  source.system.level = level;
-  source.system.shiny = !!shiny;
-  source.system.hp = { value: null, max: 0 };
-  if (trainer) source.system.trainer = trainer.uuid;
-
-  const created = await Actor.implementation.create(source);
+  // Claim the spawned wild's own Actor if there is one (avoids orphaning it in
+  // the directory); otherwise import a fresh Actor from the species.
+  let created = token?.actorId ? game.actors.get(token.actorId) : null;
+  if (created) {
+    const upd = { "system.level": level, "system.shiny": !!shiny };
+    if (trainer) upd["system.trainer"] = trainer.uuid;
+    await created.update(upd);
+  } else {
+    const source = species.toObject();
+    delete source._id;
+    source.folder = null;
+    source.system.level = level;
+    source.system.shiny = !!shiny;
+    source.system.hp = { value: null, max: 0 };
+    if (trainer) source.system.trainer = trainer.uuid;
+    created = await Actor.implementation.create(source);
+  }
   if (!created) return;
+
+  // Remove the wild token from the scene if this was a spawned encounter.
+  if (token?.id && token.parent) await token.parent.deleteEmbeddedDocuments("Token", [token.id]);
 
   if (trainer) {
     const where = await addToParty(trainer, created);
     await markCaught(trainer, species.name);
     if (where === "storage") ui.notifications?.info(`${species.name} was caught and sent to the PC (party full).`);
   }
-
-  // Remove the wild token from the scene if this was a spawned encounter.
-  if (token?.id && token.parent) await token.parent.deleteEmbeddedDocuments("Token", [token.id]);
 }
 
 /** Throw at the user's current target (a wild Pokémon token). */

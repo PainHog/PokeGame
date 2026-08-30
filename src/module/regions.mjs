@@ -322,7 +322,7 @@ export class SafeZoneBehaviorType extends foundry.data.regionBehaviors.RegionBeh
       if (this.kind === "center" && this.healOnEnter) {
         const party = await actor.getParty();
         for (const mon of party) {
-          await mon.update({ "system.hp.value": mon.system.hp.max });
+          await mon.update({ "system.hp.value": mon.system.hp.max, "system.status": "none" });
         }
         if (this.announce) {
           await ChatMessage.create({
