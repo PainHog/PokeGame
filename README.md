@@ -1,141 +1,146 @@
 # Pokémon Masters — a Foundry VTT system
 
 A trainer-driven Pokémon tabletop **system** for [Foundry Virtual Tabletop](https://foundryvtt.com/)
-**v14** (compatible from v13). Players join a shared world as **Trainers**, roam
-tile/region-automated maps, and encounter, catch, and battle Pokémon.
+**v14** (compatible from v13). Players join a shared, animated world as **Trainers**
+(or Breeders, Rangers, Rocket grunts…), roam tile/region-automated maps, and
+encounter, catch, battle, and raise Pokémon — with NPCs that can battle on their own.
 
-The full Pokédex — species, base stats, types, abilities, evolutions, learnsets,
-moves, and items — is compiled **offline** from the
-[`@pkmn`](https://github.com/pkmn/ps) dataset (the community extraction of
-Pokémon Showdown's data). **No external API is required at play time.**
-
-> Status: **v0.1 vertical slice.** The data pipeline, actor/item data models,
-> sheets, and the Region (tile) automation are in place. Battle resolution, the
-> catch flow, breeding/jobs payouts, and cross-scene player warps are the next
-> phases (see the roadmap).
+The full Pokédex is compiled **offline** from the [`@pkmn`](https://github.com/pkmn/ps)
+dataset. **No external API is required at play time.**
 
 ---
 
-## What's here
+## What's shipped
 
-| Piece | Where | Notes |
-|---|---|---|
-| System manifest | `system.json` | v14 `documentTypes`, packs, grid |
-| Data models | `src/module/data-models.mjs` | `trainer`, `pokemon` actors; `move`, `ability`, `gear` items |
-| Documents | `src/module/documents.mjs` | party resolution, faint check, HP init |
-| Sheets | `src/module/sheets.mjs` + `templates/` | ApplicationV2 + Handlebars |
-| **Region (tile) behaviors** | `src/module/regions.mjs` | **Encounter** + **Zone Transit** |
-| Config / tables | `src/module/config.mjs` | vocations, rarities, encounter tables |
-| Pokédex build | `scripts/build-packs.mjs` | `@pkmn/data` → compiled LevelDB packs |
+| System | What it does |
+|---|---|
+| **Complete Pokédex** | All 1025 dex numbers (1367 entries incl. regional forms), 905 moves, 310 abilities, 533 items — offline. |
+| **Region-tagged maps** | Tag each Scene with a region; encounters use region-appropriate species (Alolan vs. Kanto Geodude). |
+| **Tile events** | Stepping on a non-safe tile rolls a weighted outcome: wild Pokémon / item / trainer / event. |
+| **Encounter eligibility** | Every species has requirements (habitat, region, method, time); **all must match** to roll. |
+| **Population caps** | Legendaries/mythicals are unique (one in the world); gone once caught, freed if released. |
+| **Safe zones** | Streets/towns/Centers/Marts never roll events; a Center heals the party. |
+| **Catch flow** | Gen III/IV formula with **lore-accurate Poké Balls** (Net, Dusk, Quick, Timer, Level, Beast…). |
+| **Battle engine** | Verified 18-type chart, mainline damage, move use vs. a target, faint. |
+| **Progression** | XP → level-up → learn moves → evolution, off the faint hook. |
+| **NPC auto-battle** | Type-aware AI resolves full team battles unattended (gym leaders, rivals). |
+| **Starters** | Region starter trios granted at level 5. |
+| **PC storage** | Party capped at 6; overflow routes to PC boxes (deposit/withdraw). |
+| **Organizations** | Join the League, Ranger Union, Team Rocket, etc.; reputation promotes you up rank ladders. |
+| **Careers** | 14 vocations (Trainer, Ace, Ranger, Professor, Breeder, Gym Leader, Coordinator, Nurse…). |
+| **Living Pokédex** | Per-trainer seen/caught tracking toward 1025. |
 
-Compendium packs produced by the build:
-
-- **Pokédex** (`species`) — one `pokemon` Actor per species (876), pre-filled with
-  types, base stats, abilities, evolution data, learnset, and a rarity/catch-rate
-  derived from base-stat total.
-- **Moves** (685), **Abilities** (310), **Items & Poké Balls** (249).
+Roadmap (not yet built): usable items, gyms/badges + Elite Four gauntlet, breeding & daycare,
+faction encounters (Rocket raids / street & stadium battles), TMs & HMs. See the blueprint artifact.
 
 ---
 
 ## Install & build
 
-The Pokédex data is a **build artifact** (git-ignored) generated from a pinned
-dependency, so after cloning you build it once:
+The Pokédex data is a build artifact (git-ignored), generated from a pinned dependency:
 
 ```bash
 npm install
 npm run build          # full Pokédex → packs/
-# or, for fast iteration on a subset:
-npm run build:limit    # 60 of each
+npm run build:limit    # fast 60-of-each subset while iterating
 ```
 
-Then point Foundry at the system. During development the simplest path is to
-symlink (or clone) this folder into your Foundry user data:
+Then symlink (or clone) this folder into your Foundry user data so Foundry sees it:
 
 ```
 {FoundryUserData}/Data/systems/pokemon-masters   ->   this repo
 ```
 
-Restart Foundry, create a world using **Pokémon Masters**, and the four
-compendiums appear under the "Pokémon Masters" pack folder.
-
-> `packs/` and `src/packs/` are git-ignored. Re-running `npm run build` is
-> idempotent — document IDs are derived deterministically from names, so UUIDs
-> stay stable across rebuilds. Re-run it to pull dataset updates.
+Restart Foundry, create a world using **Pokémon Masters**, and the compendiums appear.
 
 ---
 
-## The tile / region automation (the core idea)
+## The core loop
 
-Foundry v12+ replaced ad-hoc "tile triggers" with first-class **Scene Regions**
-that emit movement events. Pokémon Masters ships two **Region Behaviors** you
-attach to a region to make walking the map *do* things — no extra modules.
+```
+walk onto a tile ─▶ Wild Tile behavior rolls (chance %)
+        │
+        ├─ outcome = wild ─▶ eligible species for {region, habitat, method}
+        │                     (all requirements match, capped species excluded)
+        │                     ─▶ weighted by rarity ─▶ encounter card
+        │                          └─▶ "Throw Poké Ball" ─▶ catch formula ─▶ party/PC + Pokédex
+        ├─ outcome = item ─▶ item find
+        └─ outcome = trainer/event ─▶ battle / GM hook
 
-### 1. Wild Encounter
+battle ─▶ use move vs target ─▶ damage (type chart + STAB) ─▶ faint
+        └─▶ winner gains XP ─▶ level-up ─▶ learn moves ─▶ evolve
+```
 
-Draw a region over tall grass / water / a cave, add behavior **“Wild Encounter
-(Pokémon Masters)”**, and configure:
-
-- **Encounter Table** — `grass`, `forest`, `water`, `fishing`, `cave`,
-  `mountain`, `sand`, `urban`, `night`. Each has a built-in weighted table
-  (edit `PM.defaultEncounterTables` in `config.mjs`, or supply a **custom table**
-  right on the behavior).
-- **Encounter Chance (%)** — rolled on each step (or only on entry).
-- **Min/Max Level** — the wild level band.
-- **Announce Only** — post a chat card, or also drop a wild token next to the trainer.
-
-When a **Trainer** token walks through, the behavior rolls the chance, picks a
-weighted species, and posts *“A wild Geodude appeared! Lv 8 — Rock/Ground …”*.
-
-**Rare Pokémon are genuinely hard to find.** Rarity is assigned at build time
-from base-stat total, and a second **rarity gate** (`PM.rarityEncounterChance`)
-means a legendary that wins the weighted roll still only actually shows up ~20%
-of the time. So "rock Pokémon in the mountains, water Pokémon while surfing,
-Magikarp while fishing, and a legendary you'll hunt for weeks" all fall out of
-the table + gate design. Only the active GM's client rolls, so no duplicate
-encounters across players.
-
-### 2. Zone Transit
-
-Add behavior **“Zone Transit (Pokémon Masters)”** to a region at a map edge or
-doorway to announce a named zone (*“Ash entered Viridian Forest.”*) and/or warp
-the token to a destination — the "walk to the next zone automatically" flow.
-Same-scene warps work now; cross-scene **player** pulls are on the roadmap
-(the core **Teleport Token** behavior already covers region→region cross-scene
-if you need it today).
+Everything above is driven by **Foundry Scene Regions** — the art and the mechanics
+are separate layers (see below).
 
 ---
 
-## Data model highlights
+## Making maps
 
-- **Trainer** — `vocation` (Trainer / Breeder / Researcher / Ranger / Coordinator /
-  Fisher / Ace), `level`, `money`, `badges`, `party` (Pokémon by UUID), biography.
-  Vocations are the hook for the show's "jobs" (breeders, rangers…).
-- **Pokémon** — species + dex #, types, `level`, `nature`, `gender`, `shiny`,
-  `rarity`, `catchRate`, `ability`, base stats, derived stats (`system.stats`),
-  an HP resource wired to the token bar, `moves`, full `learnset`, and evolution
-  (`from` / `into` / `method` / `level` / `item` / `condition`).
-- **Move** — `moveType`, `category`, `power`, `accuracy`, `pp`, `priority`, `target`.
-- **Gear** — `category` (item / ball / medicine / berry / TM / key), `catchModifier`
-  for Poké Balls, price, quantity.
+**The mechanics never depend on the art.** A Wild Tile / Safe Zone / Zone Transit
+behavior is attached to a **Scene Region**, which is an invisible shape you paint over
+*any* background. So you have three escalating options:
+
+1. **Prototype now — colored regions, no art.** Create a Scene, draw Regions over
+   "grass", "water", "cave" areas, add the behaviors, and play immediately. Foundry
+   renders regions as translucent color; that's enough to test the whole loop.
+2. **Real maps — a background image + regions.** Get a region map as a PNG and set it
+   as the Scene background, size the grid, then paint Regions over the grass/water/etc.
+   Sources for the art:
+   - **Ripped official maps** (GBA/DS region maps from community sprite archives) — set
+     one as the Scene background. Fastest way to "stretch over the Pokémon game maps."
+     Fan/IP use — fine for a private game, not for redistribution.
+   - **Build your own in [Tiled](https://www.mapeditor.org/)** with a Pokémon tileset
+     (e.g. the Pokémon Essentials / RPG Maker XP tilesets), export a PNG, use as
+     background. Best for custom towns/routes.
+3. **Tile the map inside Foundry** with the Tiles layer from a tileset — workable, but
+   Tiled is a better editor for large maps.
+
+Whichever you choose, the region/behavior layer is identical, so you can swap art in
+later without redoing mechanics. Tag each Scene's region in **Scene Config → Pokémon
+Masters Region**.
+
+---
+
+## Systems & APIs
+
+Runtime helpers live under `game.pokemonMasters.*` (GM console or macros):
+
+```js
+// Catch the currently-targeted wild Pokémon
+game.pokemonMasters.catch.throwAtTarget();
+
+// Auto-resolve a battle between two NPC trainers
+game.pokemonMasters.npc.autoBattle(actorA, actorB);
+
+// Use a move (usually via the Pokémon sheet button)
+game.pokemonMasters.battle.useMove(attacker, moveItem);
+
+// Grant a starter / give reputation / award XP
+game.pokemonMasters.starters.choose(trainer);
+game.pokemonMasters.orgs.addReputation(trainer, "rocket", 120);
+game.pokemonMasters.progression.awardXp(pokemon, 60);
+```
+
+Source modules (all `src/module/`): `config`, `data-models`, `documents`, `sheets`,
+`regions`, `eligibility`, `world`, `catch`, `balls`, `battle`, `typechart`,
+`progression`, `starters`, `storage`, `organizations`, `dex`, `npc`.
+
+Data is rebuilt by `scripts/build-packs.mjs` from `@pkmn/dex`.
 
 ---
 
 ## Roadmap
 
-1. **Catch flow** — a chat-card "throw ball" using `catchRate` × ball modifier × status.
-2. **Battle resolution** — damage from the type chart + move category + stats
-   (the `@pkmn` type effectiveness data can be baked into a config table).
-3. **Jobs** — breeding (Breeder), field research payouts (Researcher/Ranger),
-   contest scoring (Coordinator).
-4. **Sprites** — optional sprite/cry assets per species.
-5. **Cross-scene player warps** — socket-driven pull for Zone Transit.
+Usable items · gyms/badges + Elite Four gauntlet · breeding & daycare · faction
+encounters (Rocket raids, street & stadium battles) · TMs & HMs (teach moves + field
+traversal). The blueprint artifact tracks the full phased plan.
 
 ---
 
 ## Credits & licensing
 
-Game data is derived from the [`@pkmn`](https://github.com/pkmn/ps) project
-(Pokémon Showdown data). Pokémon and Pokémon character names are trademarks of
-Nintendo / Game Freak / The Pokémon Company. This is a non-commercial fan
-project; do not distribute compiled game data without regard to those rights.
+Game data derives from the [`@pkmn`](https://github.com/pkmn/ps) project (Pokémon
+Showdown data). Pokémon and character names are trademarks of Nintendo / Game Freak /
+The Pokémon Company. Non-commercial fan project.
