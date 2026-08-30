@@ -16,6 +16,12 @@
         <input type="text" name="system.hometown" value="{{system.hometown}}" placeholder="—">
       </label>
       {{#if vocationBlurb}}<p class="pm-vocation-blurb">{{vocationBlurb}}</p>{{/if}}
+      <div class="pm-dex-line">
+        <span class="pm-badge">Pokédex</span>
+        <span>{{dex.caught}} caught · {{dex.seen}} seen</span>
+        <div class="pm-hptrack" style="flex:1"><div class="pm-hpfill" style="width: {{dex.pct}}%"></div></div>
+        <small>{{dex.pct}}% of {{dex.total}}</small>
+      </div>
     </div>
   </header>
 

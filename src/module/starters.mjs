@@ -8,6 +8,7 @@
 import { PM } from "./config.mjs";
 import { resolveTrainer } from "./catch.mjs";
 import { addToParty } from "./storage.mjs";
+import { markCaught } from "./dex.mjs";
 
 async function findSpecies(name) {
   const pack = game.packs.get("pokemon-masters.species");
@@ -32,6 +33,7 @@ export async function grantStarter(trainer, speciesName) {
   const created = await Actor.implementation.create(source);
   if (!created) return;
   await addToParty(trainer, created);
+  await markCaught(trainer, species.name);
 
   await ChatMessage.create({
     speaker: { alias: trainer.name },

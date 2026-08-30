@@ -13,6 +13,8 @@
 
 import { PM } from "./config.mjs";
 import { addToParty } from "./storage.mjs";
+import { ballBonus } from "./balls.mjs";
+import { markCaught, hasCaught } from "./dex.mjs";
 
 /** Status multipliers on the catch rate (classic values). */
 export const STATUS_BONUS = {
@@ -121,9 +123,20 @@ export async function attemptCatch({
   ballName ??= await pickBall(trainer);
 
   const catchRate = species.system.catchRate ?? 45;
-  const ballBonus = PM.ballModifiers[ballName.toLowerCase()] ?? 1;
+  const bonus = ballBonus(ballName, {
+    targetTypes: species.system.types,
+    targetLevel: level,
+    userLevel: trainer?.system?.level ?? level,
+    baseSpe: species.system.baseStats?.spe,
+    method: token?.method ?? "walk",
+    turn: 1,
+    status,
+    ultraBeast: species.system.ultraBeast,
+    evoItem: species.system.evolution?.item,
+    caughtBefore: hasCaught(trainer, species.name)
+  });
   const statusBonus = STATUS_BONUS[status] ?? 1;
-  const res = computeCatch({ hpFraction, catchRate, ballBonus, statusBonus });
+  const res = computeCatch({ hpFraction, catchRate, ballBonus: bonus, statusBonus });
 
   const wobble = "●".repeat(res.shakes) + "○".repeat(Math.max(0, (res.caught ? 3 : res.shakes + 1) - res.shakes));
   const verdict = res.caught
@@ -136,7 +149,7 @@ export async function attemptCatch({
       <div class="pm-encounter-card">
         <h3>${ballName} → wild ${species.name} (Lv ${level})</h3>
         <p class="pm-wobble">${wobble}</p>
-        <p><small>Catch chance ≈ ${res.guaranteed ? "100" : res.chancePct}% &nbsp;·&nbsp; ${ballBonus}× ball${statusBonus !== 1 ? ` · ${statusBonus}× status` : ""}</small></p>
+        <p><small>Catch chance ≈ ${res.guaranteed ? "100" : res.chancePct}% &nbsp;·&nbsp; ${bonus === Infinity ? "∞" : bonus}× ball${statusBonus !== 1 ? ` · ${statusBonus}× status` : ""}</small></p>
         ${verdict}
       </div>`
   });
@@ -164,6 +177,7 @@ async function finalizeCapture({ trainer, species, level, shiny, token }) {
 
   if (trainer) {
     const where = await addToParty(trainer, created);
+    await markCaught(trainer, species.name);
     if (where === "storage") ui.notifications?.info(`${species.name} was caught and sent to the PC (party full).`);
   }
 

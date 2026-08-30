@@ -47,6 +47,11 @@ export class TrainerData extends foundry.abstract.TypeDataModel {
       party: new fields.ArrayField(new fields.DocumentUUIDField({ type: "Actor" })),
       /** Pokémon in PC storage (Actor UUIDs) — the overflow beyond the party. */
       storage: new fields.ArrayField(new fields.DocumentUUIDField({ type: "Actor" })),
+      /** Living Pokédex: species seen and caught (by name; regional forms count). */
+      pokedex: new fields.SchemaField({
+        seen: new fields.ArrayField(new fields.StringField({ blank: false })),
+        caught: new fields.ArrayField(new fields.StringField({ blank: false }))
+      }),
       /** Organization memberships with rank (ladder index) and reputation. */
       affiliations: new fields.ArrayField(new fields.SchemaField({
         org: new fields.StringField({ required: true, blank: false }),

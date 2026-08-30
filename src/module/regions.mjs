@@ -23,6 +23,7 @@
 import { PM } from "./config.mjs";
 import { catchButtonHtml } from "./catch.mjs";
 import { eligibleSpecies, methodForCategory } from "./eligibility.mjs";
+import { markSeen } from "./dex.mjs";
 
 const fields = foundry.data.fields;
 
@@ -197,6 +198,7 @@ export class WildTileBehaviorType extends foundry.data.regionBehaviors.RegionBeh
       console.warn(`Pokémon Masters | Encounter species not found: ${speciesName}`);
       return;
     }
+    markSeen(token.actor, speciesActor.name);
 
     // Rarity gate — rare things win the weighted roll but still slip away.
     const rarity = speciesActor.system.rarity ?? "common";

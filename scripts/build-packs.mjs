@@ -194,6 +194,7 @@ async function buildSpecies() {
         requirements: deriveRequirements(s, rarity, GEN_TO_REGION[s.gen] ?? "", variantRegion(s.forme)),
         // Legendaries/mythicals are unique in the world; 0 = unlimited.
         populationCap: rarity === "legendary" ? 1 : 0,
+        ultraBeast: (s.tags || []).includes("Ultra Beast"),
         types: s.types,
         level: 5,
         rarity,

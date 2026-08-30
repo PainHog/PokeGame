@@ -308,6 +308,8 @@
 .pm-usemove:hover { filter: brightness(1.1); }
 
 .pm-vocation-blurb { font-size: .82rem; color: var(--muted, #6d6560); font-style: italic; margin: 4px 0 0; }
+.pm-dex-line { display: flex; align-items: center; gap: 8px; margin-top: 6px; font-size: .78rem; }
+.pm-dex-line small { color: var(--muted, #6d6560); white-space: nowrap; }
 .pm-starter-btn, .pm-pc-btn {
   float: right; cursor: pointer; font-size: .7rem; font-weight: 700;
   padding: 2px 10px; border-radius: 5px; border: 1px solid var(--pm-accent, #cc0000);
