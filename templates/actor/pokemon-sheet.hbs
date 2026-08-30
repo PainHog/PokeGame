@@ -49,6 +49,24 @@
   </section>
 
   <section class="pm-section">
+    <h2>Known Moves <small>(target a Pokémon, then use)</small></h2>
+    {{#if knownMoves.length}}
+      <ul class="pm-knownmoves">
+        {{#each knownMoves as |m|}}
+          <li>
+            <button type="button" class="pm-usemove" data-action="useMove" data-item-id="{{m.id}}">Use</button>
+            <span class="pm-type pm-type-{{pmLower m.system.moveType}}">{{m.system.moveType}}</span>
+            <strong>{{m.name}}</strong>
+            <small>{{m.system.category}}{{#if m.system.power}} · {{m.system.power}} pw{{/if}}</small>
+          </li>
+        {{/each}}
+      </ul>
+    {{else}}
+      <p class="pm-empty">No moves yet. Drag moves from the <em>Moves</em> compendium onto this Pokémon to teach them.</p>
+    {{/if}}
+  </section>
+
+  <section class="pm-section">
     <h2>Evolution</h2>
     {{#if system.evolution.into.length}}
       <p>Evolves into

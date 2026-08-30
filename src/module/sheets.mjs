@@ -51,12 +51,21 @@ export class PokemonSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static DEFAULT_OPTIONS = {
     ...SHEET_DEFAULTS,
     classes: [...SHEET_DEFAULTS.classes, "pokemon"],
-    position: { width: 540, height: 680 }
+    position: { width: 540, height: 680 },
+    actions: {
+      useMove(event, target) { return this._useMove(target); }
+    }
   };
 
   static PARTS = {
     body: { template: "systems/pokemon-masters/templates/actor/pokemon-sheet.hbs" }
   };
+
+  /** Action: use one of this Pokémon's moves against the current target. */
+  _useMove(target) {
+    const move = this.actor.items.get(target?.dataset?.itemId);
+    if (move && game.pokemonMasters?.battle) game.pokemonMasters.battle.useMove(this.actor, move);
+  }
 
   async _prepareContext(options) {
     const context = await super._prepareContext(options);
@@ -66,6 +75,7 @@ export class PokemonSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     context.editable = this.isEditable;
     context.rarities = PM.rarities;
     context.stats = sys.stats ?? {};
+    context.knownMoves = this.actor.items.filter((i) => i.type === "move");
     context.hpPct = sys.hp?.max ? Math.round(((sys.hp.value ?? 0) / sys.hp.max) * 100) : 0;
     // Level-up moves available at or below this Pokémon's level.
     context.levelMoves = (sys.learnset ?? [])
