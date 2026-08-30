@@ -25,12 +25,36 @@ PM.types = [
  */
 PM.vocations = {
   trainer: "Trainer",
+  ace: "Ace Trainer",
+  ranger: "Pokémon Ranger",
+  professor: "Professor",
+  assistant: "Research Assistant",
   breeder: "Breeder",
-  researcher: "Researcher",
-  ranger: "Ranger",
-  coordinator: "Coordinator",
-  fisher: "Fisher",
-  ace: "Ace Trainer"
+  daycare: "Daycare Attendant",
+  gymleader: "Gym Leader",
+  coordinator: "Coordinator / Contest Star",
+  elitefour: "Elite Four",
+  champion: "Champion",
+  fisher: "Fisher"
+};
+
+/**
+ * What each vocation actually does in play — a short player-facing note plus the
+ * systems it unlocks. Drives the trainer sheet's job blurb and future job gates.
+ */
+PM.vocationInfo = {
+  trainer: { blurb: "Battle, catch, and earn badges — the classic journey.", unlocks: ["battling", "gyms"] },
+  ace: { blurb: "Battling as a career or serious side job; higher battle payouts.", unlocks: ["battling", "bounties"] },
+  ranger: { blurb: "Care for a region and its Pokémon; field patrols and rescues.", unlocks: ["patrols", "rescues"] },
+  professor: { blurb: "Study Pokémon; run research tasks and hand out starters.", unlocks: ["research", "dex-payouts"] },
+  assistant: { blurb: "Assist a Professor; fieldwork and dex data collection.", unlocks: ["research"] },
+  breeder: { blurb: "Run a daycare and breed Pokémon; raise eggs.", unlocks: ["breeding", "daycare"] },
+  daycare: { blurb: "Tend young and baby Pokémon at a daycare.", unlocks: ["daycare"] },
+  gymleader: { blurb: "A pillar of the community; run a gym and test challengers.", unlocks: ["gym-ownership", "battling"] },
+  coordinator: { blurb: "Dazzle crowds in Contests with style and flair.", unlocks: ["contests"] },
+  elitefour: { blurb: "An elite, celebrity-tier battler near the top of the League.", unlocks: ["battling", "league"] },
+  champion: { blurb: "The pinnacle: broad knowledge and unmatched skill.", unlocks: ["battling", "league"] },
+  fisher: { blurb: "Fish and trade aquatic Pokémon; water-method specialist.", unlocks: ["fishing", "trading"] }
 };
 
 /**
@@ -245,6 +269,49 @@ PM.safeZoneKinds = {
   center: "Pokémon Center",
   mart: "Poké Mart",
   indoor: "Building Interior"
+};
+
+/**
+ * Region starter trios (anime/game accurate). The starter picker grants one at
+ * level 5. Names resolve against the Pokédex compendium.
+ */
+PM.starterSets = {
+  kanto: ["Bulbasaur", "Charmander", "Squirtle"],
+  johto: ["Chikorita", "Cyndaquil", "Totodile"],
+  hoenn: ["Treecko", "Torchic", "Mudkip"],
+  sinnoh: ["Turtwig", "Chimchar", "Piplup"],
+  unova: ["Snivy", "Tepig", "Oshawott"],
+  kalos: ["Chespin", "Fennekin", "Froakie"],
+  alola: ["Rowlet", "Litten", "Popplio"],
+  galar: ["Grookey", "Scorbunny", "Sobble"],
+  hisui: ["Rowlet", "Cyndaquil", "Oshawott"],
+  paldea: ["Sprigatito", "Fuecoco", "Quaxly"]
+};
+
+/**
+ * Default habitats a type suggests, used to seed each Pokémon's encounter
+ * requirements at build time. A Pokémon is only eligible to appear on a tile
+ * whose habitat is among its allowed habitats (empty = any habitat).
+ */
+PM.typeHabitats = {
+  Bug: ["forest", "grass"],
+  Grass: ["grass", "forest"],
+  Poison: ["forest", "cave", "urban"],
+  Water: ["water", "fishing"],
+  Ice: ["cave", "mountain"],
+  Rock: ["cave", "mountain"],
+  Ground: ["cave", "mountain", "sand"],
+  Steel: ["cave", "mountain"],
+  Fighting: ["cave", "mountain", "urban"],
+  Fire: ["mountain", "cave"],
+  Electric: ["urban", "grass"],
+  Flying: ["grass", "mountain", "forest"],
+  Normal: ["grass", "urban"],
+  Fairy: ["forest", "grass"],
+  Psychic: ["urban", "night"],
+  Ghost: ["night", "cave"],
+  Dark: ["night", "cave"],
+  Dragon: ["mountain", "cave"]
 };
 
 /**

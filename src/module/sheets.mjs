@@ -25,7 +25,10 @@ export class TrainerSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static DEFAULT_OPTIONS = {
     ...SHEET_DEFAULTS,
     classes: [...SHEET_DEFAULTS.classes, "trainer"],
-    position: { width: 560, height: 620 }
+    position: { width: 560, height: 620 },
+    actions: {
+      chooseStarter() { return game.pokemonMasters?.starters?.choose(this.actor); }
+    }
   };
 
   static PARTS = {
@@ -37,6 +40,7 @@ export class TrainerSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     context.actor = this.actor;
     context.system = this.actor.system;
     context.vocations = PM.vocations;
+    context.vocationBlurb = PM.vocationInfo?.[this.actor.system.vocation]?.blurb ?? "";
     context.editable = this.isEditable;
     context.party = await this.actor.getParty();
     return context;

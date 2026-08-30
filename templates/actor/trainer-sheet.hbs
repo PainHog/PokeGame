@@ -15,11 +15,12 @@
       <label class="pm-inline">Hometown
         <input type="text" name="system.hometown" value="{{system.hometown}}" placeholder="—">
       </label>
+      {{#if vocationBlurb}}<p class="pm-vocation-blurb">{{vocationBlurb}}</p>{{/if}}
     </div>
   </header>
 
   <section class="pm-section">
-    <h2>Party</h2>
+    <h2>Party <button type="button" class="pm-starter-btn" data-action="chooseStarter">Choose Starter</button></h2>
     {{#if party.length}}
       <ul class="pm-party">
         {{#each party as |mon|}}
