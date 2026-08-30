@@ -11,6 +11,7 @@ import { TrainerData, PokemonData, MoveData, AbilityData, GearData } from "./mod
 import { PokemonMastersActor, PokemonMastersItem } from "./module/documents.mjs";
 import { TrainerSheet, PokemonSheet, PMItemSheet } from "./module/sheets.mjs";
 import { WildTileBehaviorType, SafeZoneBehaviorType, ZoneTransitBehaviorType } from "./module/regions.mjs";
+import { AmbushBehaviorType, registerFactionApi } from "./module/factions.mjs";
 import { registerWorldHooks } from "./module/world.mjs";
 import { registerCatchHooks } from "./module/catch.mjs";
 import { registerBattleApi } from "./module/battle.mjs";
@@ -55,12 +56,14 @@ Hooks.once("init", () => {
   Object.assign(CONFIG.RegionBehavior.dataModels, {
     "pokemon-masters.wildTile": WildTileBehaviorType,
     "pokemon-masters.safeZone": SafeZoneBehaviorType,
-    "pokemon-masters.zoneTransit": ZoneTransitBehaviorType
+    "pokemon-masters.zoneTransit": ZoneTransitBehaviorType,
+    "pokemon-masters.ambush": AmbushBehaviorType
   });
   Object.assign(CONFIG.RegionBehavior.typeIcons, {
     "pokemon-masters.wildTile": "fa-solid fa-paw",
     "pokemon-masters.safeZone": "fa-solid fa-house-medical",
-    "pokemon-masters.zoneTransit": "fa-solid fa-door-open"
+    "pokemon-masters.zoneTransit": "fa-solid fa-door-open",
+    "pokemon-masters.ambush": "fa-solid fa-user-ninja"
   });
 
   // Token resource bars.
@@ -99,5 +102,6 @@ Hooks.once("ready", () => {
   registerItemsApi();
   registerGymApi();
   registerBreedingApi();
+  registerFactionApi();
   console.log("Pokémon Masters | Ready");
 });

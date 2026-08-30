@@ -12,7 +12,8 @@
     "RegionBehavior": {
       "pokemon-masters.wildTile": "Wild Tile (Pokémon Masters)",
       "pokemon-masters.safeZone": "Safe Zone (Pokémon Masters)",
-      "pokemon-masters.zoneTransit": "Zone Transit (Pokémon Masters)"
+      "pokemon-masters.zoneTransit": "Zone Transit (Pokémon Masters)",
+      "pokemon-masters.ambush": "Faction Ambush (Pokémon Masters)"
     }
   },
   "PM": {
@@ -37,6 +38,17 @@
           "kind": { "label": "Zone Type", "hint": "Street, town, Pokémon Center, Poké Mart, or building interior." },
           "healOnEnter": { "label": "Heal On Enter", "hint": "Pokémon Center: restore the entering trainer's party to full HP." },
           "announce": { "label": "Announce Entry", "hint": "Post a chat message when a trainer enters." }
+        }
+      },
+      "Ambush": {
+        "FIELDS": {
+          "faction": { "label": "Faction", "hint": "Which group ambushes the player (Team Rocket, wandering trainers…). Members of that faction are not ambushed." },
+          "chance": { "label": "Ambush Chance (%)", "hint": "Chance to trigger on a qualifying step." },
+          "onEveryStep": { "label": "Trigger On Every Step", "hint": "Roll while moving through, not only on entry." },
+          "npcUuid": { "label": "Specific NPC", "hint": "An exact NPC trainer to fight. Overrides the folder." },
+          "folder": { "label": "NPC Folder", "hint": "Name of an Actor folder of NPC trainers to draw a random opponent from." },
+          "mode": { "label": "Resolution", "hint": "Auto-resolve the battle, or just announce it for the GM to run." },
+          "moneyReward": { "label": "Prize Money", "hint": "Awarded to the player on a win." }
         }
       },
       "ZoneTransit": {

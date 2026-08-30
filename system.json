@@ -41,7 +41,8 @@
     "RegionBehavior": {
       "wildTile": {},
       "safeZone": {},
-      "zoneTransit": {}
+      "zoneTransit": {},
+      "ambush": {}
     }
   },
   "grid": {
