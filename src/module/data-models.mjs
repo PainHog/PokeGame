@@ -216,6 +216,9 @@ export class MoveData extends foundry.abstract.TypeDataModel {
       flinchChance: new fields.NumberField({ required: true, integer: true, min: 0, max: 100, initial: 0 }),
       multihit: new fields.ArrayField(new fields.NumberField({ integer: true, min: 1 }), { required: false, nullable: true, initial: null }),
       contact: new fields.BooleanField({ initial: false }),
+      sideCondition: new fields.StringField({ required: false, blank: true, initial: "" }),
+      weather: new fields.StringField({ required: false, blank: true, initial: "" }),
+      confuseChance: new fields.NumberField({ required: true, integer: true, min: 0, max: 100, initial: 0 }),
       description: new fields.HTMLField({ required: false, blank: true })
     };
   }

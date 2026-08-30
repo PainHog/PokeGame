@@ -13,10 +13,8 @@
 import { damageCalc, CRIT_CHANCE, STATUS_CHIP } from "./battle.mjs";
 import { typeMultiplier } from "./typechart.mjs";
 
-/** Fallback move when a combatant knows none. */
-function defaultMove(types) {
-  return { name: "Struggle", moveType: types?.[0] ?? "Normal", category: "Physical", power: 50 };
-}
+/** Struggle — used when all moves are out of PP (typeless, recoils). */
+const STRUGGLE = { name: "Struggle", moveType: "Normal", category: "Physical", power: 50, accuracy: 100, recoil: 0.25, contact: true, pp: Infinity };
 
 /** Expected damage of a move from attacker vs defender (for AI ranking). */
 function expectedDamage(move, attacker, defender) {
@@ -31,7 +29,8 @@ function expectedDamage(move, attacker, defender) {
 
 /** The move an attacker should use against a defender (highest expected damage). */
 export function chooseBestMove(attacker, defender) {
-  const moves = attacker.moves?.length ? attacker.moves : [defaultMove(attacker.types)];
+  const moves = (attacker.moves ?? []).filter((m) => m.pp === undefined || m.pp > 0);
+  if (!moves.length) return STRUGGLE; // all out of PP
   let best = moves[0];
   let bestScore = -1;
   for (const move of moves) {
@@ -41,6 +40,11 @@ export function chooseBestMove(attacker, defender) {
   // While healthy, a setup sweeper first raises its own offensive stat (to +2)
   // instead of attacking — so Swords Dance / Nasty Plot actually get used.
   const hpFrac = (attacker.hp?.value ?? 1) / (attacker.hp?.max ?? 1);
+  // On its first action, a healthy lead sets field control (hazards/screen/weather/status).
+  if ((attacker.turnsSeen ?? 0) === 0 && hpFrac > 0.6) {
+    const util = moves.find((m) => m.category === "Status" && (m.sideCondition || m.weather || m.inflictStatus || m.confuseChance));
+    if (util) return util;
+  }
   if (hpFrac > 0.7) {
     const setup = moves.find((m) => m.category === "Status" && m.boosts && m.boostTarget === "self"
       && Object.entries(m.boosts).some(([st, v]) => v > 0 && ["atk", "spa", "spe"].includes(st) && (attacker.boosts?.[st] ?? 0) < 2));
@@ -63,8 +67,8 @@ function prep(c) {
     ability: (c.ability ?? "").toLowerCase(),
     heldItem: (c.heldItem ?? "").toLowerCase(),
     boosts: { atk: 0, def: 0, spa: 0, spd: 0, spe: 0 },
-    flinch: false, sashUsed: false, berryUsed: false,
-    moves: (c.moves ?? []).map((m) => ({ ...m })),
+    flinch: false, sashUsed: false, berryUsed: false, confusion: 0, turnsSeen: 0,
+    moves: (c.moves ?? []).map((m) => ({ ...m, pp: m.pp ?? 15 })),
     hp: { value: c.hp?.value ?? maxHp, max: maxHp }
   };
 }
@@ -84,7 +88,32 @@ export function simulateBattle(teamAIn, teamBIn, { maxTurns = 300, rng = Math.ra
   let prevA = 0; let prevB = 0;
   const log = [];
   let turns = 0;
-  const weather = { type: "none" };
+  const weather = { type: "none", turns: 0 };
+  const side = {
+    A: { reflect: 0, lightscreen: 0, stealthrock: false, spikes: 0, toxicspikes: 0 },
+    B: { reflect: 0, lightscreen: 0, stealthrock: false, spikes: 0, toxicspikes: 0 }
+  };
+  const sideOf = (mon) => (A.includes(mon) ? "A" : "B");
+
+  // Entry-hazard damage/effects when a Pokémon switches in.
+  const applyHazards = (mon) => {
+    if (!mon || mon.ability === "magic guard") return;
+    const grounded = !mon.types.includes("Flying") && mon.ability !== "levitate";
+    const s = side[sideOf(mon)];
+    if (s.stealthrock) {
+      const dmg = Math.max(1, Math.floor(mon.hp.max * 0.125 * typeMultiplier("Rock", mon.types)));
+      mon.hp.value = Math.max(0, mon.hp.value - dmg); log.push(`${mon.name} was hurt by Stealth Rock (−${dmg}).`);
+    }
+    if (grounded && s.spikes) {
+      const frac = [0, 1 / 8, 1 / 6, 1 / 4][Math.min(3, s.spikes)];
+      const dmg = Math.max(1, Math.floor(mon.hp.max * frac));
+      mon.hp.value = Math.max(0, mon.hp.value - dmg); log.push(`${mon.name} was hurt by Spikes (−${dmg}).`);
+    }
+    if (grounded && s.toxicspikes && mon.status === "none" && !mon.types.includes("Steel")) {
+      if (mon.types.includes("Poison")) { s.toxicspikes = 0; log.push(`${mon.name} absorbed the Toxic Spikes.`); }
+      else { mon.status = s.toxicspikes >= 2 ? "toxic" : "poison"; log.push(`${mon.name} was poisoned by Toxic Spikes!`); }
+    }
+  };
 
   // Defender-ability immunities / absorptions for a move type.
   const absorbCheck = (move, defender) => {
@@ -112,6 +141,16 @@ export function simulateBattle(teamAIn, teamBIn, { maxTurns = 300, rng = Math.ra
       log.push(`${mon.name} is frozen solid.`); return false;
     }
     if (mon.status === "paralysis" && rng() < 0.25) { log.push(`${mon.name} is paralyzed!`); return false; }
+    if (mon.confusion > 0) {
+      mon.confusion--;
+      if (rng() < 1 / 3) {
+        const res = damageCalc({ level: mon.level, power: 40, atk: mon.stats.atk, def: mon.stats.def, stab: 1, typeMult: 1, rng });
+        mon.hp.value = Math.max(0, mon.hp.value - res.damage);
+        log.push(`${mon.name} is confused and hurt itself (−${res.damage})!`);
+        return false;
+      }
+      if (mon.confusion === 0) log.push(`${mon.name} snapped out of its confusion.`);
+    }
     return true;
   };
 
@@ -127,6 +166,8 @@ export function simulateBattle(teamAIn, teamBIn, { maxTurns = 300, rng = Math.ra
 
   const strike = (attacker, defender) => {
     const move = chooseBestMove(attacker, defender);
+    attacker.turnsSeen = (attacker.turnsSeen ?? 0) + 1;
+    if (move.pp !== undefined && move.pp !== Infinity) move.pp = Math.max(0, move.pp - 1);
     if (!move.alwaysHits && (move.accuracy ?? 100) > 0
         && Math.floor(rng() * 100) >= move.accuracy) { log.push(`${attacker.name}'s ${move.name} missed!`); return; }
     const isPhysical = move.category === "Physical";
@@ -142,9 +183,13 @@ export function simulateBattle(teamAIn, teamBIn, { maxTurns = 300, rng = Math.ra
         else log.push(`${defender.name}'s ${defender.ability} made ${move.name} have no effect!`);
         return;
       }
-      let typeMult = typeMultiplier(move.moveType, defender.types);
+      let typeMult = move.name === "Struggle" ? 1 : typeMultiplier(move.moveType, defender.types);
       if (defender.ability === "thick fat" && (move.moveType === "Fire" || move.moveType === "Ice")) typeMult *= 0.5;
-      if (defender.ability === "wonder guard" && typeMult < 2) { log.push(`${defender.name}'s Wonder Guard blocked ${move.name}!`); return; }
+      if (defender.ability === "wonder guard" && move.name !== "Struggle" && typeMult < 2) { log.push(`${defender.name}'s Wonder Guard blocked ${move.name}!`); return; }
+      if (move.power <= 60 && attacker.ability === "technician") typeMult *= 1.5;
+      if (defender.ability === "multiscale" && defender.hp.value >= defender.hp.max) typeMult *= 0.5;
+      const dSide = side[sideOf(defender)];
+      if (!crit && ((isPhysical && dSide.reflect) || (!isPhysical && dSide.lightscreen))) typeMult *= 0.5;
       // Weather damage modifiers.
       if (weather.type === "rain") typeMult *= move.moveType === "Water" ? 1.5 : move.moveType === "Fire" ? 0.5 : 1;
       else if (weather.type === "sun") typeMult *= move.moveType === "Fire" ? 1.5 : move.moveType === "Water" ? 0.5 : 1;
@@ -157,6 +202,8 @@ export function simulateBattle(teamAIn, teamBIn, { maxTurns = 300, rng = Math.ra
       if (gutsActive && isPhysical) atkRaw *= 1.5;
       if (isPhysical && attacker.heldItem === "choice band") atkRaw *= 1.5;
       if (!isPhysical && attacker.heldItem === "choice specs") atkRaw *= 1.5;
+      const pinch = { blaze: "Fire", torrent: "Water", overgrow: "Grass", swarm: "Bug" }[attacker.ability];
+      if (pinch && pinch === move.moveType && attacker.hp.value <= attacker.hp.max / 3) atkRaw *= 1.5;
       // Crits ignore the attacker's negative and the defender's positive stages.
       const atk = atkRaw * stageMult(crit ? Math.max(0, atkStage) : atkStage);
       let defRaw = isPhysical ? defender.stats.def : defender.stats.spd;
@@ -171,7 +218,7 @@ export function simulateBattle(teamAIn, teamBIn, { maxTurns = 300, rng = Math.ra
       for (let h = 0; h < hits && defender.hp.value > 0; h++) {
         const res = damageCalc({
           level: attacker.level, power: move.power, atk, def,
-          stab: attacker.types.includes(move.moveType) ? 1.5 : 1,
+          stab: attacker.types.includes(move.moveType) ? (attacker.ability === "adaptability" ? 2 : 1.5) : 1,
           typeMult, crit, burn: effBurn, rng
         });
         defender.hp.value = Math.max(0, defender.hp.value - res.damage);
@@ -183,11 +230,17 @@ export function simulateBattle(teamAIn, teamBIn, { maxTurns = 300, rng = Math.ra
         if (defender.heldItem === "focus sash") defender.sashUsed = true;
         log.push(`${defender.name} hung on!`);
       }
-      // Life Orb recoil, Rocky Helmet, Sitrus Berry.
-      if (attacker.heldItem === "life orb" && total > 0) attacker.hp.value = Math.max(0, attacker.hp.value - Math.max(1, Math.floor(attacker.hp.max / 10)));
-      if (move.contact && total > 0 && defender.hp.value > 0 && defender.heldItem === "rocky helmet") {
-        attacker.hp.value = Math.max(0, attacker.hp.value - Math.max(1, Math.floor(attacker.hp.max / 6)));
-        log.push(`${attacker.name} was hurt by ${defender.name}'s Rocky Helmet!`);
+      // Contact / item recoil (Magic Guard skips all of it).
+      if (attacker.ability !== "magic guard") {
+        if (attacker.heldItem === "life orb" && total > 0) attacker.hp.value = Math.max(0, attacker.hp.value - Math.max(1, Math.floor(attacker.hp.max / 10)));
+        if (move.contact && total > 0 && defender.hp.value > 0 && defender.heldItem === "rocky helmet") {
+          attacker.hp.value = Math.max(0, attacker.hp.value - Math.max(1, Math.floor(attacker.hp.max / 6)));
+          log.push(`${attacker.name} was hurt by ${defender.name}'s Rocky Helmet!`);
+        }
+        if (move.contact && total > 0 && defender.hp.value > 0 && (defender.ability === "rough skin" || defender.ability === "iron barbs")) {
+          attacker.hp.value = Math.max(0, attacker.hp.value - Math.max(1, Math.floor(attacker.hp.max / 8)));
+          log.push(`${attacker.name} was hurt by ${defender.name}'s ${defender.ability}!`);
+        }
       }
       if (!defender.berryUsed && defender.heldItem === "sitrus berry" && defender.hp.value > 0 && defender.hp.value <= defender.hp.max / 2) {
         defender.hp.value = Math.min(defender.hp.max, defender.hp.value + Math.floor(defender.hp.max / 4));
@@ -195,31 +248,48 @@ export function simulateBattle(teamAIn, teamBIn, { maxTurns = 300, rng = Math.ra
       }
       log.push(`${attacker.name} used ${move.name} → ${total}${hits > 1 ? ` (${hits} hits)` : ""}${crit ? " (crit!)" : ""} (${defender.name} ${defender.hp.value}/${defender.hp.max})`);
       if (move.drain && total > 0) attacker.hp.value = Math.min(attacker.hp.max, attacker.hp.value + Math.max(1, Math.floor(total * move.drain)));
-      if (move.recoil && total > 0) attacker.hp.value = Math.max(0, attacker.hp.value - Math.max(1, Math.floor(total * move.recoil)));
+      if (move.recoil && total > 0 && attacker.ability !== "magic guard") attacker.hp.value = Math.max(0, attacker.hp.value - Math.max(1, Math.floor(total * move.recoil)));
       if (defender.hp.value > 0 && defender.status === "none" && move.secondaryStatus && move.secondaryChance && Math.floor(rng() * 100) < move.secondaryChance) {
         defender.status = move.secondaryStatus; defender.statusTurns = 0; log.push(`${defender.name} was ${move.secondaryStatus}!`);
       }
       if (defender.hp.value > 0 && move.secondaryBoosts && move.secondaryChance && Math.floor(rng() * 100) < move.secondaryChance) applyBoosts(defender, move.secondaryBoosts);
       if (defender.hp.value > 0 && move.flinchChance && Math.floor(rng() * 100) < move.flinchChance) defender.flinch = true;
+      if (defender.hp.value > 0 && defender.confusion <= 0 && move.confuseChance && Math.floor(rng() * 100) < move.confuseChance) { defender.confusion = 2 + Math.floor(rng() * 4); log.push(`${defender.name} became confused!`); }
     } else {
       log.push(`${attacker.name} used ${move.name}.`);
       if (defender.hp.value > 0 && defender.status === "none" && move.inflictStatus) { defender.status = move.inflictStatus; defender.statusTurns = 0; log.push(`${defender.name} was ${move.inflictStatus}!`); }
       if (move.boosts) applyBoosts(move.boostTarget === "self" ? attacker : defender, move.boosts);
       if (move.healSelf) { attacker.hp.value = Math.min(attacker.hp.max, attacker.hp.value + Math.max(1, Math.floor(attacker.hp.max * move.healSelf))); log.push(`${attacker.name} restored HP.`); }
+      if (move.weather) { const w = { raindance: "rain", sunnyday: "sun", sandstorm: "sand", hail: "snow", snowscape: "snow" }[move.weather]; if (w) { weather.type = w; weather.turns = 5; log.push(`The weather turned to ${w}.`); } }
+      if (move.sideCondition) {
+        const sc = move.sideCondition;
+        if (sc === "reflect") { side[sideOf(attacker)].reflect = 5; log.push("Reflect raised Defense!"); }
+        else if (sc === "lightscreen") { side[sideOf(attacker)].lightscreen = 5; log.push("Light Screen raised Sp. Def!"); }
+        else if (sc === "stealthrock") { side[sideOf(defender)].stealthrock = true; log.push("Pointed stones float around the foe!"); }
+        else if (sc === "spikes") { const ds = side[sideOf(defender)]; ds.spikes = Math.min(3, ds.spikes + 1); log.push("Spikes were scattered!"); }
+        else if (sc === "toxicspikes") { const ds = side[sideOf(defender)]; ds.toxicspikes = Math.min(2, ds.toxicspikes + 1); log.push("Toxic Spikes were scattered!"); }
+      }
+      if (defender.hp.value > 0 && defender.confusion <= 0 && move.confuseChance && Math.floor(rng() * 100) < move.confuseChance) { defender.confusion = 2 + Math.floor(rng() * 4); log.push(`${defender.name} became confused!`); }
     }
   };
 
-  const speed = (mon) => mon.stats.spe * stageMult(mon.boosts.spe) * (mon.status === "paralysis" ? 0.5 : 1) * (mon.heldItem === "choice scarf" ? 1.5 : 1);
+  const speed = (mon) => {
+    let s = mon.stats.spe * stageMult(mon.boosts.spe) * (mon.status === "paralysis" ? 0.5 : 1) * (mon.heldItem === "choice scarf" ? 1.5 : 1);
+    if ((mon.ability === "swift swim" && weather.type === "rain")
+        || (mon.ability === "chlorophyll" && weather.type === "sun")
+        || (mon.ability === "sand rush" && weather.type === "sand")) s *= 2;
+    return s;
+  };
 
   // Entry (lead) abilities: Intimidate + weather setters.
   const onEntry = (mon, foe) => {
     if (!mon) return;
     switch (mon.ability) {
       case "intimidate": if (foe) { foe.boosts.atk = clampStage(foe.boosts.atk - 1); log.push(`${mon.name}'s Intimidate cut ${foe.name}'s Attack!`); } break;
-      case "drizzle": weather.type = "rain"; log.push(`${mon.name} made it rain!`); break;
-      case "drought": weather.type = "sun"; log.push(`${mon.name} intensified the sun!`); break;
-      case "sand stream": weather.type = "sand"; log.push(`${mon.name} kicked up a sandstorm!`); break;
-      case "snow warning": weather.type = "snow"; log.push(`${mon.name} summoned a snowstorm!`); break;
+      case "drizzle": weather.type = "rain"; weather.turns = 5; log.push(`${mon.name} made it rain!`); break;
+      case "drought": weather.type = "sun"; weather.turns = 5; log.push(`${mon.name} intensified the sun!`); break;
+      case "sand stream": weather.type = "sand"; weather.turns = 5; log.push(`${mon.name} kicked up a sandstorm!`); break;
+      case "snow warning": weather.type = "snow"; weather.turns = 5; log.push(`${mon.name} summoned a snowstorm!`); break;
     }
   };
   onEntry(A[0], B[0]);
@@ -230,9 +300,10 @@ export function simulateBattle(teamAIn, teamBIn, { maxTurns = 300, rng = Math.ra
     while (a < A.length && A[a].hp.value <= 0) a++;
     while (b < B.length && B[b].hp.value <= 0) b++;
     if (a >= A.length || b >= B.length) break;
-    // Switch-ins trigger entry abilities (Intimidate, weather).
-    if (a !== prevA) { onEntry(A[a], B[b]); prevA = a; }
-    if (b !== prevB) { onEntry(B[b], A[a]); prevB = b; }
+    // Switch-ins trigger entry abilities (Intimidate, weather) and take hazards.
+    if (a !== prevA) { onEntry(A[a], B[b]); applyHazards(A[a]); prevA = a; }
+    if (b !== prevB) { onEntry(B[b], A[a]); applyHazards(B[b]); prevB = b; }
+    if (A[a].hp.value <= 0 || B[b].hp.value <= 0) continue; // hazards may KO a switch-in
     turns++;
     const atkA = A[a]; const atkB = B[b];
     // Order by move priority, then paralysis-adjusted Speed, ties random.
@@ -269,6 +340,12 @@ export function simulateBattle(teamAIn, teamBIn, { maxTurns = 300, rng = Math.ra
         const heal = Math.max(1, Math.floor(mon.hp.max / 16));
         mon.hp.value = Math.min(mon.hp.max, mon.hp.value + heal);
       }
+      // Poison Heal recovers HP from poison; Magic Guard blocks all chip.
+      if ((mon.status === "poison" || mon.status === "toxic") && mon.ability === "poison heal") {
+        if (mon.hp.value < mon.hp.max) mon.hp.value = Math.min(mon.hp.max, mon.hp.value + Math.max(1, Math.floor(mon.hp.max / 8)));
+        continue;
+      }
+      if (mon.ability === "magic guard") continue;
       // Status chip: toxic ramps 1/16 → 2/16 → …; poison 1/8; burn 1/16.
       let dmg = 0;
       if (mon.status === "toxic") { mon.toxicCounter = (mon.toxicCounter || 0) + 1; dmg = Math.max(1, Math.floor(mon.hp.max * mon.toxicCounter / 16)); }
@@ -278,6 +355,10 @@ export function simulateBattle(teamAIn, teamBIn, { maxTurns = 300, rng = Math.ra
       log.push(`${mon.name} is hurt by ${mon.status === "toxic" ? "toxic poison" : mon.status} (−${dmg}).`);
       if (mon.hp.value <= 0) { log.push(`${mon.name} fainted!`); if (isA) a++; else b++; }
     }
+
+    // Field effects tick down.
+    if (weather.type !== "none" && --weather.turns <= 0) { log.push(`The ${weather.type} let up.`); weather.type = "none"; }
+    for (const k of ["A", "B"]) { if (side[k].reflect > 0) side[k].reflect--; if (side[k].lightscreen > 0) side[k].lightscreen--; }
   }
 
   const winner = a >= A.length && b >= B.length ? "draw" : a >= A.length ? "B" : b >= B.length ? "A" : "draw";
@@ -307,7 +388,9 @@ export function combatantFromActor(actor) {
       inflictStatus: m.system.inflictStatus ?? "", secondaryStatus: m.system.secondaryStatus ?? "", secondaryChance: m.system.secondaryChance ?? 0,
       boosts: m.system.boosts ?? null, boostTarget: m.system.boostTarget ?? "target", secondaryBoosts: m.system.secondaryBoosts ?? null,
       drain: m.system.drain ?? 0, recoil: m.system.recoil ?? 0, healSelf: m.system.healSelf ?? 0,
-      flinchChance: m.system.flinchChance ?? 0, multihit: m.system.multihit ?? null
+      flinchChance: m.system.flinchChance ?? 0, multihit: m.system.multihit ?? null,
+      contact: !!m.system.contact, pp: m.system.pp ?? 15,
+      sideCondition: m.system.sideCondition ?? "", weather: m.system.weather ?? "", confuseChance: m.system.confuseChance ?? 0
     }))
   };
 }

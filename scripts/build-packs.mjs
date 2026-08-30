@@ -295,6 +295,10 @@ function buildMoves() {
         flinchChance: m.secondary?.volatileStatus === "flinch" ? (m.secondary?.chance ?? 0) : 0,
         multihit: Array.isArray(m.multihit) ? m.multihit : (typeof m.multihit === "number" ? [m.multihit, m.multihit] : null),
         contact: !!m.flags?.contact,
+        // Field effects: hazards/screens (sideCondition), weather, and confusion.
+        sideCondition: m.sideCondition ?? "",
+        weather: (m.weather ?? "").toString().toLowerCase().replace(/\s+/g, ""),
+        confuseChance: m.volatileStatus === "confusion" ? 100 : (m.secondary?.volatileStatus === "confusion" ? (m.secondary?.chance ?? 0) : 0),
         healSelf: Array.isArray(m.heal) ? m.heal[0] / m.heal[1] : 0,
         description: m.shortDesc || m.desc || ""
       }
