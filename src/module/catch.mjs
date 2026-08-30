@@ -233,7 +233,7 @@ export function registerCatchHooks() {
     try {
       const token = hud.object?.document;
       if (token?.actor?.type !== "pokemon") return;
-      if (token.disposition > 0) return; // friendly/owned — not catchable
+      if (token.disposition > 0 || token.actor.system.trainer) return; // owned — not catchable
       const root = html instanceof HTMLElement ? html : html?.[0];
       const col = root?.querySelector(".col.left") ?? root;
       if (!col) return;

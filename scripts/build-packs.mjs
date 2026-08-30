@@ -310,7 +310,9 @@ function buildGear() {
     if (!it.exists || !okNs(it)) continue;
     count++;
     const lower = it.name.toLowerCase();
-    const isBall = lower.endsWith(" ball") && lower in BALL_MODIFIERS;
+    // Anything ending in " ball" is a Poké Ball except these held items.
+    const NON_CATCH_BALLS = new Set(["iron ball", "smoke ball", "light ball"]);
+    const isBall = lower.endsWith(" ball") && !NON_CATCH_BALLS.has(lower);
     const category = isBall ? "ball"
       : it.isBerry ? "berry"
       : it.name.startsWith("TM") || it.name.startsWith("HM") ? "tm"

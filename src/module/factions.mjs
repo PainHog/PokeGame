@@ -78,8 +78,9 @@ export class AmbushBehaviorType extends foundry.data.regionBehaviors.RegionBehav
     };
   }
 
+  // tokenMoveIn = entry step; tokenMoveWithin (gated) = internal steps. Not
+  // tokenEnter — it double-fires with tokenMoveIn on entry.
   static events = {
-    [EVENTS.TOKEN_ENTER]: async function (event) { if (!this.onEveryStep) return AmbushBehaviorType.run.call(this, event); },
     [EVENTS.TOKEN_MOVE_IN]: async function (event) { return AmbushBehaviorType.run.call(this, event); },
     [EVENTS.TOKEN_MOVE_WITHIN]: async function (event) { if (this.onEveryStep) return AmbushBehaviorType.run.call(this, event); }
   };

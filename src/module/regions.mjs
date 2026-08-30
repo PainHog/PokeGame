@@ -128,11 +128,10 @@ export class WildTileBehaviorType extends foundry.data.regionBehaviors.RegionBeh
     };
   }
 
+  // Roll on the entry step (tokenMoveIn) and, when onEveryStep, each internal
+  // step (tokenMoveWithin). Deliberately NOT tokenEnter — that also fires
+  // alongside tokenMoveIn (double-roll) and when a token is merely placed inside.
   static events = {
-    [EVENTS.TOKEN_ENTER]: async function (event) {
-      if (this.onEveryStep) return;
-      return this.constructor._roll.call(this, event);
-    },
     [EVENTS.TOKEN_MOVE_IN]: async function (event) {
       return this.constructor._roll.call(this, event);
     },
@@ -196,7 +195,7 @@ export class WildTileBehaviorType extends foundry.data.regionBehaviors.RegionBeh
       console.warn(`Pokémon Masters | Encounter species not found: ${speciesName}`);
       return;
     }
-    markSeen(token.actor, speciesActor.name);
+    await markSeen(token.actor, speciesActor.name);
 
     // Rarity gate — rare things win the weighted roll but still slip away.
     const rarity = speciesActor.system.rarity ?? "common";

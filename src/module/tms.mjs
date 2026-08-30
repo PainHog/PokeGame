@@ -106,9 +106,9 @@ export class FieldMoveGateBehaviorType extends foundry.data.regionBehaviors.Regi
     };
   }
 
+  // Only tokenMoveIn — tokenEnter would double-fire (and trigger on placement).
   static events = {
-    [EVENTS.TOKEN_MOVE_IN]: async function (event) { return FieldMoveGateBehaviorType.gate.call(this, event); },
-    [EVENTS.TOKEN_ENTER]: async function (event) { return FieldMoveGateBehaviorType.gate.call(this, event); }
+    [EVENTS.TOKEN_MOVE_IN]: async function (event) { return FieldMoveGateBehaviorType.gate.call(this, event); }
   };
 
   static async gate(event) {
@@ -125,8 +125,9 @@ export class FieldMoveGateBehaviorType extends foundry.data.regionBehaviors.Regi
     }
 
     if (!isResponsible(token)) return;
-    // Bounce the token back to where it came from — a real gate.
-    const origin = event.data?.origin;
+    // Bounce the token back to where it came from — a real gate. (Event shape
+    // differs across v12/v13; try the known locations for the origin waypoint.)
+    const origin = event.data?.origin ?? event.data?.movement?.origin;
     if (origin && Number.isFinite(origin.x)) {
       await token.update({ x: origin.x, y: origin.y, elevation: origin.elevation ?? token.elevation });
     }

@@ -38,7 +38,9 @@ function injectRegionSelect(app, html) {
       <p class="notes">Wild encounters on this map draw from this region's tables (regional variants included).</p>`;
 
     // Prefer a Basics/ambience area; otherwise fall back to the form itself.
-    const anchor = root.querySelector('[name="darkness"]')?.closest(".form-group")
+    const anchor = root.querySelector('[name="environment.darknessLevel"]')?.closest(".form-group")
+      ?? root.querySelector('[name="darkness"]')?.closest(".form-group")
+      ?? root.querySelector('[name="navigation.name"]')?.closest(".form-group")
       ?? root.querySelector('[name="navName"]')?.closest(".form-group");
     if (anchor) anchor.after(group);
     else (root.querySelector("form") ?? root).prepend(group);
