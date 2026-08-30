@@ -295,6 +295,8 @@
 }
 .pm-battle-card h3 { margin: 0 0 4px; border: none; }
 .pm-faint { color: var(--pm-accent, #cc0000); font-weight: 700; margin: 4px 0 0; }
+.pm-battle-log { max-height: 220px; overflow-y: auto; margin: 4px 0 0; padding-left: 18px; font-size: .82rem; }
+.pm-battle-log li { margin: 1px 0; }
 
 .pm-knownmoves { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
 .pm-knownmoves li { display: flex; align-items: center; gap: 7px; }

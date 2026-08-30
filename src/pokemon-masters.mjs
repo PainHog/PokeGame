@@ -18,6 +18,7 @@ import { registerProgressionHooks } from "./module/progression.mjs";
 import { registerStarterApi } from "./module/starters.mjs";
 import { registerStorageApi } from "./module/storage.mjs";
 import { registerOrgApi } from "./module/organizations.mjs";
+import { registerNpcApi } from "./module/npc.mjs";
 
 Hooks.once("init", () => {
   console.log("Pokémon Masters | Initializing system");
@@ -86,5 +87,6 @@ Hooks.once("ready", () => {
   registerStarterApi();
   registerStorageApi();
   registerOrgApi();
+  registerNpcApi();
   console.log("Pokémon Masters | Ready");
 });

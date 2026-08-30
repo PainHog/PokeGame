@@ -36,6 +36,8 @@ export class TrainerData extends foundry.abstract.TypeDataModel {
       vocation: new fields.StringField({
         required: true, blank: false, initial: "trainer", choices: PM.vocations
       }),
+      /** GM-run NPC trainer (rival, gym leader) that can auto-battle. */
+      isNpc: new fields.BooleanField({ initial: false }),
       level: new fields.NumberField({ required: true, integer: true, min: 1, initial: 1 }),
       money: new fields.NumberField({ required: true, integer: true, min: 0, initial: 3000 }),
       badges: new fields.ArrayField(new fields.StringField({ blank: false })),
