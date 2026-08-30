@@ -93,6 +93,24 @@ function variantRegion(forme) {
   return "";
 }
 
+/** The base (lowest-stage) species of an evolution line — what an egg hatches into. */
+function eggSpeciesOf(s) {
+  let cur = s;
+  let guard = 0;
+  while (cur.prevo && guard++ < 12) {
+    const prev = Dex.species.get(cur.prevo);
+    if (!prev) break;
+    cur = prev;
+  }
+  return cur.name;
+}
+
+/** Genderless species (can only breed with Ditto). */
+function isGenderless(s) {
+  const gr = s.genderRatio;
+  return !!gr && gr.M === 0 && gr.F === 0;
+}
+
 /** Habitats a type suggests (kept in sync with PM.typeHabitats in config.mjs). */
 const TYPE_HABITATS = {
   Bug: ["forest", "grass"], Grass: ["grass", "forest"], Poison: ["forest", "cave", "urban"],
@@ -195,6 +213,9 @@ async function buildSpecies() {
         // Legendaries/mythicals are unique in the world; 0 = unlimited.
         populationCap: rarity === "legendary" ? 1 : 0,
         ultraBeast: (s.tags || []).includes("Ultra Beast"),
+        eggGroups: s.eggGroups ?? [],
+        eggSpecies: eggSpeciesOf(s),
+        genderless: isGenderless(s),
         types: s.types,
         level: 5,
         rarity,

@@ -35,7 +35,8 @@ export class TrainerSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       joinOrg() { return game.pokemonMasters?.orgs?.joinDialog(this.actor); },
       leaveOrg(event, target) { return game.pokemonMasters?.orgs?.leave(this.actor, target.dataset.org); },
       withdraw(event, target) { return game.pokemonMasters?.storage?.withdraw(this.actor, target.dataset.uuid); },
-      deposit(event, target) { return game.pokemonMasters?.storage?.deposit(this.actor, target.dataset.uuid); }
+      deposit(event, target) { return game.pokemonMasters?.storage?.deposit(this.actor, target.dataset.uuid); },
+      collectEgg() { return game.pokemonMasters?.breeding?.collectEgg(this.actor); }
     }
   };
 
@@ -54,6 +55,7 @@ export class TrainerSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     context.storage = await getStorage(this.actor);
     context.dex = dexProgress(this.actor);
     context.levelCap = levelCap(this.actor);
+    context.daycare = (await Promise.all((this.actor.system.daycare ?? []).map((u) => fromUuid(u)))).filter(Boolean);
     context.affiliations = (this.actor.system.affiliations ?? []).map((a) => {
       const org = PM.organizations[a.org];
       const isMax = a.rank >= (org?.ranks.length ?? 1) - 1;

@@ -47,6 +47,8 @@ export class TrainerData extends foundry.abstract.TypeDataModel {
       party: new fields.ArrayField(new fields.DocumentUUIDField({ type: "Actor" })),
       /** Pokémon in PC storage (Actor UUIDs) — the overflow beyond the party. */
       storage: new fields.ArrayField(new fields.DocumentUUIDField({ type: "Actor" })),
+      /** Up to two Pokémon left at the daycare (Actor UUIDs) for breeding. */
+      daycare: new fields.ArrayField(new fields.DocumentUUIDField({ type: "Actor" })),
       /** Living Pokédex: species seen and caught (by name; regional forms count). */
       pokedex: new fields.SchemaField({
         seen: new fields.ArrayField(new fields.StringField({ blank: false })),
@@ -99,6 +101,10 @@ export class PokemonData extends foundry.abstract.TypeDataModel {
       catchRate: new fields.NumberField({ required: true, integer: true, min: 1, max: 255, initial: 45 }),
       ability: new fields.StringField({ required: false, blank: true, initial: "" }),
       abilities: new fields.ArrayField(new fields.StringField({ blank: false })),
+      /** Breeding data. */
+      eggGroups: new fields.ArrayField(new fields.StringField({ blank: false })),
+      eggSpecies: new fields.StringField({ required: false, blank: true, initial: "" }),
+      genderless: new fields.BooleanField({ initial: false }),
       baseStats: statBlock(1),
       /** Current HP. `max` is derived from base stats + level in prepareDerivedData. */
       hp: new fields.SchemaField({

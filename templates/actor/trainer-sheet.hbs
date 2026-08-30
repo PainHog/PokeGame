@@ -62,6 +62,23 @@
   </section>
 
   <section class="pm-section">
+    <h2>Daycare <button type="button" class="pm-starter-btn" data-action="collectEgg">Collect Egg</button></h2>
+    {{#if daycare.length}}
+      <ul class="pm-storage">
+        {{#each daycare as |mon|}}
+          <li class="pm-storage-member">
+            <img src="{{mon.img}}" alt="{{mon.name}}">
+            <span class="pm-party-name">{{mon.name}}</span>
+            <span class="pm-badge">Lv {{mon.system.level}}</span>
+          </li>
+        {{/each}}
+      </ul>
+    {{else}}
+      <p class="pm-empty">Leave two compatible Pokémon here (via <code>game.pokemonMasters.breeding.deposit</code>) to breed.</p>
+    {{/if}}
+  </section>
+
+  <section class="pm-section">
     <h2>Organizations <button type="button" class="pm-starter-btn" data-action="joinOrg">Join</button></h2>
     {{#if affiliations.length}}
       <ul class="pm-orgs">

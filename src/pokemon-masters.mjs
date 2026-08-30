@@ -23,6 +23,7 @@ import { registerDexApi } from "./module/dex.mjs";
 import { registerItemsApi } from "./module/items.mjs";
 import { registerSystemSettings } from "./module/permissions.mjs";
 import { registerGymApi } from "./module/gyms.mjs";
+import { registerBreedingApi } from "./module/breeding.mjs";
 
 Hooks.once("init", () => {
   console.log("Pokémon Masters | Initializing system");
@@ -97,5 +98,6 @@ Hooks.once("ready", () => {
   registerDexApi();
   registerItemsApi();
   registerGymApi();
+  registerBreedingApi();
   console.log("Pokémon Masters | Ready");
 });
