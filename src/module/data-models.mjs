@@ -95,6 +95,8 @@ export class PokemonData extends foundry.abstract.TypeDataModel {
       gender: new fields.StringField({ required: false, blank: true, initial: "" }),
       shiny: new fields.BooleanField({ initial: false }),
       status: new fields.StringField({ required: true, blank: false, initial: "none", choices: PM.statuses }),
+      toxicCounter: new fields.NumberField({ required: true, integer: true, min: 0, initial: 0 }),
+      heldItem: new fields.StringField({ required: false, blank: true, initial: "" }),
       rarity: new fields.StringField({ required: true, blank: false, initial: "common", choices: PM.rarities }),
       /** Max that may exist in the world at once (0 = unlimited; legendaries = 1). */
       populationCap: new fields.NumberField({ required: true, integer: true, min: 0, initial: 0 }),
@@ -117,6 +119,15 @@ export class PokemonData extends foundry.abstract.TypeDataModel {
         spa: new fields.NumberField({ required: true, integer: true, min: 0, max: 31, initial: 0 }),
         spd: new fields.NumberField({ required: true, integer: true, min: 0, max: 31, initial: 0 }),
         spe: new fields.NumberField({ required: true, integer: true, min: 0, max: 31, initial: 0 })
+      }),
+      /** Effort Values (0–252 per stat) — factor into the stat calc. */
+      evs: new fields.SchemaField({
+        hp: new fields.NumberField({ required: true, integer: true, min: 0, max: 252, initial: 0 }),
+        atk: new fields.NumberField({ required: true, integer: true, min: 0, max: 252, initial: 0 }),
+        def: new fields.NumberField({ required: true, integer: true, min: 0, max: 252, initial: 0 }),
+        spa: new fields.NumberField({ required: true, integer: true, min: 0, max: 252, initial: 0 }),
+        spd: new fields.NumberField({ required: true, integer: true, min: 0, max: 252, initial: 0 }),
+        spe: new fields.NumberField({ required: true, integer: true, min: 0, max: 252, initial: 0 })
       }),
       /** Friendship (0–255), drives friendship evolutions. */
       friendship: new fields.NumberField({ required: true, integer: true, min: 0, max: 255, initial: 70 }),
@@ -152,9 +163,10 @@ export class PokemonData extends foundry.abstract.TypeDataModel {
     const lvl = this.level ?? 1;
     const b = this.baseStats;
     const iv = this.ivs ?? {};
+    const ev = this.evs ?? {};
     const nature = PM.natures[this.nature] ?? {};
     const mod = (key) => (nature.plus === key ? 1.1 : nature.minus === key ? 0.9 : 1);
-    const point = (base, key) => Math.floor(((2 * base + (iv[key] ?? 0)) * lvl) / 100);
+    const point = (base, key) => Math.floor(((2 * base + (iv[key] ?? 0) + Math.floor((ev[key] ?? 0) / 4)) * lvl) / 100);
     this.stats = {
       hp: point(b.hp, "hp") + lvl + 10,
       atk: Math.floor((point(b.atk, "atk") + 5) * mod("atk")),

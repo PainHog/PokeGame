@@ -123,6 +123,7 @@ function evoSatisfied(pokemon, targetEvo, trigger, itemName) {
  * Returns the evolved species name, or null.
  */
 export async function maybeEvolve(pokemon, { trigger = "level", itemName = null } = {}) {
+  if ((pokemon.system.heldItem || "").toLowerCase() === "everstone") return null; // Everstone blocks evolution
   const into = pokemon.system.evolution?.into ?? [];
   if (!into.length) return null;
 

@@ -59,9 +59,11 @@ function prep(c) {
     stats: { ...c.stats },
     status: c.status ?? "none",
     statusTurns: 0,
+    toxicCounter: c.toxicCounter ?? 0,
     ability: (c.ability ?? "").toLowerCase(),
+    heldItem: (c.heldItem ?? "").toLowerCase(),
     boosts: { atk: 0, def: 0, spa: 0, spd: 0, spe: 0 },
-    flinch: false,
+    flinch: false, sashUsed: false, berryUsed: false,
     moves: (c.moves ?? []).map((m) => ({ ...m })),
     hp: { value: c.hp?.value ?? maxHp, max: maxHp }
   };
@@ -153,10 +155,15 @@ export function simulateBattle(teamAIn, teamBIn, { maxTurns = 300, rng = Math.ra
       if (isPhysical && (attacker.ability === "huge power" || attacker.ability === "pure power")) atkRaw *= 2;
       const gutsActive = attacker.ability === "guts" && attacker.status !== "none";
       if (gutsActive && isPhysical) atkRaw *= 1.5;
+      if (isPhysical && attacker.heldItem === "choice band") atkRaw *= 1.5;
+      if (!isPhysical && attacker.heldItem === "choice specs") atkRaw *= 1.5;
       // Crits ignore the attacker's negative and the defender's positive stages.
       const atk = atkRaw * stageMult(crit ? Math.max(0, atkStage) : atkStage);
-      const def = (isPhysical ? defender.stats.def : defender.stats.spd) * stageMult(crit ? Math.min(0, defStage) : defStage);
+      let defRaw = isPhysical ? defender.stats.def : defender.stats.spd;
+      if (!isPhysical && defender.heldItem === "assault vest") defRaw *= 1.5;
+      const def = defRaw * stageMult(crit ? Math.min(0, defStage) : defStage);
       const effBurn = burned && !gutsActive;
+      if (attacker.heldItem === "life orb") typeMult *= 1.3;
 
       const preFull = defender.hp.value >= defender.hp.max;
       const hits = move.multihit ? (move.multihit[0] === move.multihit[1] ? move.multihit[0] : move.multihit[0] + Math.floor(rng() * (move.multihit[1] - move.multihit[0] + 1))) : 1;
@@ -170,8 +177,22 @@ export function simulateBattle(teamAIn, teamBIn, { maxTurns = 300, rng = Math.ra
         defender.hp.value = Math.max(0, defender.hp.value - res.damage);
         total += res.damage;
       }
-      // Sturdy: survive an OHKO from full HP.
-      if (defender.ability === "sturdy" && preFull && defender.hp.value <= 0) { defender.hp.value = 1; log.push(`${defender.name} hung on with Sturdy!`); }
+      // Sturdy / Focus Sash: survive an OHKO from full HP.
+      if (preFull && defender.hp.value <= 0 && (defender.ability === "sturdy" || (defender.heldItem === "focus sash" && !defender.sashUsed))) {
+        defender.hp.value = 1;
+        if (defender.heldItem === "focus sash") defender.sashUsed = true;
+        log.push(`${defender.name} hung on!`);
+      }
+      // Life Orb recoil, Rocky Helmet, Sitrus Berry.
+      if (attacker.heldItem === "life orb" && total > 0) attacker.hp.value = Math.max(0, attacker.hp.value - Math.max(1, Math.floor(attacker.hp.max / 10)));
+      if (move.contact && total > 0 && defender.hp.value > 0 && defender.heldItem === "rocky helmet") {
+        attacker.hp.value = Math.max(0, attacker.hp.value - Math.max(1, Math.floor(attacker.hp.max / 6)));
+        log.push(`${attacker.name} was hurt by ${defender.name}'s Rocky Helmet!`);
+      }
+      if (!defender.berryUsed && defender.heldItem === "sitrus berry" && defender.hp.value > 0 && defender.hp.value <= defender.hp.max / 2) {
+        defender.hp.value = Math.min(defender.hp.max, defender.hp.value + Math.floor(defender.hp.max / 4));
+        defender.berryUsed = true; log.push(`${defender.name} ate its Sitrus Berry!`);
+      }
       log.push(`${attacker.name} used ${move.name} → ${total}${hits > 1 ? ` (${hits} hits)` : ""}${crit ? " (crit!)" : ""} (${defender.name} ${defender.hp.value}/${defender.hp.max})`);
       if (move.drain && total > 0) attacker.hp.value = Math.min(attacker.hp.max, attacker.hp.value + Math.max(1, Math.floor(total * move.drain)));
       if (move.recoil && total > 0) attacker.hp.value = Math.max(0, attacker.hp.value - Math.max(1, Math.floor(total * move.recoil)));
@@ -188,7 +209,7 @@ export function simulateBattle(teamAIn, teamBIn, { maxTurns = 300, rng = Math.ra
     }
   };
 
-  const speed = (mon) => mon.stats.spe * stageMult(mon.boosts.spe) * (mon.status === "paralysis" ? 0.5 : 1);
+  const speed = (mon) => mon.stats.spe * stageMult(mon.boosts.spe) * (mon.status === "paralysis" ? 0.5 : 1) * (mon.heldItem === "choice scarf" ? 1.5 : 1);
 
   // Entry (lead) abilities: Intimidate + weather setters.
   const onEntry = (mon, foe) => {
@@ -243,11 +264,18 @@ export function simulateBattle(teamAIn, teamBIn, { maxTurns = 300, rng = Math.ra
         log.push(`${mon.name} is buffeted by the sandstorm (−${s}).`);
         if (mon.hp.value <= 0) { log.push(`${mon.name} fainted!`); if (isA) a++; else b++; continue; }
       }
-      const frac = STATUS_CHIP[mon.status];
-      if (!frac) continue;
-      const dmg = Math.max(1, Math.floor(mon.hp.max * frac));
+      // Leftovers / Black Sludge recovery.
+      if ((mon.heldItem === "leftovers" || (mon.heldItem === "black sludge" && mon.types.includes("Poison"))) && mon.hp.value < mon.hp.max) {
+        const heal = Math.max(1, Math.floor(mon.hp.max / 16));
+        mon.hp.value = Math.min(mon.hp.max, mon.hp.value + heal);
+      }
+      // Status chip: toxic ramps 1/16 → 2/16 → …; poison 1/8; burn 1/16.
+      let dmg = 0;
+      if (mon.status === "toxic") { mon.toxicCounter = (mon.toxicCounter || 0) + 1; dmg = Math.max(1, Math.floor(mon.hp.max * mon.toxicCounter / 16)); }
+      else if (STATUS_CHIP[mon.status]) dmg = Math.max(1, Math.floor(mon.hp.max * STATUS_CHIP[mon.status]));
+      if (!dmg) continue;
       mon.hp.value = Math.max(0, mon.hp.value - dmg);
-      log.push(`${mon.name} is hurt by ${mon.status} (−${dmg}).`);
+      log.push(`${mon.name} is hurt by ${mon.status === "toxic" ? "toxic poison" : mon.status} (−${dmg}).`);
       if (mon.hp.value <= 0) { log.push(`${mon.name} fainted!`); if (isA) a++; else b++; }
     }
   }
@@ -270,6 +298,8 @@ export function combatantFromActor(actor) {
     stats: s.stats ?? { hp: 20, atk: 10, def: 10, spa: 10, spd: 10, spe: 10 },
     status: s.status ?? "none",
     ability: s.ability ?? "",
+    heldItem: s.heldItem ?? "",
+    toxicCounter: s.toxicCounter ?? 0,
     hp: { value: s.hp?.value ?? s.stats?.hp, max: s.hp?.max ?? s.stats?.hp },
     moves: actor.items.filter((i) => i.type === "move").map((m) => ({
       name: m.name, moveType: m.system.moveType, category: m.system.category, power: m.system.power,

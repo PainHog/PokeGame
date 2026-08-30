@@ -38,7 +38,7 @@ const LIMIT = (() => {
 const okNs = (e) => !e.isNonstandard || e.isNonstandard === "Past" || e.isNonstandard === "LGPE";
 
 /** Map a Pokémon Showdown status code to our status keys. */
-const mapStatus = (s) => ({ brn: "burn", par: "paralysis", slp: "sleep", frz: "freeze", psn: "poison", tox: "poison" }[s] || "");
+const mapStatus = (s) => ({ brn: "burn", par: "paralysis", slp: "sleep", frz: "freeze", psn: "poison", tox: "toxic" }[s] || "");
 
 /* -------------------------------------------- */
 /*  Helpers                                      */

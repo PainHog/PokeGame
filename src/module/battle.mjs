@@ -132,15 +132,24 @@ export async function useMove(attacker, move, target = null) {
   return result;
 }
 
-/** Apply end-of-turn status chip (burn/poison) to a Pokémon. */
+/** Apply end-of-turn status chip (burn/poison, toxic ramp) to a Pokémon. */
 export async function applyEndOfTurn(pokemon) {
-  const frac = STATUS_CHIP[pokemon.system?.status];
-  if (!frac) return;
+  const status = pokemon.system?.status;
   const max = pokemon.system.hp?.max ?? 0;
-  const dmg = Math.max(1, Math.floor(max * frac));
+  const update = {};
+  let dmg = 0;
+  if (status === "toxic") {
+    const counter = (pokemon.system.toxicCounter || 0) + 1;
+    update["system.toxicCounter"] = counter;
+    dmg = Math.max(1, Math.floor((max * counter) / 16));
+  } else if (STATUS_CHIP[status]) {
+    dmg = Math.max(1, Math.floor(max * STATUS_CHIP[status]));
+  }
+  if (!dmg) return;
   const newHp = Math.max(0, (pokemon.system.hp?.value ?? max) - dmg);
-  await pokemon.update({ "system.hp.value": newHp });
-  await ChatMessage.create({ speaker: { alias: pokemon.name }, content: `<p>${pokemon.name} is hurt by its ${pokemon.system.status} (−${dmg}).</p>` });
+  update["system.hp.value"] = newHp;
+  await pokemon.update(update);
+  await ChatMessage.create({ speaker: { alias: pokemon.name }, content: `<p>${pokemon.name} is hurt by ${status === "toxic" ? "toxic poison" : `its ${status}`} (−${dmg}).</p>` });
   if (newHp <= 0) Hooks.callAll("pmPokemonFainted", { attacker: null, target: pokemon });
 }
 

@@ -24,7 +24,8 @@ export const STATUS_BONUS = {
   freeze: 2,
   paralysis: 1.5,
   burn: 1.5,
-  poison: 1.5
+  poison: 1.5,
+  toxic: 1.5
 };
 
 /**

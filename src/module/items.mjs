@@ -74,6 +74,7 @@ export async function useItem(pokemon, itemName, { gearItem = null } = {}) {
     if (!fainted) { ui.notifications?.info(`${pokemon.name} isn't fainted.`); return null; }
     update["system.hp.value"] = Math.max(1, Math.round(max * effect.revive));
     update["system.status"] = "none";
+    update["system.toxicCounter"] = 0;
     notes.push(`revived to ${update["system.hp.value"]}/${max} HP`);
   } else if (effect.heal || effect.healFrac) {
     if (fainted) { ui.notifications?.info(`${pokemon.name} has fainted — use a Revive first.`); return null; }
@@ -84,8 +85,9 @@ export async function useItem(pokemon, itemName, { gearItem = null } = {}) {
   }
 
   if (effect.cure) {
-    const cured = effect.cure === "all" || sys.status === effect.cure;
-    if (cured && sys.status !== "none") { update["system.status"] = "none"; notes.push("cured its condition"); }
+    const s = sys.status;
+    const cured = effect.cure === "all" || s === effect.cure || (effect.cure === "poison" && s === "toxic");
+    if (cured && s !== "none") { update["system.status"] = "none"; update["system.toxicCounter"] = 0; notes.push("cured its condition"); }
   }
 
   if (Object.keys(update).length) await pokemon.update(update);

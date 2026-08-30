@@ -92,6 +92,7 @@ PM.shinyRate = 1 / 4096;
 PM.statuses = {
   none: "Healthy",
   poison: "Poisoned",
+  toxic: "Badly Poisoned",
   burn: "Burned",
   paralysis: "Paralyzed",
   sleep: "Asleep",
