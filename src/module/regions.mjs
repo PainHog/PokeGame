@@ -22,6 +22,7 @@
 
 import { PM } from "./config.mjs";
 import { catchButtonHtml } from "./catch.mjs";
+import { eligibleSpecies, methodForCategory } from "./eligibility.mjs";
 
 const fields = foundry.data.fields;
 
@@ -106,7 +107,15 @@ export class WildTileBehaviorType extends foundry.data.regionBehaviors.RegionBeh
       }),
       minLevel: new fields.NumberField({ required: true, integer: true, min: 1, max: 100, initial: 2 }),
       maxLevel: new fields.NumberField({ required: true, integer: true, min: 1, max: 100, initial: 6 }),
-      useDefaultTable: new fields.BooleanField({ initial: true }),
+      /** Where the candidate species come from. */
+      poolSource: new fields.StringField({
+        required: true, blank: false, initial: "requirements",
+        choices: {
+          requirements: "By requirements (auto)",
+          regionTable: "Region habitat table",
+          custom: "Custom table"
+        }
+      }),
       table: new fields.ArrayField(new fields.SchemaField({
         species: new fields.StringField({ required: true, blank: false }),
         weight: new fields.NumberField({ required: true, min: 0, initial: 10 }),
@@ -168,17 +177,24 @@ export class WildTileBehaviorType extends foundry.data.regionBehaviors.RegionBeh
 
   static async rollWild(token) {
     const region = this.effectiveRegion;
-    const rows = this.useDefaultTable
-      ? PM.resolveEncounterTable(region, this.category)
-      : this.toObject().table;
-    if (!rows?.length) return;
+    const method = methodForCategory(this.category);
+
+    // Build the candidate pool. "requirements" computes eligible species whose
+    // habitat/region/method requirements all match this tile — the core rule.
+    let rows;
+    if (this.poolSource === "custom") rows = this.toObject().table;
+    else if (this.poolSource === "regionTable") rows = PM.resolveEncounterTable(region, this.category);
+    else rows = await eligibleSpecies({ habitat: this.category, region, method });
+
+    if (!rows?.length) return; // nothing meets the requirements here — no encounter
 
     const pick = weightedPick(rows);
     if (!pick) return;
+    const speciesName = pick.species ?? pick.name;
 
-    const speciesActor = await findInPack("pokemon-masters.species", pick.species);
+    const speciesActor = await findInPack("pokemon-masters.species", speciesName);
     if (!speciesActor) {
-      console.warn(`Pokémon Masters | Encounter species not found: ${pick.species}`);
+      console.warn(`Pokémon Masters | Encounter species not found: ${speciesName}`);
       return;
     }
 

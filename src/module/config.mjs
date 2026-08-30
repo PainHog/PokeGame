@@ -35,7 +35,9 @@ PM.vocations = {
   coordinator: "Coordinator / Contest Star",
   elitefour: "Elite Four",
   champion: "Champion",
-  fisher: "Fisher"
+  fisher: "Fisher",
+  nurse: "Nurse / Doctor",
+  photographer: "Photographer"
 };
 
 /**
@@ -54,7 +56,9 @@ PM.vocationInfo = {
   coordinator: { blurb: "Dazzle crowds in Contests with style and flair.", unlocks: ["contests"] },
   elitefour: { blurb: "An elite, celebrity-tier battler near the top of the League.", unlocks: ["battling", "league"] },
   champion: { blurb: "The pinnacle: broad knowledge and unmatched skill.", unlocks: ["battling", "league"] },
-  fisher: { blurb: "Fish and trade aquatic Pokémon; water-method specialist.", unlocks: ["fishing", "trading"] }
+  fisher: { blurb: "Fish and trade aquatic Pokémon; water-method specialist.", unlocks: ["fishing", "trading"] },
+  nurse: { blurb: "Heal Pokémon at Centers; treat status and injuries in the field.", unlocks: ["healing", "centers"] },
+  photographer: { blurb: "Capture Pokémon on film for pay; rare shots earn more.", unlocks: ["photography", "bounties"] }
 };
 
 /**

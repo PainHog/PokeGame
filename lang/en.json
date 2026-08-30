@@ -26,7 +26,7 @@
           "outcomes": { "label": "Outcome Weights", "hint": "Relative odds of a wild Pokémon, item, trainer, event, or nothing." },
           "minLevel": { "label": "Minimum Level", "hint": "Lowest level a wild Pokémon can be (unless a table row overrides it)." },
           "maxLevel": { "label": "Maximum Level", "hint": "Highest level a wild Pokémon can be (unless a table row overrides it)." },
-          "useDefaultTable": { "label": "Use Region Table", "hint": "Use the built-in table for the region + habitat instead of a custom one." },
+          "poolSource": { "label": "Candidate Pool", "hint": "By requirements (auto) computes eligible species from region + habitat + method; or use a region table or a custom table." },
           "table": { "label": "Custom Encounter Table" },
           "announceOnly": { "label": "Announce Only", "hint": "Post a chat card instead of also spawning a wild token." },
           "eventMacro": { "label": "Event Macro", "hint": "Macro to run on a 'Special Event' outcome." }

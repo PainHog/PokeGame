@@ -64,6 +64,13 @@ export class PokemonData extends foundry.abstract.TypeDataModel {
       nativeRegion: new fields.StringField({ required: false, blank: true, initial: "" }),
       /** Region of a regional variant (alola/galar/hisui/paldea), else empty. */
       variantRegion: new fields.StringField({ required: false, blank: true, initial: "" }),
+      /** Encounter eligibility: every non-empty axis must match the tile context. */
+      requirements: new fields.SchemaField({
+        habitats: new fields.ArrayField(new fields.StringField({ blank: false })),
+        regions: new fields.ArrayField(new fields.StringField({ blank: false })),
+        methods: new fields.ArrayField(new fields.StringField({ blank: false })),
+        times: new fields.ArrayField(new fields.StringField({ blank: false }))
+      }),
       types: new fields.ArrayField(new fields.StringField({ blank: false })),
       level: new fields.NumberField({ required: true, integer: true, min: 1, max: 100, initial: 5 }),
       xp: new fields.NumberField({ required: true, integer: true, min: 0, initial: 0 }),

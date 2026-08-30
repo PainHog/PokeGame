@@ -84,6 +84,34 @@ function variantRegion(forme) {
   return "";
 }
 
+/** Habitats a type suggests (kept in sync with PM.typeHabitats in config.mjs). */
+const TYPE_HABITATS = {
+  Bug: ["forest", "grass"], Grass: ["grass", "forest"], Poison: ["forest", "cave", "urban"],
+  Water: ["water", "fishing"], Ice: ["cave", "mountain"], Rock: ["cave", "mountain"],
+  Ground: ["cave", "mountain", "sand"], Steel: ["cave", "mountain"], Fighting: ["cave", "mountain", "urban"],
+  Fire: ["mountain", "cave"], Electric: ["urban", "grass"], Flying: ["grass", "mountain", "forest"],
+  Normal: ["grass", "urban"], Fairy: ["forest", "grass"], Psychic: ["urban", "night"],
+  Ghost: ["night", "cave"], Dark: ["night", "cave"], Dragon: ["mountain", "cave"]
+};
+
+/**
+ * Per-species encounter requirements. A species can only roll on a tile whose
+ * context satisfies EVERY non-empty axis. Sensible, tunable defaults:
+ *  - habitats: the union of its types' habitats (bugs → forest, etc.).
+ *  - regions:  variant → its region; legendary/very-rare → its native region;
+ *              everything else → any region (empty).
+ *  - methods:  water-types are surf/fishing; everyone else walks.
+ */
+function deriveRequirements(s, rarity, nativeReg, varReg) {
+  const habitats = [...new Set((s.types || []).flatMap((t) => TYPE_HABITATS[t] || []))];
+  const isWater = (s.types || []).includes("Water");
+  const methods = isWater ? ["surf", "fishing"] : ["walk"];
+  let regions = [];
+  if (varReg) regions = [varReg];
+  else if ((rarity === "legendary" || rarity === "veryrare") && nativeReg) regions = [nativeReg];
+  return { habitats, regions, methods, times: [] };
+}
+
 const BALL_MODIFIERS = {
   "poke ball": 1, "great ball": 1.5, "ultra ball": 2, "master ball": 255,
   "net ball": 3.5, "dive ball": 3.5, "nest ball": 4, "repeat ball": 3.5,
@@ -154,6 +182,7 @@ async function buildSpecies() {
         },
         nativeRegion: GEN_TO_REGION[s.gen] ?? "",
         variantRegion: variantRegion(s.forme),
+        requirements: deriveRequirements(s, rarity, GEN_TO_REGION[s.gen] ?? "", variantRegion(s.forme)),
         types: s.types,
         level: 5,
         rarity,
