@@ -12,6 +12,7 @@ import { PokemonMastersActor, PokemonMastersItem } from "./module/documents.mjs"
 import { TrainerSheet, PokemonSheet, PMItemSheet } from "./module/sheets.mjs";
 import { WildTileBehaviorType, SafeZoneBehaviorType, ZoneTransitBehaviorType } from "./module/regions.mjs";
 import { AmbushBehaviorType, registerFactionApi } from "./module/factions.mjs";
+import { FieldMoveGateBehaviorType, registerTmApi } from "./module/tms.mjs";
 import { registerWorldHooks } from "./module/world.mjs";
 import { registerCatchHooks } from "./module/catch.mjs";
 import { registerBattleApi } from "./module/battle.mjs";
@@ -57,13 +58,15 @@ Hooks.once("init", () => {
     "pokemon-masters.wildTile": WildTileBehaviorType,
     "pokemon-masters.safeZone": SafeZoneBehaviorType,
     "pokemon-masters.zoneTransit": ZoneTransitBehaviorType,
-    "pokemon-masters.ambush": AmbushBehaviorType
+    "pokemon-masters.ambush": AmbushBehaviorType,
+    "pokemon-masters.fieldGate": FieldMoveGateBehaviorType
   });
   Object.assign(CONFIG.RegionBehavior.typeIcons, {
     "pokemon-masters.wildTile": "fa-solid fa-paw",
     "pokemon-masters.safeZone": "fa-solid fa-house-medical",
     "pokemon-masters.zoneTransit": "fa-solid fa-door-open",
-    "pokemon-masters.ambush": "fa-solid fa-user-ninja"
+    "pokemon-masters.ambush": "fa-solid fa-user-ninja",
+    "pokemon-masters.fieldGate": "fa-solid fa-water"
   });
 
   // Token resource bars.
@@ -103,5 +106,6 @@ Hooks.once("ready", () => {
   registerGymApi();
   registerBreedingApi();
   registerFactionApi();
+  registerTmApi();
   console.log("Pokémon Masters | Ready");
 });

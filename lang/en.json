@@ -40,6 +40,12 @@
           "announce": { "label": "Announce Entry", "hint": "Post a chat message when a trainer enters." }
         }
       },
+      "FieldGate": {
+        "FIELDS": {
+          "move": { "label": "Required Field Move", "hint": "A party Pokémon must know this HM/field move to pass (Surf, Cut, Strength…)." },
+          "announce": { "label": "Announce Use", "hint": "Post a message when a Pokémon uses the field move to pass." }
+        }
+      },
       "Ambush": {
         "FIELDS": {
           "faction": { "label": "Faction", "hint": "Which group ambushes the player (Team Rocket, wandering trainers…). Members of that faction are not ambushed." },

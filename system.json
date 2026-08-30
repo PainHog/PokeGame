@@ -42,7 +42,8 @@
       "wildTile": {},
       "safeZone": {},
       "zoneTransit": {},
-      "ambush": {}
+      "ambush": {},
+      "fieldGate": {}
     }
   },
   "grid": {
