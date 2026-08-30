@@ -66,6 +66,7 @@ export class PokemonData extends foundry.abstract.TypeDataModel {
       variantRegion: new fields.StringField({ required: false, blank: true, initial: "" }),
       types: new fields.ArrayField(new fields.StringField({ blank: false })),
       level: new fields.NumberField({ required: true, integer: true, min: 1, max: 100, initial: 5 }),
+      xp: new fields.NumberField({ required: true, integer: true, min: 0, initial: 0 }),
       nature: new fields.StringField({ required: true, blank: true, initial: "serious" }),
       gender: new fields.StringField({ required: false, blank: true, initial: "" }),
       shiny: new fields.BooleanField({ initial: false }),
