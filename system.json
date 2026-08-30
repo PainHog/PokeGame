@@ -39,7 +39,8 @@
       "gear": { "htmlFields": ["description"] }
     },
     "RegionBehavior": {
-      "encounter": {},
+      "wildTile": {},
+      "safeZone": {},
       "zoneTransit": {}
     }
   },

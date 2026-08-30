@@ -150,6 +150,104 @@ PM.defaultEncounterTables = {
 };
 
 /**
+ * The regions of the world. A Scene is tagged with one of these (Scene Config →
+ * "Pokémon Masters Region", stored as `scene.flags.pokemon-masters.region`), and
+ * encounters on that map draw from the region's table set. This is how the same
+ * "cave" tile yields Geodude in Kanto but Alolan Geodude in Alola.
+ */
+PM.regions = {
+  kanto: "Kanto",
+  johto: "Johto",
+  hoenn: "Hoenn",
+  sinnoh: "Sinnoh",
+  unova: "Unova",
+  kalos: "Kalos",
+  alola: "Alola",
+  galar: "Galar",
+  hisui: "Hisui",
+  paldea: "Paldea"
+};
+
+/**
+ * Region-specific encounter tables. Keyed by region → category → rows. Anything
+ * not defined here falls back to `PM.defaultEncounterTables` (the generic set).
+ * Alola is seeded to demonstrate regional variants; author more regions freely.
+ */
+PM.regionEncounterTables = {
+  alola: {
+    grass: [
+      { species: "Rattata-Alola", weight: 30, min: 2, max: 5 },
+      { species: "Pikachu", weight: 15, min: 3, max: 6 },
+      { species: "Cutiefly", weight: 20, min: 2, max: 5 },
+      { species: "Vulpix-Alola", weight: 4, min: 4, max: 7 }
+    ],
+    cave: [
+      { species: "Zubat", weight: 30, min: 5, max: 10 },
+      { species: "Geodude-Alola", weight: 30, min: 5, max: 10 },
+      { species: "Diglett-Alola", weight: 20, min: 5, max: 10 },
+      { species: "Marowak-Alola", weight: 5, min: 10, max: 15 }
+    ],
+    urban: [
+      { species: "Meowth-Alola", weight: 35, min: 3, max: 7 },
+      { species: "Grimer-Alola", weight: 20, min: 5, max: 9 },
+      { species: "Rattata-Alola", weight: 30, min: 2, max: 6 }
+    ],
+    water: [
+      { species: "Wingull", weight: 30, min: 5, max: 10 },
+      { species: "Tentacool", weight: 30, min: 5, max: 10 },
+      { species: "Sandshrew-Alola", weight: 8, min: 6, max: 11 }
+    ]
+  }
+};
+
+/** Resolve the effective encounter table for a region + category (with fallback). */
+PM.resolveEncounterTable = (region, category) =>
+  (PM.regionEncounterTables?.[region]?.[category]) ??
+  (PM.defaultEncounterTables?.[category]) ??
+  [];
+
+/**
+ * Tile-event outcome kinds. When a Trainer steps on a "wild" region tile, one of
+ * these is chosen by weight. `nothing` should dominate so the world feels calm
+ * between events. `wild` is a battle, `item` a pickup, `trainer` an NPC battle,
+ * `event` a GM-defined happening (macro/journal).
+ */
+PM.tileEventKinds = {
+  wild: "Wild Pokémon",
+  item: "Found Item",
+  trainer: "Trainer Battle",
+  event: "Special Event",
+  nothing: "Nothing"
+};
+
+/**
+ * Weighted table of items found on `item` outcomes. Names resolve (case-
+ * insensitively) against the gear compendium when possible.
+ */
+PM.itemFindTable = [
+  { item: "Potion", weight: 30 },
+  { item: "Poké Ball", weight: 25 },
+  { item: "Antidote", weight: 14 },
+  { item: "Super Potion", weight: 12 },
+  { item: "Great Ball", weight: 8 },
+  { item: "Revive", weight: 6 },
+  { item: "Rare Candy", weight: 3 },
+  { item: "Nugget", weight: 2 }
+];
+
+/**
+ * "Safe" tile kinds — streets, towns, Pokémon Centers, Marts. These never roll
+ * events. A Center can heal the party on entry; a Mart flags a shop point.
+ */
+PM.safeZoneKinds = {
+  street: "Street / Route Path",
+  town: "Town",
+  center: "Pokémon Center",
+  mart: "Poké Mart",
+  indoor: "Building Interior"
+};
+
+/**
  * Known Poké Ball catch multipliers, keyed by lower-cased ball name. Balls not
  * listed default to 1×. Applied when a catch is attempted (future combat/catch
  * flow); surfaced now on gear items.

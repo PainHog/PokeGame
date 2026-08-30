@@ -10,7 +10,8 @@ import { PM } from "./module/config.mjs";
 import { TrainerData, PokemonData, MoveData, AbilityData, GearData } from "./module/data-models.mjs";
 import { PokemonMastersActor, PokemonMastersItem } from "./module/documents.mjs";
 import { TrainerSheet, PokemonSheet, PMItemSheet } from "./module/sheets.mjs";
-import { EncounterBehaviorType, ZoneTransitBehaviorType } from "./module/regions.mjs";
+import { WildTileBehaviorType, SafeZoneBehaviorType, ZoneTransitBehaviorType } from "./module/regions.mjs";
+import { registerWorldHooks } from "./module/world.mjs";
 
 Hooks.once("init", () => {
   console.log("Pokémon Masters | Initializing system");
@@ -38,11 +39,13 @@ Hooks.once("init", () => {
 
   // Region (tile) behaviors — namespaced as `<system-id>.<type>`.
   Object.assign(CONFIG.RegionBehavior.dataModels, {
-    "pokemon-masters.encounter": EncounterBehaviorType,
+    "pokemon-masters.wildTile": WildTileBehaviorType,
+    "pokemon-masters.safeZone": SafeZoneBehaviorType,
     "pokemon-masters.zoneTransit": ZoneTransitBehaviorType
   });
   Object.assign(CONFIG.RegionBehavior.typeIcons, {
-    "pokemon-masters.encounter": "fa-solid fa-paw",
+    "pokemon-masters.wildTile": "fa-solid fa-paw",
+    "pokemon-masters.safeZone": "fa-solid fa-house-medical",
     "pokemon-masters.zoneTransit": "fa-solid fa-door-open"
   });
 
@@ -65,6 +68,9 @@ Hooks.once("init", () => {
   Items.registerSheet("pokemon-masters", PMItemSheet, {
     types: ["move", "ability", "gear"], makeDefault: true, label: "Pokémon Masters — Item"
   });
+
+  // Scene region tagging + other world hooks.
+  registerWorldHooks();
 });
 
 Hooks.once("ready", () => {

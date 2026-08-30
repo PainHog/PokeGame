@@ -2,19 +2,22 @@
  * Pokémon Masters — Region (tile) behaviors.
  *
  * Foundry v12+ replaced ad-hoc "tile triggers" with first-class **Scene
- * Regions** that emit events (tokenEnter, tokenMoveIn, tokenMoveWithin, …).
- * A RegionBehaviorType is a data model that subscribes to those events. This is
+ * Regions** that emit movement events (tokenEnter, tokenMoveIn, tokenMoveWithin,
+ * …). A RegionBehaviorType is a data model that subscribes to those events —
  * the native, module-free way to make walking around the map *do* things.
  *
- * We ship two behaviors:
- *   • Encounter    — walking a Trainer through the region can trigger a wild
- *                    Pokémon, drawn from a category table (grass/water/cave/…)
- *                    with rarity gating so rare Pokémon are genuinely hard to find.
- *   • Zone Transit — entering the region announces a named zone and/or warps the
- *                    token to a destination (an automatic "walk to the next zone").
+ * Behaviors shipped:
+ *   • Wild Tile   — stepping on a non-safe tile has a chance to roll an outcome:
+ *                   a wild Pokémon battle, a found item, an NPC trainer, or a
+ *                   GM event. Encounter tables are chosen by the Scene's region
+ *                   tag, so the same "cave" yields Geodude in Kanto and Alolan
+ *                   Geodude in Alola. Rarity gating keeps rare Pokémon rare.
+ *   • Safe Zone   — streets / towns / Centers / Marts. Never roll events; a
+ *                   Center heals the party on entry.
+ *   • Zone Transit— named-zone entry announcement + same-scene warp.
  *
- * Region events fire on every connected client, so all world mutations (creating
- * chat messages, moving tokens) are gated to the single active GM to avoid dupes.
+ * Region events fire on every connected client, so all world mutations are gated
+ * to the single active GM (`isDriver`) to avoid duplicates.
  */
 
 import { PM } from "./config.mjs";
@@ -41,11 +44,16 @@ function trainerFromEvent(event) {
   return { token, actor };
 }
 
+/** The Pokémon Masters region tag of a scene (falls back to empty = generic). */
+export function sceneRegion(scene) {
+  return scene?.getFlag?.("pokemon-masters", "region") ?? "";
+}
+
 function randInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-/** Weighted pick from `[{species, weight, …}]`. Returns the chosen row. */
+/** Weighted pick from `[{weight, …}]`. Returns the chosen row. */
 function weightedPick(rows) {
   const total = rows.reduce((sum, r) => sum + (r.weight || 0), 0);
   if (total <= 0) return null;
@@ -57,25 +65,46 @@ function weightedPick(rows) {
   return rows[rows.length - 1];
 }
 
+/** Look up a compendium document by name (case-insensitive). */
+async function findInPack(packId, name) {
+  const pack = game.packs.get(packId);
+  if (!pack) return null;
+  const key = String(name).toLowerCase();
+  const entry = pack.index.find((e) => e.name.toLowerCase() === key);
+  return entry ? pack.getDocument(entry._id) : null;
+}
+
 /* -------------------------------------------- */
-/*  Encounter behavior                           */
+/*  Wild Tile behavior                           */
 /* -------------------------------------------- */
 
-export class EncounterBehaviorType extends foundry.data.regionBehaviors.RegionBehaviorType {
-  static LOCALIZATION_PREFIXES = ["PM.RegionBehavior.Encounter"];
+export class WildTileBehaviorType extends foundry.data.regionBehaviors.RegionBehaviorType {
+  static LOCALIZATION_PREFIXES = ["PM.RegionBehavior.WildTile"];
 
   static defineSchema() {
+    const weight = (initial) => new fields.NumberField({ required: true, min: 0, integer: true, initial });
     return {
+      /** Region override; empty = use the Scene's region tag. */
+      regionTag: new fields.StringField({
+        required: false, blank: true, initial: "",
+        choices: { "": "— Use scene region —", ...PM.regions }
+      }),
       category: new fields.StringField({
         required: true, blank: false, initial: "grass", choices: PM.encounterCategories
       }),
-      /** % chance to trigger an encounter each qualifying step. */
-      chance: new fields.NumberField({ required: true, integer: true, min: 0, max: 100, initial: 20 }),
+      /** % chance that *any* event roll happens on a qualifying step. */
+      chance: new fields.NumberField({ required: true, integer: true, min: 0, max: 100, initial: 25 }),
+      onEveryStep: new fields.BooleanField({ initial: true }),
+      /** Relative weights for what a triggered roll produces. */
+      outcomes: new fields.SchemaField({
+        wild: weight(50),
+        item: weight(15),
+        trainer: weight(5),
+        event: weight(0),
+        nothing: weight(30)
+      }),
       minLevel: new fields.NumberField({ required: true, integer: true, min: 1, max: 100, initial: 2 }),
       maxLevel: new fields.NumberField({ required: true, integer: true, min: 1, max: 100, initial: 6 }),
-      /** Fire on every step inside the region, or only when first entering it. */
-      onEveryStep: new fields.BooleanField({ initial: true }),
-      /** Use the category's default table, or the custom table below. */
       useDefaultTable: new fields.BooleanField({ initial: true }),
       table: new fields.ArrayField(new fields.SchemaField({
         species: new fields.StringField({ required: true, blank: false }),
@@ -84,41 +113,71 @@ export class EncounterBehaviorType extends foundry.data.regionBehaviors.RegionBe
         max: new fields.NumberField({ required: false, nullable: true, integer: true, min: 1 })
       })),
       /** Announce in chat only, vs. also dropping a wild token onto the scene. */
-      announceOnly: new fields.BooleanField({ initial: true })
+      announceOnly: new fields.BooleanField({ initial: true }),
+      /** Optional Macro UUID run on an `event` outcome. */
+      eventMacro: new fields.DocumentUUIDField({ type: "Macro", required: false, nullable: true, initial: null })
     };
   }
 
   static events = {
     [EVENTS.TOKEN_ENTER]: async function (event) {
-      if (this.onEveryStep) return; // entry handled by move events when stepping
-      return this.constructor._tryEncounter.call(this, event);
+      if (this.onEveryStep) return;
+      return this.constructor._roll.call(this, event);
     },
     [EVENTS.TOKEN_MOVE_IN]: async function (event) {
-      return this.constructor._tryEncounter.call(this, event);
+      return this.constructor._roll.call(this, event);
     },
     [EVENTS.TOKEN_MOVE_WITHIN]: async function (event) {
       if (!this.onEveryStep) return;
-      return this.constructor._tryEncounter.call(this, event);
+      return this.constructor._roll.call(this, event);
     }
   };
 
-  static async _tryEncounter(event) {
+  static async _roll(event) {
     if (!isDriver()) return;
     const { token, actor } = trainerFromEvent(event);
     if (!actor) return;
 
-    // Base per-step chance.
+    // Gate: does anything happen on this step at all?
     if (randInt(1, 100) > this.chance) return;
 
-    const rows = this.useDefaultTable ? (PM.defaultEncounterTables[this.category] ?? []) : this.toObject().table;
-    if (!rows.length) return;
+    // Choose an outcome kind by weight.
+    const o = this.outcomes;
+    const kind = weightedPick([
+      { kind: "wild", weight: o.wild },
+      { kind: "item", weight: o.item },
+      { kind: "trainer", weight: o.trainer },
+      { kind: "event", weight: o.event },
+      { kind: "nothing", weight: o.nothing }
+    ])?.kind;
+
+    switch (kind) {
+      case "wild": return WildTileBehaviorType.rollWild.call(this, token);
+      case "item": return WildTileBehaviorType.rollItem.call(this, token);
+      case "trainer": return WildTileBehaviorType.rollTrainer.call(this, token);
+      case "event": return WildTileBehaviorType.rollEvent.call(this, token);
+      default: return; // nothing
+    }
+  }
+
+  /** Region used for table resolution: behavior override → scene tag → generic. */
+  get effectiveRegion() {
+    return this.regionTag || sceneRegion(this.behavior?.parent?.parent) || "";
+  }
+
+  static async rollWild(token) {
+    const region = this.effectiveRegion;
+    const rows = this.useDefaultTable
+      ? PM.resolveEncounterTable(region, this.category)
+      : this.toObject().table;
+    if (!rows?.length) return;
+
     const pick = weightedPick(rows);
     if (!pick) return;
 
-    // Resolve the species from the Pokédex compendium.
-    const speciesActor = await EncounterBehaviorType.findSpecies(pick.species);
+    const speciesActor = await findInPack("pokemon-masters.species", pick.species);
     if (!speciesActor) {
-      console.warn(`Pokémon Masters | Encounter species not found in Pokédex: ${pick.species}`);
+      console.warn(`Pokémon Masters | Encounter species not found: ${pick.species}`);
       return;
     }
 
@@ -138,27 +197,15 @@ export class EncounterBehaviorType extends foundry.data.regionBehaviors.RegionBe
     const max = Math.max(min, pick.max ?? this.maxLevel);
     const level = randInt(min, max);
 
-    if (this.announceOnly) {
-      await EncounterBehaviorType.announce(token, speciesActor, level);
-    } else {
-      await EncounterBehaviorType.spawn(token, speciesActor, level);
-    }
+    if (this.announceOnly) await WildTileBehaviorType.announceWild.call(this, token, speciesActor, level);
+    else await WildTileBehaviorType.spawnWild.call(this, token, speciesActor, level);
   }
 
-  /** Look up a species Actor by name in the compiled Pokédex pack. */
-  static async findSpecies(name) {
-    const pack = game.packs.get("pokemon-masters.species");
-    if (!pack) return null;
-    const key = String(name).toLowerCase();
-    const entry = pack.index.find((e) => e.name.toLowerCase() === key);
-    return entry ? pack.getDocument(entry._id) : null;
-  }
-
-  /** Post a wild-encounter chat card. */
-  static async announce(token, speciesActor, level) {
+  static async announceWild(token, speciesActor, level) {
     const s = speciesActor.system;
     const types = (s.types ?? []).join(" / ");
     const rarityLabel = PM.rarities[s.rarity] ?? s.rarity;
+    const regionLabel = PM.regions[this.effectiveRegion] ?? "the wild";
     await ChatMessage.create({
       speaker: { alias: "Wild Encounter" },
       content: `
@@ -166,15 +213,14 @@ export class EncounterBehaviorType extends foundry.data.regionBehaviors.RegionBe
           <h3>A wild <strong>${speciesActor.name}</strong> appeared!</h3>
           <p><b>Level:</b> ${level} &nbsp; <b>Type:</b> ${types}</p>
           <p><b>Rarity:</b> ${rarityLabel} &nbsp; <b>Catch rate:</b> ${s.catchRate}</p>
-          <p><em>${token.name} startled it out of the ${PM.encounterCategories[this?.category] ?? "wild"}.</em></p>
+          <p><em>${token.name} startled it in ${regionLabel} (${PM.encounterCategories[this.category] ?? "wild"}).</em></p>
         </div>`
     });
   }
 
-  /** Import the species, set its level, and drop a wild token beside the trainer. */
-  static async spawn(token, speciesActor, level) {
+  static async spawnWild(token, speciesActor, level) {
     const scene = token.parent;
-    if (!scene) return this.announce(token, speciesActor, level);
+    if (!scene) return WildTileBehaviorType.announceWild.call(this, token, speciesActor, level);
 
     const source = speciesActor.toObject();
     delete source._id;
@@ -185,14 +231,100 @@ export class EncounterBehaviorType extends foundry.data.regionBehaviors.RegionBe
     if (!created) return;
 
     const gs = scene.grid.size;
+    const tokenDoc = await created.getTokenDocument();
     await scene.createEmbeddedDocuments("Token", [{
-      ...(await created.getTokenDocument()).toObject(),
+      ...tokenDoc.toObject(),
       x: token.x + gs,
       y: token.y,
       disposition: -1
     }]);
-    await EncounterBehaviorType.announce.call(this, token, speciesActor, level);
+    await WildTileBehaviorType.announceWild.call(this, token, speciesActor, level);
   }
+
+  static async rollItem(token) {
+    const pick = weightedPick(PM.itemFindTable.map((r) => ({ ...r, weight: r.weight })));
+    if (!pick) return;
+    const gear = await findInPack("pokemon-masters.gear", pick.item);
+    const img = gear?.img ?? "icons/svg/item-bag.svg";
+    await ChatMessage.create({
+      speaker: { alias: "Item Found" },
+      content: `
+        <div class="pm-encounter-card">
+          <h3>${token.name} found an item!</h3>
+          <p><img src="${img}" width="24" height="24" style="vertical-align:middle"> <strong>${pick.item}</strong></p>
+        </div>`
+    });
+  }
+
+  static async rollTrainer(token) {
+    await ChatMessage.create({
+      speaker: { alias: "Trainer Battle" },
+      content: `
+        <div class="pm-encounter-card">
+          <h3>A Trainer wants to battle!</h3>
+          <p><em>${token.name} was spotted. (Set up the opposing team, GM — battle resolution is a later phase.)</em></p>
+        </div>`
+    });
+  }
+
+  static async rollEvent(token) {
+    if (this.eventMacro) {
+      const macro = await fromUuid(this.eventMacro);
+      if (macro?.execute) return macro.execute({ token, behavior: this.behavior });
+    }
+    await ChatMessage.create({
+      speaker: { alias: "Event" },
+      content: `<p><strong>${token.name}</strong> triggered a special event.</p>`
+    });
+  }
+}
+
+/* -------------------------------------------- */
+/*  Safe Zone behavior                           */
+/* -------------------------------------------- */
+
+export class SafeZoneBehaviorType extends foundry.data.regionBehaviors.RegionBehaviorType {
+  static LOCALIZATION_PREFIXES = ["PM.RegionBehavior.SafeZone"];
+
+  static defineSchema() {
+    return {
+      kind: new fields.StringField({
+        required: true, blank: false, initial: "town", choices: PM.safeZoneKinds
+      }),
+      healOnEnter: new fields.BooleanField({ initial: true }),
+      announce: new fields.BooleanField({ initial: true })
+    };
+  }
+
+  static events = {
+    [EVENTS.TOKEN_ENTER]: async function (event) {
+      if (!isDriver()) return;
+      const { token, actor } = trainerFromEvent(event);
+      if (!actor) return;
+
+      if (this.kind === "center" && this.healOnEnter) {
+        const party = await actor.getParty();
+        for (const mon of party) {
+          await mon.update({ "system.hp.value": mon.system.hp.max });
+        }
+        if (this.announce) {
+          await ChatMessage.create({
+            speaker: { alias: "Pokémon Center" },
+            content: `<p>💗 <strong>${actor.name}</strong>'s Pokémon were restored to full health!</p>`
+          });
+        }
+        return;
+      }
+
+      if (this.announce) {
+        const label = PM.safeZoneKinds[this.kind] ?? "a safe area";
+        const msg = this.kind === "mart"
+          ? `🛒 <strong>${actor.name}</strong> entered the Poké Mart.`
+          : `<strong>${actor.name}</strong> entered ${label}.`;
+        await ChatMessage.create({ speaker: { alias: "World" }, content: `<p>${msg}</p>` });
+      }
+    }
+  };
 }
 
 /* -------------------------------------------- */
@@ -206,10 +338,8 @@ export class ZoneTransitBehaviorType extends foundry.data.regionBehaviors.Region
     return {
       zoneName: new fields.StringField({ required: false, blank: true, initial: "" }),
       announce: new fields.BooleanField({ initial: true }),
-      /** Same-scene warp target, in pixels. Leave both 0 to disable. */
       destX: new fields.NumberField({ required: true, integer: true, initial: 0 }),
       destY: new fields.NumberField({ required: true, integer: true, initial: 0 }),
-      /** Optional Scene UUID to view when entering (GM side; player pull is future work). */
       destinationScene: new fields.DocumentUUIDField({ type: "Scene", required: false, nullable: true, initial: null })
     };
   }

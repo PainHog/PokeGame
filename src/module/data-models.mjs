@@ -56,8 +56,14 @@ export class PokemonData extends foundry.abstract.TypeDataModel {
     return {
       species: new fields.SchemaField({
         name: new fields.StringField({ required: true, blank: true, initial: "" }),
-        num: new fields.NumberField({ required: true, integer: true, min: 0, initial: 0 })
+        num: new fields.NumberField({ required: true, integer: true, min: 0, initial: 0 }),
+        baseSpecies: new fields.StringField({ required: false, blank: true, initial: "" }),
+        forme: new fields.StringField({ required: false, blank: true, initial: "" })
       }),
+      /** Region this species is native to (from its introduction generation). */
+      nativeRegion: new fields.StringField({ required: false, blank: true, initial: "" }),
+      /** Region of a regional variant (alola/galar/hisui/paldea), else empty. */
+      variantRegion: new fields.StringField({ required: false, blank: true, initial: "" }),
       types: new fields.ArrayField(new fields.StringField({ blank: false })),
       level: new fields.NumberField({ required: true, integer: true, min: 1, max: 100, initial: 5 }),
       nature: new fields.StringField({ required: true, blank: true, initial: "serious" }),

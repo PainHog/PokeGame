@@ -18,7 +18,6 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { Dex } from "@pkmn/dex";
-import { Generations } from "@pkmn/data";
 import { compilePack } from "@foundryvtt/foundryvtt-cli";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -31,8 +30,12 @@ const LIMIT = (() => {
   return arg ? parseInt(arg.split("=")[1], 10) : Infinity;
 })();
 
-const gens = new Generations(Dex);
-const gen = gens.get(9);
+/**
+ * Include every *real* Pokémon/move/ability/item: fully-standard current-gen
+ * entries, "Past" entries (National Dex mons not native to the current game),
+ * and LGPE. Exclude fan-made CAP, Custom, and unreleased "Future" entries.
+ */
+const okNs = (e) => !e.isNonstandard || e.isNonstandard === "Past" || e.isNonstandard === "LGPE";
 
 /* -------------------------------------------- */
 /*  Helpers                                      */
@@ -67,6 +70,20 @@ function rarityForBst(bst) {
 
 const CATCH_RATE = { common: 190, uncommon: 120, rare: 60, veryrare: 30, legendary: 3 };
 
+const GEN_TO_REGION = {
+  1: "kanto", 2: "johto", 3: "hoenn", 4: "sinnoh", 5: "unova",
+  6: "kalos", 7: "alola", 8: "galar", 9: "paldea"
+};
+
+/** Regional-variant region derived from a forme suffix (Alola/Galar/Hisui/Paldea). */
+function variantRegion(forme) {
+  if (!forme) return "";
+  for (const r of ["Alola", "Galar", "Hisui", "Paldea"]) {
+    if (forme.includes(r)) return r.toLowerCase();
+  }
+  return "";
+}
+
 const BALL_MODIFIERS = {
   "poke ball": 1, "great ball": 1.5, "ultra ball": 2, "master ball": 255,
   "net ball": 3.5, "dive ball": 3.5, "nest ball": 4, "repeat ball": 3.5,
@@ -95,9 +112,9 @@ async function writePack(name, docs) {
 async function buildSpecies() {
   const docs = [];
   let count = 0;
-  for (const s of gen.species) {
+  for (const s of Dex.species.all()) {
     if (count >= LIMIT) break;
-    if (s.isNonstandard && s.isNonstandard !== "Past") continue; // skip CAP/etc.
+    if (s.num < 1 || !okNs(s)) continue; // real National Dex entries only
     count++;
 
     const bs = s.baseStats;
@@ -106,10 +123,10 @@ async function buildSpecies() {
 
     let learnset = [];
     try {
-      const ls = await gen.learnsets.get(s.name);
+      const ls = await Dex.learnsets.get(s.id);
       if (ls?.learnset) {
         learnset = Object.keys(ls.learnset).map((moveId) => {
-          const move = gen.moves.get(moveId);
+          const move = Dex.moves.get(moveId);
           // Earliest level-up entry, if any (format e.g. "9L14").
           const sources = ls.learnset[moveId] || [];
           let level = 0;
@@ -129,7 +146,14 @@ async function buildSpecies() {
       type: "pokemon",
       img: "icons/svg/mystery-man.svg",
       system: {
-        species: { name: s.name, num: s.num },
+        species: {
+          name: s.name,
+          num: s.num,
+          baseSpecies: s.baseSpecies ?? s.name,
+          forme: s.forme ?? ""
+        },
+        nativeRegion: GEN_TO_REGION[s.gen] ?? "",
+        variantRegion: variantRegion(s.forme),
         types: s.types,
         level: 5,
         rarity,
@@ -168,9 +192,9 @@ async function buildSpecies() {
 function buildMoves() {
   const docs = [];
   let count = 0;
-  for (const m of gen.moves) {
+  for (const m of Dex.moves.all()) {
     if (count >= LIMIT) break;
-    if (m.isNonstandard && m.isNonstandard !== "Past") continue;
+    if (!m.exists || !okNs(m)) continue;
     count++;
     docs.push({
       _id: stableId("move", m.id),
@@ -196,9 +220,9 @@ function buildMoves() {
 function buildAbilities() {
   const docs = [];
   let count = 0;
-  for (const a of gen.abilities) {
+  for (const a of Dex.abilities.all()) {
     if (count >= LIMIT) break;
-    if (a.isNonstandard) continue;
+    if (!a.exists || !okNs(a) || a.id === "noability") continue;
     count++;
     docs.push({
       _id: stableId("ability", a.id),
@@ -217,9 +241,9 @@ function buildAbilities() {
 function buildGear() {
   const docs = [];
   let count = 0;
-  for (const it of gen.items) {
+  for (const it of Dex.items.all()) {
     if (count >= LIMIT) break;
-    if (it.isNonstandard) continue;
+    if (!it.exists || !okNs(it)) continue;
     count++;
     const lower = it.name.toLowerCase();
     const isBall = lower.endsWith(" ball") && lower in BALL_MODIFIERS;
@@ -251,7 +275,7 @@ function buildGear() {
 async function main() {
   await fs.mkdir(SRC, { recursive: true });
   await fs.mkdir(OUT, { recursive: true });
-  console.log(`Building Pokémon Masters packs (gen 9${LIMIT !== Infinity ? `, limit ${LIMIT}` : ""})…`);
+  console.log(`Building Pokémon Masters packs (full National Dex${LIMIT !== Infinity ? `, limit ${LIMIT}` : ""})…`);
   await writePack("species", await buildSpecies());
   await writePack("moves", buildMoves());
   await writePack("abilities", buildAbilities());
