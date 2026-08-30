@@ -10,7 +10,7 @@
  * objects, RNG-injectable) so they can be unit tested outside Foundry.
  */
 
-import { damageCalc } from "./battle.mjs";
+import { damageCalc, CRIT_CHANCE, STATUS_CHIP } from "./battle.mjs";
 import { typeMultiplier } from "./typechart.mjs";
 
 /** Fallback move when a combatant knows none. */
@@ -49,6 +49,8 @@ function prep(c) {
     level: c.level ?? 5,
     types: [...(c.types ?? [])],
     stats: { ...c.stats },
+    status: c.status ?? "none",
+    statusTurns: 0,
     moves: (c.moves ?? []).map((m) => ({ ...m })),
     hp: { value: c.hp?.value ?? maxHp, max: maxHp }
   };
@@ -65,21 +67,52 @@ export function simulateBattle(teamAIn, teamBIn, { maxTurns = 300, rng = Math.ra
   const log = [];
   let turns = 0;
 
+  // Can this Pokémon act? Handles sleep (1–3 turns), freeze (20% thaw), paralysis (25% skip).
+  const canAct = (mon) => {
+    if (mon.status === "sleep") {
+      if (mon.statusTurns <= 0) mon.statusTurns = 1 + Math.floor(rng() * 3);
+      mon.statusTurns--;
+      if (mon.statusTurns <= 0) { mon.status = "none"; log.push(`${mon.name} woke up!`); return true; }
+      log.push(`${mon.name} is fast asleep.`); return false;
+    }
+    if (mon.status === "freeze") {
+      if (rng() < 0.2) { mon.status = "none"; log.push(`${mon.name} thawed out!`); return true; }
+      log.push(`${mon.name} is frozen solid.`); return false;
+    }
+    if (mon.status === "paralysis" && rng() < 0.25) { log.push(`${mon.name} is paralyzed!`); return false; }
+    return true;
+  };
+
   const strike = (attacker, defender) => {
     const move = chooseBestMove(attacker, defender);
+    if (!move.alwaysHits && move.category !== "Status" && (move.accuracy ?? 100) > 0
+        && Math.floor(rng() * 100) >= move.accuracy) { log.push(`${attacker.name}'s ${move.name} missed!`); return; }
     const isPhysical = move.category === "Physical";
-    const res = damageCalc({
-      level: attacker.level,
-      power: move.power,
-      atk: isPhysical ? attacker.stats.atk : attacker.stats.spa,
-      def: isPhysical ? defender.stats.def : defender.stats.spd,
-      stab: attacker.types.includes(move.moveType) ? 1.5 : 1,
-      typeMult: typeMultiplier(move.moveType, defender.types),
-      rng
-    });
-    defender.hp.value = Math.max(0, defender.hp.value - res.damage);
-    log.push(`${attacker.name} used ${move.name} → ${res.damage} dmg (${defender.name} ${defender.hp.value}/${defender.hp.max})`);
+    const crit = move.category !== "Status" && rng() < CRIT_CHANCE;
+    const burned = attacker.status === "burn" && isPhysical;
+    if (move.category !== "Status") {
+      const res = damageCalc({
+        level: attacker.level, power: move.power,
+        atk: isPhysical ? attacker.stats.atk : attacker.stats.spa,
+        def: isPhysical ? defender.stats.def : defender.stats.spd,
+        stab: attacker.types.includes(move.moveType) ? 1.5 : 1,
+        typeMult: typeMultiplier(move.moveType, defender.types),
+        crit, burn: burned, rng
+      });
+      defender.hp.value = Math.max(0, defender.hp.value - res.damage);
+      log.push(`${attacker.name} used ${move.name} → ${res.damage}${crit ? " (crit!)" : ""} (${defender.name} ${defender.hp.value}/${defender.hp.max})`);
+    } else {
+      log.push(`${attacker.name} used ${move.name}.`);
+    }
+    if (defender.hp.value > 0 && defender.status === "none") {
+      let inflict = null;
+      if (move.category === "Status" && move.inflictStatus) inflict = move.inflictStatus;
+      else if (move.secondaryStatus && move.secondaryChance && Math.floor(rng() * 100) < move.secondaryChance) inflict = move.secondaryStatus;
+      if (inflict) { defender.status = inflict; defender.statusTurns = 0; log.push(`${defender.name} was ${inflict}!`); }
+    }
   };
+
+  const speed = (mon) => mon.stats.spe * (mon.status === "paralysis" ? 0.5 : 1);
 
   while (a < A.length && b < B.length && turns < maxTurns) {
     // Skip past any fainted lead (e.g. HP carried in from a previous gauntlet fight).
@@ -88,18 +121,30 @@ export function simulateBattle(teamAIn, teamBIn, { maxTurns = 300, rng = Math.ra
     if (a >= A.length || b >= B.length) break;
     turns++;
     const atkA = A[a]; const atkB = B[b];
-    // Faster acts first; ties broken randomly.
-    const aFirst = atkA.stats.spe > atkB.stats.spe || (atkA.stats.spe === atkB.stats.spe && rng() < 0.5);
+    // Order by move priority, then paralysis-adjusted Speed, ties random.
+    const mvA = chooseBestMove(atkA, atkB); const mvB = chooseBestMove(atkB, atkA);
+    let aFirst;
+    if ((mvA.priority ?? 0) !== (mvB.priority ?? 0)) aFirst = (mvA.priority ?? 0) > (mvB.priority ?? 0);
+    else if (speed(atkA) !== speed(atkB)) aFirst = speed(atkA) > speed(atkB);
+    else aFirst = rng() < 0.5;
     const order = aFirst ? [[atkA, atkB], [atkB, atkA]] : [[atkB, atkA], [atkA, atkB]];
 
     for (const [attacker, defender] of order) {
       if (attacker.hp.value <= 0 || defender.hp.value <= 0) continue;
+      if (!canAct(attacker)) continue;
       strike(attacker, defender);
-      if (defender.hp.value <= 0) {
-        log.push(`${defender.name} fainted!`);
-        if (defender === atkA) a++;
-        else b++;
-      }
+      if (defender.hp.value <= 0) { log.push(`${defender.name} fainted!`); if (defender === atkA) a++; else b++; }
+    }
+
+    // End-of-turn chip (burn/poison) on the still-standing actives.
+    for (const [mon, isA] of [[atkA, true], [atkB, false]]) {
+      if (mon.hp.value <= 0) continue;
+      const frac = STATUS_CHIP[mon.status];
+      if (!frac) continue;
+      const dmg = Math.max(1, Math.floor(mon.hp.max * frac));
+      mon.hp.value = Math.max(0, mon.hp.value - dmg);
+      log.push(`${mon.name} is hurt by ${mon.status} (−${dmg}).`);
+      if (mon.hp.value <= 0) { log.push(`${mon.name} fainted!`); if (isA) a++; else b++; }
     }
   }
 
@@ -119,9 +164,12 @@ export function combatantFromActor(actor) {
     level: s.level,
     types: s.types ?? [],
     stats: s.stats ?? { hp: 20, atk: 10, def: 10, spa: 10, spd: 10, spe: 10 },
+    status: s.status ?? "none",
     hp: { value: s.hp?.value ?? s.stats?.hp, max: s.hp?.max ?? s.stats?.hp },
     moves: actor.items.filter((i) => i.type === "move").map((m) => ({
-      name: m.name, moveType: m.system.moveType, category: m.system.category, power: m.system.power
+      name: m.name, moveType: m.system.moveType, category: m.system.category, power: m.system.power,
+      priority: m.system.priority ?? 0, accuracy: m.system.accuracy ?? 100, alwaysHits: !!m.system.alwaysHits,
+      inflictStatus: m.system.inflictStatus ?? "", secondaryStatus: m.system.secondaryStatus ?? "", secondaryChance: m.system.secondaryChance ?? 0
     }))
   };
 }

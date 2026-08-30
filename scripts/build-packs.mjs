@@ -37,6 +37,9 @@ const LIMIT = (() => {
  */
 const okNs = (e) => !e.isNonstandard || e.isNonstandard === "Past" || e.isNonstandard === "LGPE";
 
+/** Map a Pokémon Showdown status code to our status keys. */
+const mapStatus = (s) => ({ brn: "burn", par: "paralysis", slp: "sleep", frz: "freeze", psn: "poison", tox: "poison" }[s] || "");
+
 /* -------------------------------------------- */
 /*  Helpers                                      */
 /* -------------------------------------------- */
@@ -274,6 +277,11 @@ function buildMoves() {
         pp: m.pp ?? 0,
         priority: m.priority ?? 0,
         target: m.target ?? "normal",
+        // Status this move inflicts: a Status move's primary, or a damaging
+        // move's secondary chance to inflict one.
+        inflictStatus: mapStatus(m.status),
+        secondaryStatus: mapStatus(m.secondary?.status),
+        secondaryChance: m.secondary?.status ? (m.secondary?.chance ?? 0) : 0,
         description: m.shortDesc || m.desc || ""
       }
     });

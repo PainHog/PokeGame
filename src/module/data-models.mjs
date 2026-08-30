@@ -189,6 +189,10 @@ export class MoveData extends foundry.abstract.TypeDataModel {
       pp: new fields.NumberField({ required: true, integer: true, min: 0, initial: 0 }),
       priority: new fields.NumberField({ required: true, integer: true, initial: 0 }),
       target: new fields.StringField({ required: false, blank: true, initial: "normal" }),
+      /** Status this move inflicts (Status moves) and its secondary chance. */
+      inflictStatus: new fields.StringField({ required: false, blank: true, initial: "" }),
+      secondaryStatus: new fields.StringField({ required: false, blank: true, initial: "" }),
+      secondaryChance: new fields.NumberField({ required: true, integer: true, min: 0, max: 100, initial: 0 }),
       description: new fields.HTMLField({ required: false, blank: true })
     };
   }
