@@ -7,6 +7,8 @@
  */
 
 import { PM } from "./config.mjs";
+import { rankTitle, nextRankThreshold } from "./organizations.mjs";
+import { getStorage } from "./storage.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2, ItemSheetV2 } = foundry.applications.sheets;
@@ -25,9 +27,13 @@ export class TrainerSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static DEFAULT_OPTIONS = {
     ...SHEET_DEFAULTS,
     classes: [...SHEET_DEFAULTS.classes, "trainer"],
-    position: { width: 560, height: 620 },
+    position: { width: 560, height: 680 },
     actions: {
-      chooseStarter() { return game.pokemonMasters?.starters?.choose(this.actor); }
+      chooseStarter() { return game.pokemonMasters?.starters?.choose(this.actor); },
+      joinOrg() { return game.pokemonMasters?.orgs?.joinDialog(this.actor); },
+      leaveOrg(event, target) { return game.pokemonMasters?.orgs?.leave(this.actor, target.dataset.org); },
+      withdraw(event, target) { return game.pokemonMasters?.storage?.withdraw(this.actor, target.dataset.uuid); },
+      deposit(event, target) { return game.pokemonMasters?.storage?.deposit(this.actor, target.dataset.uuid); }
     }
   };
 
@@ -43,6 +49,22 @@ export class TrainerSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     context.vocationBlurb = PM.vocationInfo?.[this.actor.system.vocation]?.blurb ?? "";
     context.editable = this.isEditable;
     context.party = await this.actor.getParty();
+    context.storage = await getStorage(this.actor);
+    context.affiliations = (this.actor.system.affiliations ?? []).map((a) => {
+      const org = PM.organizations[a.org];
+      const isMax = a.rank >= (org?.ranks.length ?? 1) - 1;
+      const need = nextRankThreshold(a.rank);
+      return {
+        org: a.org,
+        label: org?.label ?? a.org,
+        align: org?.align ?? "neutral",
+        title: rankTitle(a.org, a.rank),
+        reputation: a.reputation,
+        need,
+        isMax,
+        pct: isMax ? 100 : Math.min(100, Math.round((a.reputation / need) * 100))
+      };
+    });
     return context;
   }
 }

@@ -41,8 +41,16 @@ export class TrainerData extends foundry.abstract.TypeDataModel {
       badges: new fields.ArrayField(new fields.StringField({ blank: false })),
       hometown: new fields.StringField({ required: false, blank: true }),
       biography: new fields.HTMLField({ required: false, blank: true }),
-      /** Owned Pokémon, referenced by Actor UUID (the party). */
-      party: new fields.ArrayField(new fields.DocumentUUIDField({ type: "Actor" }))
+      /** Owned Pokémon in the active party (Actor UUIDs, max 6 by convention). */
+      party: new fields.ArrayField(new fields.DocumentUUIDField({ type: "Actor" })),
+      /** Pokémon in PC storage (Actor UUIDs) — the overflow beyond the party. */
+      storage: new fields.ArrayField(new fields.DocumentUUIDField({ type: "Actor" })),
+      /** Organization memberships with rank (ladder index) and reputation. */
+      affiliations: new fields.ArrayField(new fields.SchemaField({
+        org: new fields.StringField({ required: true, blank: false }),
+        rank: new fields.NumberField({ required: true, integer: true, min: 0, initial: 0 }),
+        reputation: new fields.NumberField({ required: true, integer: true, min: 0, initial: 0 })
+      }))
     };
   }
 }
@@ -78,6 +86,8 @@ export class PokemonData extends foundry.abstract.TypeDataModel {
       gender: new fields.StringField({ required: false, blank: true, initial: "" }),
       shiny: new fields.BooleanField({ initial: false }),
       rarity: new fields.StringField({ required: true, blank: false, initial: "common", choices: PM.rarities }),
+      /** Max that may exist in the world at once (0 = unlimited; legendaries = 1). */
+      populationCap: new fields.NumberField({ required: true, integer: true, min: 0, initial: 0 }),
       catchRate: new fields.NumberField({ required: true, integer: true, min: 1, max: 255, initial: 45 }),
       ability: new fields.StringField({ required: false, blank: true, initial: "" }),
       abilities: new fields.ArrayField(new fields.StringField({ blank: false })),

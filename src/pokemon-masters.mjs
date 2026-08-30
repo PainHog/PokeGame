@@ -16,6 +16,8 @@ import { registerCatchHooks } from "./module/catch.mjs";
 import { registerBattleApi } from "./module/battle.mjs";
 import { registerProgressionHooks } from "./module/progression.mjs";
 import { registerStarterApi } from "./module/starters.mjs";
+import { registerStorageApi } from "./module/storage.mjs";
+import { registerOrgApi } from "./module/organizations.mjs";
 
 Hooks.once("init", () => {
   console.log("Pokémon Masters | Initializing system");
@@ -82,5 +84,7 @@ Hooks.once("ready", () => {
   registerBattleApi();
   registerProgressionHooks();
   registerStarterApi();
+  registerStorageApi();
+  registerOrgApi();
   console.log("Pokémon Masters | Ready");
 });

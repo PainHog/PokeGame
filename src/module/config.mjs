@@ -293,6 +293,26 @@ PM.starterSets = {
 };
 
 /**
+ * Joinable organizations. Each has a rank ladder; reputation earned through
+ * org-appropriate deeds promotes a member up the ladder over time. Alignment
+ * flavors the world (a Rocket can't also be Champion without consequences).
+ */
+PM.organizations = {
+  league: { label: "Pokémon League", align: "good", desc: "Earn badges and climb toward Champion.", ranks: ["Challenger", "Badge Holder", "Gym Trainer", "Gym Leader", "Elite Four", "Champion"] },
+  rangers: { label: "Ranger Union", align: "good", desc: "Protect regions and the Pokémon in them.", ranks: ["Cadet", "Ranger", "Top Ranger", "Ranger Leader"] },
+  lab: { label: "Professor's Lab", align: "good", desc: "Study Pokémon and complete the Pokédex.", ranks: ["Intern", "Assistant", "Researcher", "Professor"] },
+  breeders: { label: "Breeders' Guild", align: "good", desc: "Raise, hatch, and breed Pokémon.", ranks: ["Helper", "Breeder", "Master Breeder"] },
+  contests: { label: "Contest Association", align: "good", desc: "Dazzle crowds through contests.", ranks: ["Normal Rank", "Super Rank", "Hyper Rank", "Master Rank", "Top Coordinator"] },
+  anglers: { label: "Anglers' Society", align: "neutral", desc: "Fish for and trade aquatic Pokémon.", ranks: ["Novice", "Angler", "Master Angler"] },
+  rocket: { label: "Team Rocket", align: "villain", desc: "Steal, scheme, and rise through the syndicate.", ranks: ["Recruit", "Grunt", "Agent", "Executive", "Admin", "Boss"] },
+  magma: { label: "Team Magma", align: "villain", desc: "Expand the land at any cost.", ranks: ["Grunt", "Agent", "Admin", "Leader"] },
+  aqua: { label: "Team Aqua", align: "villain", desc: "Expand the sea at any cost.", ranks: ["Grunt", "Agent", "Admin", "Leader"] }
+};
+
+/** Reputation needed to advance one rank (rank N needs N × this in total). */
+PM.reputationPerRank = 100;
+
+/**
  * Default habitats a type suggests, used to seed each Pokémon's encounter
  * requirements at build time. A Pokémon is only eligible to appear on a tile
  * whose habitat is among its allowed habitats (empty = any habitat).

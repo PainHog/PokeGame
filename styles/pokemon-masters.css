@@ -312,3 +312,19 @@
   background: transparent; color: var(--pm-accent, #cc0000);
 }
 .pm-starter-btn:hover, .pm-pc-btn:hover { background: var(--pm-accent, #cc0000); color: #fff; }
+
+/* Storage & organizations */
+.pm-storage { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.pm-storage-member { display: flex; align-items: center; gap: 6px; padding: 3px; border: 1px solid rgba(0,0,0,.1); border-radius: 5px; }
+.pm-storage-member img { width: 26px; height: 26px; object-fit: contain; }
+
+.pm-orgs { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.pm-org { border: 1px solid rgba(0,0,0,.12); border-left: 4px solid #888; border-radius: 6px; padding: 6px 9px; }
+.pm-org-good { border-left-color: #2f9463; }
+.pm-org-neutral { border-left-color: #5a6b86; }
+.pm-org-villain { border-left-color: #b02a37; }
+.pm-org-head { display: flex; align-items: center; gap: 8px; }
+.pm-org-head strong { flex: 1 1 auto; }
+.pm-org-leave { margin-left: auto; border: none; background: transparent; cursor: pointer; color: #999; font-weight: 700; }
+.pm-org .pm-hptrack { margin: 5px 0 3px; }
+.pm-org small { color: var(--muted, #6d6560); }

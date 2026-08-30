@@ -12,6 +12,7 @@
  */
 
 import { PM } from "./config.mjs";
+import { addToParty } from "./storage.mjs";
 
 /** Status multipliers on the catch rate (classic values). */
 export const STATUS_BONUS = {
@@ -162,13 +163,8 @@ async function finalizeCapture({ trainer, species, level, shiny, token }) {
   if (!created) return;
 
   if (trainer) {
-    const party = [...(trainer.system.party ?? [])];
-    if (party.length < 6) {
-      party.push(created.uuid);
-      await trainer.update({ "system.party": party });
-    } else {
-      ui.notifications?.info(`${species.name} was caught, but the party is full — stored for the PC (storage coming soon).`);
-    }
+    const where = await addToParty(trainer, created);
+    if (where === "storage") ui.notifications?.info(`${species.name} was caught and sent to the PC (party full).`);
   }
 
   // Remove the wild token from the scene if this was a spawned encounter.

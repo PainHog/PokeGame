@@ -38,6 +38,45 @@
   </section>
 
   <section class="pm-section">
+    <h2>PC Storage</h2>
+    {{#if storage.length}}
+      <ul class="pm-storage">
+        {{#each storage as |mon|}}
+          <li class="pm-storage-member">
+            <img src="{{mon.img}}" alt="{{mon.name}}">
+            <span class="pm-party-name">{{mon.name}}</span>
+            <span class="pm-badge">Lv {{mon.system.level}}</span>
+            <button type="button" class="pm-usemove" data-action="withdraw" data-uuid="{{mon.uuid}}">Withdraw</button>
+          </li>
+        {{/each}}
+      </ul>
+    {{else}}
+      <p class="pm-empty">The PC is empty. Caught Pokémon overflow here when the party is full (6).</p>
+    {{/if}}
+  </section>
+
+  <section class="pm-section">
+    <h2>Organizations <button type="button" class="pm-starter-btn" data-action="joinOrg">Join</button></h2>
+    {{#if affiliations.length}}
+      <ul class="pm-orgs">
+        {{#each affiliations as |a|}}
+          <li class="pm-org pm-org-{{a.align}}">
+            <div class="pm-org-head">
+              <strong>{{a.label}}</strong>
+              <span class="pm-badge">{{a.title}}</span>
+              <button type="button" class="pm-org-leave" data-action="leaveOrg" data-org="{{a.org}}" title="Leave">✕</button>
+            </div>
+            <div class="pm-hptrack"><div class="pm-hpfill" style="width: {{a.pct}}%"></div></div>
+            <small>{{#if a.isMax}}Max rank{{else}}{{a.reputation}} / {{a.need}} rep to next rank{{/if}}</small>
+          </li>
+        {{/each}}
+      </ul>
+    {{else}}
+      <p class="pm-empty">Not affiliated with any organization. Join the League, a Ranger Union, Team Rocket, and more.</p>
+    {{/if}}
+  </section>
+
+  <section class="pm-section">
     <h2>Badges</h2>
     {{#if system.badges.length}}
       <ul class="pm-badges">{{#each system.badges as |b|}}<li class="pm-badge">{{b}}</li>{{/each}}</ul>

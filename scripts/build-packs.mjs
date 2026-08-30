@@ -60,9 +60,18 @@ function stableId(namespace, key) {
   return id.slice(0, 16);
 }
 
-function rarityForBst(bst) {
-  if (bst >= 600) return "legendary";
-  if (bst >= 525) return "veryrare";
+/** Tags that mark a truly unique Pokémon (only one may exist in the world). */
+const UNIQUE_TAGS = ["Mythical", "Restricted Legendary", "Sub-Legendary"];
+
+/**
+ * Rarity from the dataset's legendary tags first, then base-stat total. This
+ * keeps pseudo-legendaries (Dragonite, Garchomp — high BST, no tag) out of the
+ * "legendary" tier, so only tagged legendaries get the harshest catch/uniqueness.
+ */
+function rarityFor(s, bst) {
+  const tags = s.tags || [];
+  if (tags.some((t) => UNIQUE_TAGS.includes(t))) return "legendary";
+  if (bst >= 525) return "veryrare"; // pseudo-legendaries, Ultra Beasts, Paradox
   if (bst >= 450) return "rare";
   if (bst >= 330) return "uncommon";
   return "common";
@@ -147,7 +156,7 @@ async function buildSpecies() {
 
     const bs = s.baseStats;
     const bst = bs.hp + bs.atk + bs.def + bs.spa + bs.spd + bs.spe;
-    const rarity = rarityForBst(bst);
+    const rarity = rarityFor(s, bst);
 
     let learnset = [];
     try {
@@ -183,6 +192,8 @@ async function buildSpecies() {
         nativeRegion: GEN_TO_REGION[s.gen] ?? "",
         variantRegion: variantRegion(s.forme),
         requirements: deriveRequirements(s, rarity, GEN_TO_REGION[s.gen] ?? "", variantRegion(s.forme)),
+        // Legendaries/mythicals are unique in the world; 0 = unlimited.
+        populationCap: rarity === "legendary" ? 1 : 0,
         types: s.types,
         level: 5,
         rarity,

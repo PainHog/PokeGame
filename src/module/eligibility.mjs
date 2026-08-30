@@ -17,7 +17,8 @@ const INDEX_FIELDS = [
   "system.requirements",
   "system.types",
   "system.nativeRegion",
-  "system.variantRegion"
+  "system.variantRegion",
+  "system.populationCap"
 ];
 
 let _cache = null;
@@ -54,8 +55,18 @@ export function matchesContext(requirements = {}, { habitat, region, method, tim
 /** Relative encounter weight per rarity (rarer → far less common). */
 const RARITY_WEIGHT = { common: 100, uncommon: 45, rare: 15, veryrare: 5, legendary: 1 };
 
+/** How many Pokémon of a given species name currently exist in the world. */
+export function worldPopulation(name) {
+  const key = String(name).toLowerCase();
+  return (game.actors ?? []).filter(
+    (a) => a.type === "pokemon" && (a.system?.species?.name ?? a.name).toLowerCase() === key
+  ).length;
+}
+
 /**
  * All species eligible for a tile context, each with a rarity-derived weight.
+ * Species with a population cap that is already met are excluded (unique
+ * legendaries can't reappear once one exists in the world).
  * @returns {Promise<Array<{name:string, rarity:string, weight:number}>>}
  */
 export async function eligibleSpecies({ habitat, region = "", method = "walk", time = "" } = {}) {
@@ -64,6 +75,8 @@ export async function eligibleSpecies({ habitat, region = "", method = "walk", t
   for (const entry of index) {
     const sys = entry.system ?? {};
     if (!matchesContext(sys.requirements, { habitat, region, method, time })) continue;
+    const cap = sys.populationCap ?? 0;
+    if (cap > 0 && worldPopulation(entry.name) >= cap) continue; // already at its limit
     out.push({ name: entry.name, rarity: sys.rarity ?? "common", weight: RARITY_WEIGHT[sys.rarity] ?? 50 });
   }
   return out;
