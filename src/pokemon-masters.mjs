@@ -24,6 +24,7 @@ import { registerNpcApi } from "./module/npc.mjs";
 import { registerDexApi } from "./module/dex.mjs";
 import { registerItemsApi } from "./module/items.mjs";
 import { registerSystemSettings } from "./module/permissions.mjs";
+import { registerSpriteSystem } from "./module/sprites.mjs";
 import { registerGymApi } from "./module/gyms.mjs";
 import { registerBreedingApi } from "./module/breeding.mjs";
 
@@ -33,6 +34,7 @@ Hooks.once("init", () => {
   CONFIG.PM = PM;
 
   registerSystemSettings();
+  registerSpriteSystem();
 
   // Small Handlebars helpers used by the sheet templates.
   Handlebars.registerHelper("pmLower", (s) => String(s ?? "").toLowerCase());
