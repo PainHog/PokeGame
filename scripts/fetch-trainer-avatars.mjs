@@ -61,6 +61,25 @@ function candidates(name) {
   return [...c].filter(Boolean);
 }
 
+// A broad library of famous named characters BEYOND the League roster — villain
+// bosses & admins, rivals, and player protagonists across all nine regions — so
+// the world has a real portrait ready for any of them, even ones no NPC is named
+// after yet. Showdown lacks a few of these; those are simply skipped.
+const EXTRA_CHARACTERS = [
+  // Villain leaders / notable admins
+  "Giovanni", "Archer", "Ariana", "Proton", "Petrel", "Maxie", "Archie", "Tabitha", "Courtney", "Matt", "Shelly",
+  "Cyrus", "Mars", "Jupiter", "Saturn", "Charon", "Ghetsis", "Colress", "Zinzolin", "Rood",
+  "Lysandre", "Xerosic", "Aliana", "Bryony", "Celosia", "Mable",
+  "Guzma", "Plumeria", "Lusamine", "Faba", "Gladion",
+  "Rose", "Oleana", "Nemona", "Arven", "Penny", "Cassiopeia",
+  // Rivals & companions
+  "Blue", "Silver", "Barry", "Cheren", "Bianca", "Hugh", "Serena", "Calem", "Hau",
+  "Hop", "Bede", "Marnie", "Nessa", "Wally", "Brendan", "May",
+  // Player protagonists
+  "Red", "Leaf", "Ethan", "Lyra", "Lucas", "Dawn", "Hilbert", "Hilda", "Nate", "Rosa",
+  "Elio", "Selene", "Victor", "Gloria", "Florian", "Juliana",
+];
+
 /** Every named character in the League roster: leaders, E4, champions, professors. */
 function roster() {
   const names = new Set();
@@ -73,9 +92,14 @@ function roster() {
   return [...names];
 }
 
+/** The League roster plus the wider famous-character library, de-duplicated. */
+function allNamed() {
+  return [...new Set([...roster(), ...EXTRA_CHARACTERS])];
+}
+
 async function main() {
   await fs.mkdir(OUT, { recursive: true });
-  const names = roster();
+  const names = allNamed();
   console.log(`Fetching real portraits for ${names.length} named characters from Pokémon Showdown…`);
 
   const map = {};            // lowercase name -> avatar_<id>.png
