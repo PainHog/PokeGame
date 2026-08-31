@@ -367,7 +367,10 @@ async function resolveMoves(names, types = [], level = 50) {
       name: doc.name, moveType: m.moveType, category: m.category, power: m.power,
       accuracy: m.accuracy ?? 100, priority: m.priority ?? 0, pp: m.pp ?? 15, contact: !!m.contact,
       inflictStatus: m.inflictStatus ?? "", secondaryStatus: m.secondaryStatus ?? "", secondaryChance: m.secondaryChance ?? 0,
-      boosts: m.boosts ?? null, boostTarget: m.boostTarget ?? "target", multihit: m.multihit ?? null, drain: m.drain ?? 0
+      boosts: m.boosts ?? null, boostTarget: m.boostTarget ?? "target", secondaryBoosts: m.secondaryBoosts ?? null,
+      multihit: m.multihit ?? null, drain: m.drain ?? 0, recoil: m.recoil ?? 0, healSelf: m.healSelf ?? 0,
+      flinchChance: m.flinchChance ?? 0, confuseChance: m.confuseChance ?? 0,
+      sideCondition: m.sideCondition ?? "", weather: m.weather ?? "", terrain: m.terrain ?? ""
     });
     if (picked.length >= 4) break;
   }

@@ -98,11 +98,14 @@ export function simulateBattle(teamAIn, teamBIn, { maxTurns = 300, rng = Math.ra
   const log = [];
   let turns = 0;
   const weather = { type: "none", turns: 0 };
+  const terrain = { type: "none", turns: 0 };
   const side = {
     A: { reflect: 0, lightscreen: 0, stealthrock: false, spikes: 0, toxicspikes: 0 },
     B: { reflect: 0, lightscreen: 0, stealthrock: false, spikes: 0, toxicspikes: 0 }
   };
   const sideOf = (mon) => (A.includes(mon) ? "A" : "B");
+  // Terrain only affects grounded Pokémon (no Flying type / Levitate / Air Balloon).
+  const isGrounded = (mon) => !mon.types.includes("Flying") && mon.ability !== "levitate" && mon.heldItem !== "air balloon";
 
   // Entry-hazard damage/effects when a Pokémon switches in.
   const applyHazards = (mon) => {
@@ -184,24 +187,47 @@ export function simulateBattle(teamAIn, teamBIn, { maxTurns = 300, rng = Math.ra
     const burned = attacker.status === "burn" && isPhysical;
 
     if (move.category !== "Status") {
+      // Mold Breaker (and kin) ignore the defender's damage-affecting abilities.
+      const moldBreaker = ["mold breaker", "teravolt", "turboblaze"].includes(attacker.ability);
       // Defender ability immunities / absorptions.
-      const abs = absorbCheck(move, defender);
+      const abs = moldBreaker ? null : absorbCheck(move, defender);
       if (abs) {
         if (abs.heal) { defender.hp.value = Math.min(defender.hp.max, defender.hp.value + Math.floor(defender.hp.max * abs.heal)); log.push(`${defender.name} absorbed ${move.name} and healed!`); }
         else if (abs.boost) { applyBoosts(defender, abs.boost); log.push(`${defender.name}'s ${defender.ability} drew in ${move.name}!`); }
         else log.push(`${defender.name}'s ${defender.ability} made ${move.name} have no effect!`);
         return;
       }
-      let typeMult = move.name === "Struggle" ? 1 : typeMultiplier(move.moveType, defender.types);
-      if (defender.ability === "thick fat" && (move.moveType === "Fire" || move.moveType === "Ice")) typeMult *= 0.5;
-      if (defender.ability === "wonder guard" && move.name !== "Struggle" && typeMult < 2) { log.push(`${defender.name}'s Wonder Guard blocked ${move.name}!`); return; }
+      // Scrappy lets Normal/Fighting connect with Ghosts (which are otherwise immune).
+      const scrappy = attacker.ability === "scrappy" && ["Normal", "Fighting"].includes(move.moveType);
+      const dTypes = scrappy ? defender.types.filter((t) => t !== "Ghost") : defender.types;
+      let typeMult = move.name === "Struggle" ? 1 : typeMultiplier(move.moveType, dTypes);
+      if (!moldBreaker && defender.ability === "thick fat" && (move.moveType === "Fire" || move.moveType === "Ice")) typeMult *= 0.5;
+      if (!moldBreaker && defender.ability === "water bubble" && move.moveType === "Fire") typeMult *= 0.5;
+      if (!moldBreaker && defender.ability === "fluffy") typeMult *= (move.contact ? 0.5 : 1) * (move.moveType === "Fire" ? 2 : 1);
+      if (!moldBreaker && defender.ability === "wonder guard" && move.name !== "Struggle" && typeMult < 2) { log.push(`${defender.name}'s Wonder Guard blocked ${move.name}!`); return; }
       if (move.power <= 60 && attacker.ability === "technician") typeMult *= 1.5;
-      if (defender.ability === "multiscale" && defender.hp.value >= defender.hp.max) typeMult *= 0.5;
+      if (!moldBreaker && defender.ability === "multiscale" && defender.hp.value >= defender.hp.max) typeMult *= 0.5;
+      // Filter / Solid Rock / Prism Armor soften super-effective hits; Tinted Lens
+      // doubles not-very-effective ones.
+      if (!moldBreaker && typeMult > 1 && ["filter", "solid rock", "prism armor"].includes(defender.ability)) typeMult *= 0.75;
+      if (typeMult > 0 && typeMult < 1 && attacker.ability === "tinted lens") typeMult *= 2;
+      if (attacker.ability === "tough claws" && move.contact) typeMult *= 1.3;
+      if (attacker.ability === "water bubble" && move.moveType === "Water") typeMult *= 2;
       const dSide = side[sideOf(defender)];
       if (!crit && ((isPhysical && dSide.reflect) || (!isPhysical && dSide.lightscreen))) typeMult *= 0.5;
       // Weather damage modifiers.
       if (weather.type === "rain") typeMult *= move.moveType === "Water" ? 1.5 : move.moveType === "Fire" ? 0.5 : 1;
       else if (weather.type === "sun") typeMult *= move.moveType === "Fire" ? 1.5 : move.moveType === "Water" ? 0.5 : 1;
+      // Terrain boosts a grounded attacker's matching move; Misty halves Dragon vs. grounded foes.
+      if (isGrounded(attacker)) {
+        if (terrain.type === "electric" && move.moveType === "Electric") typeMult *= 1.3;
+        else if (terrain.type === "grassy" && move.moveType === "Grass") typeMult *= 1.3;
+        else if (terrain.type === "psychic" && move.moveType === "Psychic") typeMult *= 1.3;
+      }
+      if (terrain.type === "misty" && isGrounded(defender) && move.moveType === "Dragon") typeMult *= 0.5;
+      // Sheer Force trades a move's secondary effect for 1.3× power.
+      const sheerForce = attacker.ability === "sheer force" && (move.secondaryChance || move.secondaryStatus || move.secondaryBoosts || move.flinchChance || move.confuseChance);
+      if (sheerForce) typeMult *= 1.3;
 
       const atkStage = isPhysical ? attacker.boosts.atk : attacker.boosts.spa;
       const defStage = isPhysical ? defender.boosts.def : defender.boosts.spd;
@@ -213,11 +239,16 @@ export function simulateBattle(teamAIn, teamBIn, { maxTurns = 300, rng = Math.ra
       if (!isPhysical && attacker.heldItem === "choice specs") atkRaw *= 1.5;
       const pinch = { blaze: "Fire", torrent: "Water", overgrow: "Grass", swarm: "Bug" }[attacker.ability];
       if (pinch && pinch === move.moveType && attacker.hp.value <= attacker.hp.max / 3) atkRaw *= 1.5;
+      // Unaware ignores the other side's relevant stat stages.
+      const atkIgnoreStage = defender.ability === "unaware" ? 0 : atkStage;
+      const defIgnoreStage = attacker.ability === "unaware" ? 0 : defStage;
       // Crits ignore the attacker's negative and the defender's positive stages.
-      const atk = atkRaw * stageMult(crit ? Math.max(0, atkStage) : atkStage);
+      const atk = atkRaw * stageMult(crit ? Math.max(0, atkIgnoreStage) : atkIgnoreStage);
       let defRaw = isPhysical ? defender.stats.def : defender.stats.spd;
       if (!isPhysical && defender.heldItem === "assault vest") defRaw *= 1.5;
-      const def = defRaw * stageMult(crit ? Math.min(0, defStage) : defStage);
+      if (!isPhysical && defender.ability === "ice scales") defRaw *= 2;
+      if (isPhysical && defender.ability === "marvel scale" && defender.status !== "none") defRaw *= 1.5;
+      const def = defRaw * stageMult(crit ? Math.min(0, defIgnoreStage) : defIgnoreStage);
       const effBurn = burned && !gutsActive;
       if (attacker.heldItem === "life orb") typeMult *= 1.3;
 
@@ -265,18 +296,28 @@ export function simulateBattle(teamAIn, teamBIn, { maxTurns = 300, rng = Math.ra
       log.push(`${attacker.name} used ${move.name} → ${total}${hits > 1 ? ` (${hits} hits)` : ""}${crit ? " (crit!)" : ""} (${defender.name} ${defender.hp.value}/${defender.hp.max})`);
       if (move.drain && total > 0) attacker.hp.value = Math.min(attacker.hp.max, attacker.hp.value + Math.max(1, Math.floor(total * move.drain)));
       if (move.recoil && total > 0 && attacker.ability !== "magic guard") attacker.hp.value = Math.max(0, attacker.hp.value - Math.max(1, Math.floor(total * move.recoil)));
-      if (defender.hp.value > 0 && defender.status === "none" && move.secondaryStatus && move.secondaryChance && Math.floor(rng() * 100) < move.secondaryChance) {
-        defender.status = move.secondaryStatus; defender.statusTurns = 0; log.push(`${defender.name} was ${move.secondaryStatus}!`);
+      // Secondary effects: Sheer Force suppresses them (it already took the power);
+      // Serene Grace doubles their chance. A grounded foe on Misty Terrain can't be
+      // statused; Electric Terrain keeps a grounded foe awake.
+      const chanceMod = attacker.ability === "serene grace" ? 2 : 1;
+      const secRoll = (c) => c && Math.floor(rng() * 100) < Math.min(100, c * chanceMod);
+      const mistyGuard = terrain.type === "misty" && isGrounded(defender);
+      if (!sheerForce) {
+        if (defender.hp.value > 0 && defender.status === "none" && !mistyGuard && move.secondaryStatus
+            && !(move.secondaryStatus === "sleep" && terrain.type === "electric" && isGrounded(defender)) && secRoll(move.secondaryChance)) {
+          defender.status = move.secondaryStatus; defender.statusTurns = 0; log.push(`${defender.name} was ${move.secondaryStatus}!`);
+        }
+        if (defender.hp.value > 0 && move.secondaryBoosts && secRoll(move.secondaryChance)) applyBoosts(defender, move.secondaryBoosts);
+        if (defender.hp.value > 0 && move.flinchChance && secRoll(move.flinchChance)) defender.flinch = true;
+        if (defender.hp.value > 0 && defender.confusion <= 0 && !mistyGuard && move.confuseChance && secRoll(move.confuseChance)) { defender.confusion = 2 + Math.floor(rng() * 4); log.push(`${defender.name} became confused!`); }
       }
-      if (defender.hp.value > 0 && move.secondaryBoosts && move.secondaryChance && Math.floor(rng() * 100) < move.secondaryChance) applyBoosts(defender, move.secondaryBoosts);
-      if (defender.hp.value > 0 && move.flinchChance && Math.floor(rng() * 100) < move.flinchChance) defender.flinch = true;
-      if (defender.hp.value > 0 && defender.confusion <= 0 && move.confuseChance && Math.floor(rng() * 100) < move.confuseChance) { defender.confusion = 2 + Math.floor(rng() * 4); log.push(`${defender.name} became confused!`); }
     } else {
       log.push(`${attacker.name} used ${move.name}.`);
       if (defender.hp.value > 0 && defender.status === "none" && move.inflictStatus) { defender.status = move.inflictStatus; defender.statusTurns = 0; log.push(`${defender.name} was ${move.inflictStatus}!`); }
       if (move.boosts) applyBoosts(move.boostTarget === "self" ? attacker : defender, move.boosts);
       if (move.healSelf) { attacker.hp.value = Math.min(attacker.hp.max, attacker.hp.value + Math.max(1, Math.floor(attacker.hp.max * move.healSelf))); log.push(`${attacker.name} restored HP.`); }
       if (move.weather) { const w = { raindance: "rain", sunnyday: "sun", sandstorm: "sand", hail: "snow", snowscape: "snow" }[move.weather]; if (w) { weather.type = w; weather.turns = 5; log.push(`The weather turned to ${w}.`); } }
+      if (move.terrain) { const t = { electricterrain: "electric", grassyterrain: "grassy", psychicterrain: "psychic", mistyterrain: "misty" }[move.terrain]; if (t) { terrain.type = t; terrain.turns = 5; log.push(`The battlefield became ${t} terrain.`); } }
       if (move.sideCondition) {
         const sc = move.sideCondition;
         if (sc === "reflect") { side[sideOf(attacker)].reflect = 5; log.push("Reflect raised Defense!"); }
@@ -339,6 +380,10 @@ export function simulateBattle(teamAIn, teamBIn, { maxTurns = 300, rng = Math.ra
       case "drought": weather.type = "sun"; weather.turns = 5; log.push(`${mon.name} intensified the sun!`); break;
       case "sand stream": weather.type = "sand"; weather.turns = 5; log.push(`${mon.name} kicked up a sandstorm!`); break;
       case "snow warning": weather.type = "snow"; weather.turns = 5; log.push(`${mon.name} summoned a snowstorm!`); break;
+      case "electric surge": terrain.type = "electric"; terrain.turns = 5; log.push(`${mon.name} charged the battlefield with Electric Terrain!`); break;
+      case "grassy surge": terrain.type = "grassy"; terrain.turns = 5; log.push(`${mon.name} grew Grassy Terrain!`); break;
+      case "psychic surge": terrain.type = "psychic"; terrain.turns = 5; log.push(`${mon.name} twisted the ground into Psychic Terrain!`); break;
+      case "misty surge": terrain.type = "misty"; terrain.turns = 5; log.push(`${mon.name} shrouded the field in Misty Terrain!`); break;
     }
   };
   onEntry(A[0], B[0]);
@@ -356,9 +401,12 @@ export function simulateBattle(teamAIn, teamBIn, { maxTurns = 300, rng = Math.ra
     turns++;
     const atkA = A[a]; const atkB = B[b];
     // Order by move priority, then paralysis-adjusted Speed, ties random.
+    // Prankster grants +1 priority to status moves.
     const mvA = chooseBestMove(atkA, atkB); const mvB = chooseBestMove(atkB, atkA);
+    const prio = (mon, mv) => (mv.priority ?? 0) + (mon.ability === "prankster" && mv.category === "Status" ? 1 : 0);
+    const pA = prio(atkA, mvA); const pB = prio(atkB, mvB);
     let aFirst;
-    if ((mvA.priority ?? 0) !== (mvB.priority ?? 0)) aFirst = (mvA.priority ?? 0) > (mvB.priority ?? 0);
+    if (pA !== pB) aFirst = pA > pB;
     else if (speed(atkA) !== speed(atkB)) aFirst = speed(atkA) > speed(atkB);
     else aFirst = rng() < 0.5;
     const order = aFirst ? [[atkA, atkB], [atkB, atkA]] : [[atkB, atkA], [atkA, atkB]];
@@ -390,6 +438,10 @@ export function simulateBattle(teamAIn, teamBIn, { maxTurns = 300, rng = Math.ra
         log.push(`${mon.name} is buffeted by the sandstorm (−${s}).`);
         if (mon.hp.value <= 0) { log.push(`${mon.name} fainted!`); if (isA) a++; else b++; continue; }
       }
+      // Grassy Terrain heals grounded Pokémon each turn.
+      if (terrain.type === "grassy" && isGrounded(mon) && mon.hp.value < mon.hp.max) {
+        mon.hp.value = Math.min(mon.hp.max, mon.hp.value + Math.max(1, Math.floor(mon.hp.max / 16)));
+      }
       // Leftovers / Black Sludge recovery.
       if ((mon.heldItem === "leftovers" || (mon.heldItem === "black sludge" && mon.types.includes("Poison"))) && mon.hp.value < mon.hp.max) {
         const heal = Math.max(1, Math.floor(mon.hp.max / 16));
@@ -413,11 +465,108 @@ export function simulateBattle(teamAIn, teamBIn, { maxTurns = 300, rng = Math.ra
 
     // Field effects tick down.
     if (weather.type !== "none" && --weather.turns <= 0) { log.push(`The ${weather.type} let up.`); weather.type = "none"; }
+    if (terrain.type !== "none" && --terrain.turns <= 0) { log.push(`The ${terrain.type} terrain faded.`); terrain.type = "none"; }
     for (const k of ["A", "B"]) { if (side[k].reflect > 0) side[k].reflect--; if (side[k].lightscreen > 0) side[k].lightscreen--; }
   }
 
   const winner = a >= A.length && b >= B.length ? "draw" : a >= A.length ? "B" : b >= B.length ? "A" : "draw";
   return { winner, log, turns, A, B };
+}
+
+/**
+ * Resolve a 2-vs-2 double battle. Two Pokémon are active per side; each acts
+ * every turn, targeting the foe it hits hardest, and a fainted slot is refilled
+ * from the bench. This is a lighter model than `simulateBattle` (STAB, type,
+ * stat stages, crits, burn and status chip — no weather/terrain/items) so the
+ * two engines stay independent; use it when a fight is explicitly a double.
+ * @returns {{winner:"A"|"B"|"draw", log:string[], turns:number}}
+ */
+export function simulateDoubleBattle(teamAIn, teamBIn, { maxTurns = 200, rng = Math.random } = {}) {
+  const A = teamAIn.map(prep);
+  const B = teamBIn.map(prep);
+  const log = [];
+  let turns = 0;
+  const living = (team) => team.filter((m) => m.hp.value > 0);
+  const actives = (team) => living(team).slice(0, 2); // first two standing are on the field
+
+  const hit = (attacker, defender) => {
+    const move = chooseBestMove(attacker, defender);
+    if (move.pp !== undefined && move.pp !== Infinity) move.pp = Math.max(0, move.pp - 1);
+    if (!move.alwaysHits && (move.accuracy ?? 100) > 0 && Math.floor(rng() * 100) >= move.accuracy) { log.push(`${attacker.name}'s ${move.name} missed!`); return; }
+    if (move.category === "Status") {
+      if (move.boosts) applyStages(move.boostTarget === "self" ? attacker : defender, move.boosts, log);
+      else log.push(`${attacker.name} used ${move.name}.`);
+      return;
+    }
+    const isPhysical = move.category === "Physical";
+    const crit = rng() < CRIT_CHANCE;
+    const atkStage = isPhysical ? attacker.boosts.atk : attacker.boosts.spa;
+    const defStage = isPhysical ? defender.boosts.def : defender.boosts.spd;
+    const atk = (isPhysical ? attacker.stats.atk : attacker.stats.spa) * stageMult(crit ? Math.max(0, atkStage) : atkStage);
+    const def = (isPhysical ? defender.stats.def : defender.stats.spd) * stageMult(crit ? Math.min(0, defStage) : defStage);
+    const res = damageCalc({
+      level: attacker.level, power: move.power, atk, def,
+      stab: attacker.types.includes(move.moveType) ? 1.5 : 1,
+      typeMult: typeMultiplier(move.moveType, defender.types),
+      crit, burn: attacker.status === "burn" && isPhysical, rng
+    });
+    defender.hp.value = Math.max(0, defender.hp.value - res.damage);
+    log.push(`${attacker.name} used ${move.name} on ${defender.name} → ${res.damage}${crit ? " (crit!)" : ""} (${defender.name} ${defender.hp.value}/${defender.hp.max})`);
+    if (defender.hp.value > 0 && defender.status === "none" && move.secondaryStatus && move.secondaryChance && Math.floor(rng() * 100) < move.secondaryChance) {
+      defender.status = move.secondaryStatus; log.push(`${defender.name} was ${move.secondaryStatus}!`);
+    }
+    if (defender.hp.value <= 0) log.push(`${defender.name} fainted!`);
+  };
+
+  while (living(A).length && living(B).length && turns < maxTurns) {
+    turns++;
+    const fieldA = actives(A); const fieldB = actives(B);
+    // Each active picks the enemy active it deals the most expected damage to.
+    const bestTarget = (attacker, foes) => foes.reduce((best, f) => expectedDamage(chooseBestMove(attacker, f), attacker, f) > expectedDamage(chooseBestMove(attacker, best), attacker, best) ? f : best, foes[0]);
+    const queue = [
+      ...fieldA.map((m) => ({ side: "A", mon: m })),
+      ...fieldB.map((m) => ({ side: "B", mon: m }))
+    ].sort((x, y) => (y.mon.stats.spe * stageMult(y.mon.boosts.spe)) - (x.mon.stats.spe * stageMult(x.mon.boosts.spe)) || (rng() < 0.5 ? -1 : 1));
+
+    for (const { side, mon } of queue) {
+      if (mon.hp.value <= 0) continue;
+      const foes = (side === "A" ? actives(B) : actives(A));
+      if (!foes.length) break;
+      if (!canActSimple(mon, rng, log)) continue;
+      hit(mon, bestTarget(mon, foes));
+    }
+    // End-of-turn status chip.
+    for (const mon of [...actives(A), ...actives(B)]) {
+      if (mon.hp.value <= 0 || mon.ability === "magic guard") continue;
+      let dmg = 0;
+      if (mon.status === "toxic") { mon.toxicCounter = (mon.toxicCounter || 0) + 1; dmg = Math.max(1, Math.floor(mon.hp.max * mon.toxicCounter / 16)); }
+      else if (STATUS_CHIP[mon.status]) dmg = Math.max(1, Math.floor(mon.hp.max * STATUS_CHIP[mon.status]));
+      if (!dmg) continue;
+      mon.hp.value = Math.max(0, mon.hp.value - dmg);
+      log.push(`${mon.name} is hurt by ${mon.status === "toxic" ? "toxic poison" : mon.status} (−${dmg}).`);
+      if (mon.hp.value <= 0) log.push(`${mon.name} fainted!`);
+    }
+  }
+  const winner = !living(A).length && !living(B).length ? "draw" : !living(A).length ? "B" : !living(B).length ? "A" : "draw";
+  return { winner, log, turns };
+}
+
+/** Minimal action check for doubles (sleep/freeze/paralysis), shared logging. */
+function canActSimple(mon, rng, log) {
+  if (mon.status === "sleep") { if (rng() < 0.33) { mon.status = "none"; log.push(`${mon.name} woke up!`); return true; } log.push(`${mon.name} is asleep.`); return false; }
+  if (mon.status === "freeze") { if (rng() < 0.2) { mon.status = "none"; return true; } log.push(`${mon.name} is frozen.`); return false; }
+  if (mon.status === "paralysis" && rng() < 0.25) { log.push(`${mon.name} is paralyzed!`); return false; }
+  return true;
+}
+
+/** Apply stat-stage changes (doubles helper). */
+function applyStages(mon, boosts, log) {
+  for (const [stat, delta] of Object.entries(boosts)) {
+    if (!(stat in mon.boosts) || !delta) continue;
+    const before = mon.boosts[stat];
+    mon.boosts[stat] = Math.max(-6, Math.min(6, before + delta));
+    if (mon.boosts[stat] !== before) log.push(`${mon.name}'s ${stat} ${delta > 0 ? "rose" : "fell"}.`);
+  }
 }
 
 /* -------------------------------------------- */
@@ -449,7 +598,7 @@ export function combatantFromActor(actor) {
       drain: m.system.drain ?? 0, recoil: m.system.recoil ?? 0, healSelf: m.system.healSelf ?? 0,
       flinchChance: m.system.flinchChance ?? 0, multihit: m.system.multihit ?? null,
       contact: !!m.system.contact, pp: m.system.pp ?? 15,
-      sideCondition: m.system.sideCondition ?? "", weather: m.system.weather ?? "", confuseChance: m.system.confuseChance ?? 0
+      sideCondition: m.system.sideCondition ?? "", weather: m.system.weather ?? "", terrain: m.system.terrain ?? "", confuseChance: m.system.confuseChance ?? 0
     }))
   };
 }
@@ -473,6 +622,29 @@ export async function autoBattle(sideA, sideB) {
     content: `
       <div class="pm-battle-card">
         <h3>${sideA.name} vs ${sideB.name}</h3>
+        <p><strong>Winner: ${winnerName}</strong> <small>(${turns} turns)</small></p>
+        <details><summary>Battle log</summary>
+          <ol class="pm-battle-log">${shown.map((l) => `<li>${l}</li>`).join("")}${log.length > shown.length ? `<li>… ${log.length - shown.length} more</li>` : ""}</ol>
+        </details>
+      </div>`
+  });
+  return winner;
+}
+
+/** Auto-resolve a 2-vs-2 double battle between two trainers and post the log. */
+export async function autoDoubleBattle(sideA, sideB) {
+  const teamA = await teamOf(sideA);
+  const teamB = await teamOf(sideB);
+  if (teamA.length < 2 || teamB.length < 2) return ui.notifications?.warn("Double battles need at least two Pokémon per side.");
+
+  const { winner, log, turns } = simulateDoubleBattle(teamA, teamB);
+  const winnerName = winner === "A" ? sideA.name : winner === "B" ? sideB.name : "Nobody (draw)";
+  const shown = log.slice(0, 40);
+  await ChatMessage.create({
+    speaker: { alias: "Double Battle" },
+    content: `
+      <div class="pm-battle-card">
+        <h3>${sideA.name} &amp; partner vs ${sideB.name} &amp; partner</h3>
         <p><strong>Winner: ${winnerName}</strong> <small>(${turns} turns)</small></p>
         <details><summary>Battle log</summary>
           <ol class="pm-battle-log">${shown.map((l) => `<li>${l}</li>`).join("")}${log.length > shown.length ? `<li>… ${log.length - shown.length} more</li>` : ""}</ol>
@@ -510,6 +682,6 @@ export async function startDialogue(script, { speaker = "NPC" } = {}) {
 
 export function registerNpcApi() {
   game.pokemonMasters = Object.assign(game.pokemonMasters ?? {}, {
-    npc: { autoBattle, simulateBattle, chooseBestMove, combatantFromActor, dialogue: startDialogue }
+    npc: { autoBattle, autoDoubleBattle, simulateBattle, simulateDoubleBattle, chooseBestMove, combatantFromActor, dialogue: startDialogue }
   });
 }

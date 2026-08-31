@@ -224,6 +224,7 @@ export class MoveData extends foundry.abstract.TypeDataModel {
       contact: new fields.BooleanField({ initial: false }),
       sideCondition: new fields.StringField({ required: false, blank: true, initial: "" }),
       weather: new fields.StringField({ required: false, blank: true, initial: "" }),
+      terrain: new fields.StringField({ required: false, blank: true, initial: "" }),
       confuseChance: new fields.NumberField({ required: true, integer: true, min: 0, max: 100, initial: 0 }),
       description: new fields.HTMLField({ required: false, blank: true })
     };
