@@ -49,6 +49,36 @@ function injectRegionSelect(app, html) {
   }
 }
 
+/**
+ * Keep the Actors directory tidy: each Trainer gets their own folder with a
+ * "Pokémon" sub-folder, and their Pokémon are filed into it. Runs on a single
+ * client (the active GM) so folders aren't created in duplicate.
+ */
+async function organizeActor(actor, options, userId) {
+  try {
+    if (game.users?.activeGM && game.user !== game.users.activeGM) return; // one client only
+    if (!game.user.can("FOLDER_CREATE")) return;
+
+    if (actor.type === "trainer") {
+      if (actor.folder) return; // already filed
+      const folder = await Folder.create({ name: actor.name, type: "Actor", color: "#e3350d" });
+      const sub = await Folder.create({ name: "Pokémon", type: "Actor", color: "#3b6db3", folder: folder.id });
+      await actor.update({ folder: folder.id, "flags.pokemon-masters.pokeFolder": sub.id });
+    } else if (actor.type === "pokemon" && actor.system.trainer) {
+      const trainer = await fromUuid(actor.system.trainer);
+      const sub = trainer?.getFlag?.("pokemon-masters", "pokeFolder");
+      if (sub && game.folders?.get(sub) && actor.folder?.id !== sub) await actor.update({ folder: sub });
+    }
+  } catch (err) {
+    console.warn("Pokémon Masters | could not auto-organize actor folders", err);
+  }
+}
+
 export function registerWorldHooks() {
   Hooks.on("renderSceneConfig", injectRegionSelect);
+  Hooks.on("createActor", organizeActor);
+  // A Pokémon caught/gifted later (its trainer set after creation) also gets filed.
+  Hooks.on("updateActor", (actor, changes) => {
+    if (actor.type === "pokemon" && changes.system?.trainer) organizeActor(actor);
+  });
 }

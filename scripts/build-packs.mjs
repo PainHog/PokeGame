@@ -1126,9 +1126,10 @@ const INTER_REGION = [
 ];
 
 const OPPOSITE = { north: "south", south: "north", east: "west", west: "east" };
-// Map dimensions per kind (grid = 100px). Sized to feel expansive: routes are
-// long corridors, oceans and forests are broad open spaces.
-const KIND_DIMS = { town: [3200, 2400], route: [5200, 2800], forest: [4600, 4600], cave: [3800, 3800], ocean: [6600, 4400], venue: [2800, 2200] };
+// Map dimensions per kind (grid = 100px). Expansive but capped at ~4000px so the
+// rasterized background never exceeds a GPU's max texture size (a common cause
+// of a fully black scene on lower-end hardware).
+const KIND_DIMS = { town: [3200, 2400], route: [4000, 2400], forest: [3800, 3800], cave: [3600, 2800], ocean: [4000, 3200], venue: [2800, 2200] };
 
 // Wild-encounter level band per habitat (rougher terrain trends higher-level).
 const HABITAT_LEVELS = {
@@ -1283,7 +1284,16 @@ async function buildScenes() {
       name: map.name,
       width: w, height: h, padding: 0.25,
       background: { src: `systems/pokemon-masters/assets/maps/${map.key}.svg` },
+      // A neutral ground colour so a scene is never pure black even if its
+      // background is still loading.
+      backgroundColor: "#000000",
       grid: { type: 1, size: 100 },
+      // Overworld maps are fully visible — no token-vision fog (the #1 cause of a
+      // "black scene"), full global light, day-time.
+      tokenVision: false,
+      globalLight: true,
+      fog: { exploration: false },
+      environment: { globalLight: { enabled: true }, darknessLevel: 0 },
       flags: { "pokemon-masters": { region: map.region } },
       regions
     });

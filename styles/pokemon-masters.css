@@ -19,12 +19,29 @@
     var(--pm-ground);
 }
 
+/* Force our own theme on every form control — never inherit Foundry's
+   light-on-dark defaults, which made dropdowns white text on a white box. */
 .pm-sheet input,
 .pm-sheet select,
-.pm-sheet textarea {
-  background: rgba(0, 0, 0, 0.03);
-  border: 1px solid rgba(0, 0, 0, 0.15);
+.pm-sheet textarea,
+.pm-sheet option {
+  background: #ffffff;
+  color: var(--pm-ink, #26333f);
+  border: 1px solid var(--pm-line, rgba(38, 51, 63, 0.18));
   border-radius: 4px;
+}
+.pm-sheet select option { background: #ffffff; color: var(--pm-ink, #26333f); }
+.pm-sheet select:focus, .pm-sheet input:focus, .pm-sheet textarea:focus { outline: 2px solid var(--pm-accent2, #3b6db3); }
+.pm-sheet a, .pm-sheet label, .pm-sheet span, .pm-sheet p, .pm-sheet h1, .pm-sheet h2, .pm-sheet h3, .pm-sheet td, .pm-sheet th, .pm-sheet small { color: var(--pm-ink, #26333f); }
+
+/* Paint the whole window so there's no raw-white (blinding) Foundry backdrop. */
+.pokemon-masters .window-content,
+.pm-pokedex-app .window-content {
+  background:
+    radial-gradient(circle at top right, rgba(59, 109, 179, 0.06), transparent 55%),
+    var(--pm-ground, #eef2f7);
+  color: var(--pm-ink, #26333f);
+  padding: 0;
 }
 
 .pm-header {
