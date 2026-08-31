@@ -37,9 +37,10 @@ export async function grantStarter(trainer, speciesName) {
   await addToParty(trainer, created);
   await markCaught(trainer, species.name);
 
+  const professor = PM.gymLeaders?.[species.system.nativeRegion]?.professor ?? "The Professor";
   await ChatMessage.create({
-    speaker: { alias: trainer.name },
-    content: `<div class="pm-encounter-card"><h3>${trainer.name} chose ${species.name}!</h3><p>Their journey begins.</p></div>`
+    speaker: { alias: professor },
+    content: `<div class="pm-encounter-card"><h3>${trainer.name} chose ${species.name}!</h3><p>"${species.name} is a fine choice — take good care of it." Their journey begins.</p></div>`
   });
   return created;
 }

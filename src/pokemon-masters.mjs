@@ -14,6 +14,7 @@ import { WildTileBehaviorType, SafeZoneBehaviorType, ZoneTransitBehaviorType, Ve
 import { registerEventsApi } from "./module/events.mjs";
 import { LegendaryBehaviorType, registerLegendaryApi } from "./module/legendaries.mjs";
 import { registerServicesApi } from "./module/services.mjs";
+import { registerLeagueApi } from "./module/leagues.mjs";
 import { AmbushBehaviorType, registerFactionApi } from "./module/factions.mjs";
 import { FieldMoveGateBehaviorType, registerTmApi } from "./module/tms.mjs";
 import { registerTravelApi } from "./module/travel.mjs";
@@ -126,5 +127,6 @@ Hooks.once("ready", () => {
   registerEventsApi();
   registerLegendaryApi();
   registerServicesApi();
+  registerLeagueApi();
   console.log("Pokémon Masters | Ready");
 });

@@ -373,6 +373,184 @@ PM.leagueBadges = {
   sinnoh: ["Coal", "Forest", "Cobble", "Fen", "Relic", "Mine", "Icicle", "Beacon"]
 };
 
+/**
+ * Per-region Gym Leaders, Elite Four, Champion and Professor — the League roster.
+ * Verified against Bulbapedia. Each leader has a type specialty, badge, gym city,
+ * and a representative team (real species names). `leagues.mjs` builds their teams
+ * as combatants and awards the region's badge on a win.
+ */
+PM.gymLeaders = {
+  kanto: {
+    professor: "Professor Oak", champion: "Blue",
+    leaders: [
+      { name: "Brock", city: "Pewter City", type: "Rock", badge: "Boulder", team: ["Geodude", "Onix"] },
+      { name: "Misty", city: "Cerulean City", type: "Water", badge: "Cascade", team: ["Staryu", "Starmie"] },
+      { name: "Lt. Surge", city: "Vermilion City", type: "Electric", badge: "Thunder", team: ["Voltorb", "Pikachu", "Raichu"] },
+      { name: "Erika", city: "Celadon City", type: "Grass", badge: "Rainbow", team: ["Victreebel", "Tangela", "Vileplume"] },
+      { name: "Koga", city: "Fuchsia City", type: "Poison", badge: "Soul", team: ["Koffing", "Muk", "Weezing"] },
+      { name: "Sabrina", city: "Saffron City", type: "Psychic", badge: "Marsh", team: ["Kadabra", "Mr. Mime", "Alakazam"] },
+      { name: "Blaine", city: "Cinnabar Island", type: "Fire", badge: "Volcano", team: ["Growlithe", "Ponyta", "Rapidash", "Arcanine"] },
+      { name: "Giovanni", city: "Viridian City", type: "Ground", badge: "Earth", team: ["Rhyhorn", "Dugtrio", "Nidoking", "Rhydon"] }
+    ],
+    eliteFour: [
+      { name: "Lorelei", type: "Ice", team: ["Dewgong", "Cloyster", "Slowbro", "Jynx", "Lapras"] },
+      { name: "Bruno", type: "Fighting", team: ["Onix", "Hitmonlee", "Hitmonchan", "Machamp"] },
+      { name: "Agatha", type: "Ghost", team: ["Gengar", "Golbat", "Haunter", "Arbok"] },
+      { name: "Lance", type: "Dragon", team: ["Gyarados", "Dragonair", "Aerodactyl", "Dragonite"] }
+    ]
+  },
+  johto: {
+    professor: "Professor Elm", champion: "Lance",
+    leaders: [
+      { name: "Falkner", city: "Violet City", type: "Flying", badge: "Zephyr", team: ["Pidgey", "Pidgeotto"] },
+      { name: "Bugsy", city: "Azalea Town", type: "Bug", badge: "Hive", team: ["Metapod", "Kakuna", "Scyther"] },
+      { name: "Whitney", city: "Goldenrod City", type: "Normal", badge: "Plain", team: ["Clefairy", "Miltank"] },
+      { name: "Morty", city: "Ecruteak City", type: "Ghost", badge: "Fog", team: ["Gastly", "Haunter", "Gengar"] },
+      { name: "Chuck", city: "Cianwood City", type: "Fighting", badge: "Storm", team: ["Primeape", "Poliwrath"] },
+      { name: "Jasmine", city: "Olivine City", type: "Steel", badge: "Mineral", team: ["Magnemite", "Steelix"] },
+      { name: "Pryce", city: "Mahogany Town", type: "Ice", badge: "Glacier", team: ["Seel", "Dewgong", "Piloswine"] },
+      { name: "Clair", city: "Blackthorn City", type: "Dragon", badge: "Rising", team: ["Dragonair", "Gyarados", "Kingdra"] }
+    ],
+    eliteFour: [
+      { name: "Will", type: "Psychic", team: ["Xatu", "Jynx", "Slowbro", "Exeggutor"] },
+      { name: "Koga", type: "Poison", team: ["Ariados", "Venomoth", "Forretress", "Crobat"] },
+      { name: "Bruno", type: "Fighting", team: ["Hitmontop", "Hitmonlee", "Hitmonchan", "Machamp"] },
+      { name: "Karen", type: "Dark", team: ["Umbreon", "Murkrow", "Gengar", "Houndoom"] }
+    ]
+  },
+  hoenn: {
+    professor: "Professor Birch", champion: "Steven",
+    leaders: [
+      { name: "Roxanne", city: "Rustboro City", type: "Rock", badge: "Stone", team: ["Geodude", "Nosepass"] },
+      { name: "Brawly", city: "Dewford Town", type: "Fighting", badge: "Knuckle", team: ["Machop", "Makuhita"] },
+      { name: "Wattson", city: "Mauville City", type: "Electric", badge: "Dynamo", team: ["Magnemite", "Voltorb", "Magneton", "Manectric"] },
+      { name: "Flannery", city: "Lavaridge Town", type: "Fire", badge: "Heat", team: ["Slugma", "Numel", "Torkoal", "Camerupt"] },
+      { name: "Norman", city: "Petalburg City", type: "Normal", badge: "Balance", team: ["Slaking", "Vigoroth", "Spinda"] },
+      { name: "Winona", city: "Fortree City", type: "Flying", badge: "Feather", team: ["Swellow", "Pelipper", "Skarmory", "Altaria"] },
+      { name: "Tate & Liza", city: "Mossdeep City", type: "Psychic", badge: "Mind", team: ["Solrock", "Lunatone"] },
+      { name: "Wallace", city: "Sootopolis City", type: "Water", badge: "Rain", team: ["Luvdisc", "Whiscash", "Sealeo", "Milotic"] }
+    ],
+    eliteFour: [
+      { name: "Sidney", type: "Dark", team: ["Mightyena", "Shiftry", "Cacturne", "Absol"] },
+      { name: "Phoebe", type: "Ghost", team: ["Dusclops", "Banette", "Sableye"] },
+      { name: "Glacia", type: "Ice", team: ["Sealeo", "Glalie", "Walrein"] },
+      { name: "Drake", type: "Dragon", team: ["Shelgon", "Altaria", "Flygon", "Salamence"] }
+    ]
+  },
+  sinnoh: {
+    professor: "Professor Rowan", champion: "Cynthia",
+    leaders: [
+      { name: "Roark", city: "Oreburgh City", type: "Rock", badge: "Coal", team: ["Geodude", "Onix", "Cranidos"] },
+      { name: "Gardenia", city: "Eterna City", type: "Grass", badge: "Forest", team: ["Turtwig", "Cherrim", "Roserade"] },
+      { name: "Maylene", city: "Veilstone City", type: "Fighting", badge: "Cobble", team: ["Meditite", "Machoke", "Lucario"] },
+      { name: "Crasher Wake", city: "Pastoria City", type: "Water", badge: "Fen", team: ["Gyarados", "Quagsire", "Floatzel"] },
+      { name: "Fantina", city: "Hearthome City", type: "Ghost", badge: "Relic", team: ["Duskull", "Haunter", "Mismagius"] },
+      { name: "Byron", city: "Canalave City", type: "Steel", badge: "Mine", team: ["Bronzor", "Steelix", "Bastiodon"] },
+      { name: "Candice", city: "Snowpoint City", type: "Ice", badge: "Icicle", team: ["Snover", "Sneasel", "Medicham", "Abomasnow"] },
+      { name: "Volkner", city: "Sunyshore City", type: "Electric", badge: "Beacon", team: ["Raichu", "Luxray", "Electivire"] }
+    ],
+    eliteFour: [
+      { name: "Aaron", type: "Bug", team: ["Dustox", "Beautifly", "Vespiquen", "Heracross", "Drapion"] },
+      { name: "Bertha", type: "Ground", team: ["Whiscash", "Gliscor", "Hippowdon", "Rhyperior"] },
+      { name: "Flint", type: "Fire", team: ["Rapidash", "Infernape", "Magmortar", "Flareon"] },
+      { name: "Lucian", type: "Psychic", team: ["Mr. Mime", "Girafarig", "Alakazam", "Bronzong"] }
+    ]
+  },
+  unova: {
+    professor: "Professor Juniper", champion: "Alder",
+    leaders: [
+      { name: "Cilan, Chili & Cress", city: "Striaton City", type: "Grass", badge: "Trio", team: ["Pansage", "Pansear", "Panpour"] },
+      { name: "Lenora", city: "Nacrene City", type: "Normal", badge: "Basic", team: ["Herdier", "Watchog"] },
+      { name: "Burgh", city: "Castelia City", type: "Bug", badge: "Insect", team: ["Whirlipede", "Dwebble", "Leavanny"] },
+      { name: "Elesa", city: "Nimbasa City", type: "Electric", badge: "Bolt", team: ["Emolga", "Zebstrika"] },
+      { name: "Clay", city: "Driftveil City", type: "Ground", badge: "Quake", team: ["Krokorok", "Palpitoad", "Excadrill"] },
+      { name: "Skyla", city: "Mistralton City", type: "Flying", badge: "Jet", team: ["Swoobat", "Unfezant", "Swanna"] },
+      { name: "Brycen", city: "Icirrus City", type: "Ice", badge: "Freeze", team: ["Vanillish", "Cryogonal", "Beartic"] },
+      { name: "Drayden", city: "Opelucid City", type: "Dragon", badge: "Legend", team: ["Fraxure", "Druddigon", "Haxorus"] }
+    ],
+    eliteFour: [
+      { name: "Shauntal", type: "Ghost", team: ["Cofagrigus", "Jellicent", "Golurk", "Chandelure"] },
+      { name: "Grimsley", type: "Dark", team: ["Liepard", "Krookodile", "Scrafty", "Bisharp"] },
+      { name: "Caitlin", type: "Psychic", team: ["Musharna", "Sigilyph", "Reuniclus", "Gothitelle"] },
+      { name: "Marshal", type: "Fighting", team: ["Throh", "Sawk", "Conkeldurr", "Mienshao"] }
+    ]
+  },
+  kalos: {
+    professor: "Professor Sycamore", champion: "Diantha",
+    leaders: [
+      { name: "Viola", city: "Santalune City", type: "Bug", badge: "Bug", team: ["Surskit", "Vivillon"] },
+      { name: "Grant", city: "Cyllage City", type: "Rock", badge: "Cliff", team: ["Amaura", "Tyrunt"] },
+      { name: "Korrina", city: "Shalour City", type: "Fighting", badge: "Rumble", team: ["Mienfoo", "Machoke", "Hawlucha", "Lucario"] },
+      { name: "Ramos", city: "Coumarine City", type: "Grass", badge: "Plant", team: ["Jumpluff", "Weepinbell", "Gogoat"] },
+      { name: "Clemont", city: "Lumiose City", type: "Electric", badge: "Voltage", team: ["Emolga", "Magneton", "Heliolisk"] },
+      { name: "Valerie", city: "Laverre City", type: "Fairy", badge: "Fairy", team: ["Mawile", "Mr. Mime", "Sylveon"] },
+      { name: "Olympia", city: "Anistar City", type: "Psychic", badge: "Psychic", team: ["Sigilyph", "Slowking", "Meowstic"] },
+      { name: "Wulfric", city: "Snowbelle City", type: "Ice", badge: "Iceberg", team: ["Abomasnow", "Cryogonal", "Avalugg"] }
+    ],
+    eliteFour: [
+      { name: "Malva", type: "Fire", team: ["Pyroar", "Torkoal", "Chandelure", "Talonflame"] },
+      { name: "Siebold", type: "Water", team: ["Clawitzer", "Gyarados", "Starmie", "Barbaracle"] },
+      { name: "Wikstrom", type: "Steel", team: ["Klefki", "Probopass", "Scizor", "Aegislash"] },
+      { name: "Drasna", type: "Dragon", team: ["Dragalge", "Druddigon", "Altaria", "Noivern"] }
+    ]
+  },
+  alola: {
+    professor: "Professor Kukui", champion: "Professor Kukui",
+    leaders: [
+      { name: "Ilima", city: "Hau'oli City", type: "Normal", badge: "Normalium", team: ["Yungoos", "Gumshoos", "Smeargle"] },
+      { name: "Hala", city: "Iki Town", type: "Fighting", badge: "Melemele", team: ["Makuhita", "Crabrawler", "Poliwrath"] },
+      { name: "Lana", city: "Brooklet Hill", type: "Water", badge: "Waterium", team: ["Wishiwashi", "Araquanid"] },
+      { name: "Kiawe", city: "Wela Volcano Park", type: "Fire", badge: "Firium", team: ["Marowak", "Salazzle", "Turtonator"] },
+      { name: "Mallow", city: "Lush Jungle", type: "Grass", badge: "Grassium", team: ["Steenee", "Lurantis", "Tsareena"] },
+      { name: "Olivia", city: "Konikoni City", type: "Rock", badge: "Akala", team: ["Lycanroc", "Probopass", "Relicanth", "Carbink"] },
+      { name: "Sophocles", city: "Hokulani Observatory", type: "Electric", badge: "Electrium", team: ["Charjabug", "Vikavolt", "Togedemaru"] },
+      { name: "Acerola", city: "Thrifty Megamart", type: "Ghost", badge: "Ghostium", team: ["Sableye", "Mimikyu", "Palossand"] },
+      { name: "Nanu", city: "Malie City", type: "Dark", badge: "Ula'ula", team: ["Sableye", "Krokorok", "Persian"] },
+      { name: "Mina", city: "Seafolk Village", type: "Fairy", badge: "Fairium", team: ["Ribombee", "Klefki", "Wigglytuff"] },
+      { name: "Hapu", city: "Poni Island", type: "Ground", badge: "Poni", team: ["Mudsdale", "Flygon", "Golurk", "Gastrodon"] }
+    ],
+    eliteFour: [
+      { name: "Hala", type: "Fighting", team: ["Hariyama", "Primeape", "Bewear", "Poliwrath", "Crabominable"] },
+      { name: "Olivia", type: "Rock", team: ["Relicanth", "Carbink", "Golem", "Probopass", "Lycanroc"] },
+      { name: "Acerola", type: "Ghost", team: ["Sableye", "Drifblim", "Dhelmise", "Froslass", "Palossand"] },
+      { name: "Kahili", type: "Flying", team: ["Skarmory", "Crobat", "Oricorio", "Mandibuzz", "Toucannon"] }
+    ]
+  },
+  galar: {
+    professor: "Professor Magnolia", champion: "Leon",
+    leaders: [
+      { name: "Milo", city: "Turffield", type: "Grass", badge: "Grass", team: ["Gossifleur", "Eldegoss"] },
+      { name: "Nessa", city: "Hulbury", type: "Water", badge: "Water", team: ["Goldeen", "Arrokuda", "Drednaw"] },
+      { name: "Kabu", city: "Motostoke", type: "Fire", badge: "Fire", team: ["Ninetales", "Arcanine", "Centiskorch"] },
+      { name: "Bea", city: "Stow-on-Side", type: "Fighting", badge: "Fighting", team: ["Hitmontop", "Pangoro", "Sirfetch'd", "Machamp"] },
+      { name: "Opal", city: "Ballonlea", type: "Fairy", badge: "Fairy", team: ["Weezing", "Mawile", "Togekiss", "Alcremie"] },
+      { name: "Gordie", city: "Circhester", type: "Rock", badge: "Rock", team: ["Barbaracle", "Shuckle", "Stonjourner", "Coalossal"] },
+      { name: "Piers", city: "Spikemuth", type: "Dark", badge: "Dark", team: ["Scrafty", "Malamar", "Skuntank", "Obstagoon"] },
+      { name: "Raihan", city: "Hammerlocke", type: "Dragon", badge: "Dragon", team: ["Gigalith", "Flygon", "Sandaconda", "Duraludon"] }
+    ],
+    eliteFour: []
+  },
+  paldea: {
+    professor: "Professor Sada / Turo", champion: "Geeta",
+    leaders: [
+      { name: "Katy", city: "Cortondo", type: "Bug", badge: "Bug", team: ["Nymble", "Tarountula", "Teddiursa"] },
+      { name: "Brassius", city: "Artazon", type: "Grass", badge: "Grass", team: ["Petilil", "Smoliv", "Sudowoodo"] },
+      { name: "Iono", city: "Levincia", type: "Electric", badge: "Electric", team: ["Wattrel", "Bellibolt", "Mismagius"] },
+      { name: "Kofu", city: "Cascarrafa", type: "Water", badge: "Water", team: ["Veluza", "Wugtrio", "Crabominable"] },
+      { name: "Larry", city: "Medali", type: "Normal", badge: "Normal", team: ["Komala", "Staraptor", "Dudunsparce"] },
+      { name: "Ryme", city: "Montenevera", type: "Ghost", badge: "Ghost", team: ["Banette", "Mimikyu", "Houndstone", "Toxtricity"] },
+      { name: "Tulip", city: "Alfornada", type: "Psychic", badge: "Psychic", team: ["Farigiraf", "Gardevoir", "Espathra", "Florges"] },
+      { name: "Grusha", city: "Glaseado Mountain", type: "Ice", badge: "Ice", team: ["Frosmoth", "Beartic", "Cetitan", "Altaria"] }
+    ],
+    eliteFour: [
+      { name: "Rika", type: "Ground", team: ["Dugtrio", "Donphan", "Clodsire", "Whiscash"] },
+      { name: "Poppy", type: "Steel", team: ["Copperajah", "Bronzong", "Magnezone", "Tinkaton"] },
+      { name: "Larry", type: "Flying", team: ["Tropius", "Staraptor", "Altaria", "Flamigo"] },
+      { name: "Hassel", type: "Dragon", team: ["Noivern", "Dragalge", "Haxorus", "Baxcalibur"] }
+    ]
+  }
+};
+
 /** Base level cap and how much each badge raises it (obedience-style soft cap). */
 PM.levelCapBase = 15;
 PM.levelCapPerBadge = 10;

@@ -182,6 +182,8 @@ export class PokemonData extends foundry.abstract.TypeDataModel {
       spe: Math.floor((point(b.spe, "spe") + 5) * mod("spe"))
     };
     this.bst = b.hp + b.atk + b.def + b.spa + b.spd + b.spe;
+    // Shedinja is the one exception to the HP formula — always exactly 1 HP.
+    if (this.species?.name === "Shedinja") this.stats.hp = 1;
     // Keep the HP resource sensible without clobbering a set (e.g. damaged) value.
     this.hp.max = this.stats.hp;
     if (this.hp.value === null) this.hp.value = this.hp.max;
