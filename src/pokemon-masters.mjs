@@ -112,7 +112,35 @@ Hooks.once("init", () => {
   registerWorldHooks();
 });
 
+// Self-heal a STALE install: if system.json wasn't refreshed on update (only
+// src/ was), its documentTypes won't list our RegionBehavior subtypes and every
+// map import fails with "not a valid type". Inject the types into the runtime
+// registry so scenes load anyway. Runs at setup, before any scene is imported.
+const PM_REGION_TYPES = ["wildTile", "safeZone", "zoneTransit", "venue", "legendary", "ambush", "fieldGate"]
+  .map((t) => `pokemon-masters.${t}`);
+function patchRegionTypes() {
+  try {
+    const reg = game.documentTypes?.RegionBehavior;
+    if (Array.isArray(reg)) { for (const t of PM_REGION_TYPES) if (!reg.includes(t)) reg.push(t); }
+    else if (reg instanceof Set) { for (const t of PM_REGION_TYPES) reg.add(t); }
+  } catch (err) { console.warn("Pokémon Masters | could not patch RegionBehavior type registry", err); }
+}
+Hooks.once("setup", patchRegionTypes);
+
 Hooks.once("ready", () => {
+  patchRegionTypes(); // belt-and-braces, before any scene import below
+  // If the region types still aren't registered, the install is stale — say so
+  // loudly with the fix, instead of leaving the GM with a silent black canvas.
+  try {
+    const reg = game.documentTypes?.RegionBehavior ?? [];
+    const ok = [...reg].includes("pokemon-masters.safeZone");
+    if (!ok && game.user.isGM) {
+      const msg = "Pokémon Masters: your installed system.json is out of date, so maps can't load. Update/reinstall the system (Setup → Game Systems → Pokémon Masters), then fully restart Foundry.";
+      ui.notifications?.error(msg, { permanent: true });
+      console.error("Pokémon Masters |", msg);
+    }
+  } catch (err) { /* diagnostic only */ }
+
   registerCatchHooks();
   registerBattleApi();
   registerProgressionHooks();
