@@ -170,20 +170,36 @@ export async function attemptCatch({
   return res;
 }
 
-/** Import the caught species, configure it, and add it to the trainer's party. */
+/** The user id that should OWN a trainer's Pokémon (so the catcher controls it). */
+export function ownerUserIdFor(trainer) {
+  const byChar = game.users?.find((u) => !u.isGM && u.active && u.character?.id === trainer?.id);
+  if (byChar) return byChar.id;
+  const byPerm = game.users?.find((u) => !u.isGM && trainer?.testUserPermission?.(u, "OWNER"));
+  return byPerm?.id ?? game.user.id;
+}
+/** An ownership block granting the trainer's owner OWNER of a Pokémon (theirs). */
+export function ownedByTrainer(trainer) {
+  return { default: CONST.DOCUMENT_OWNERSHIP_LEVELS.NONE, [ownerUserIdFor(trainer)]: CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER };
+}
+
+/**
+ * Import the caught species, make it the catcher's OWN Pokémon, and add it to
+ * their party — no Gamemaster required. Every player creates and owns their own
+ * catches directly (the system grants the Player role that permission on setup);
+ * only if a world has explicitly removed that permission does the one-time hint
+ * appear.
+ */
 async function finalizeCapture({ trainer, species, level, shiny, token }) {
-  if (!game.user.isGM && !game.user.can("ACTOR_CREATE")) {
-    ui.notifications?.info(`${species.name} was caught — ask your GM to add it to your party.`);
-    return;
-  }
+  const ownership = ownedByTrainer(trainer);
   // Claim the spawned wild's own Actor if there is one (avoids orphaning it in
   // the directory); otherwise import a fresh Actor from the species.
   let created = token?.actorId ? game.actors.get(token.actorId) : null;
   if (created) {
-    const upd = { "system.level": level, "system.shiny": !!shiny };
+    const upd = { "system.level": level, "system.shiny": !!shiny, ownership };
     if (trainer) upd["system.trainer"] = trainer.uuid;
-    await created.update(upd);
-  } else {
+    try { await created.update(upd); } catch (err) { created = null; }
+  }
+  if (!created) {
     const source = species.toObject();
     delete source._id;
     source.folder = null;
@@ -192,12 +208,18 @@ async function finalizeCapture({ trainer, species, level, shiny, token }) {
     if (trainer) source.system.trainer = trainer.uuid;
     applyIndividuality(source.system);
     if (shiny) source.system.shiny = true;
-    created = await Actor.implementation.create(source);
+    source.ownership = ownership;
+    try {
+      created = await Actor.implementation.create(source);
+    } catch (err) {
+      ui.notifications?.warn(`${species.name} was caught, but this client can't create Pokémon. Enable "Create New Actors" for the Player role once (Configure Permissions) — then it's fully self-service.`);
+      return;
+    }
   }
   if (!created) return;
 
   // Remove the wild token from the scene if this was a spawned encounter.
-  if (token?.id && token.parent) await token.parent.deleteEmbeddedDocuments("Token", [token.id]);
+  if (token?.id && token.parent) await token.parent.deleteEmbeddedDocuments("Token", [token.id]).catch(() => {});
 
   if (trainer) {
     const where = await addToParty(trainer, created);

@@ -6,7 +6,7 @@
  */
 
 import { PM } from "./config.mjs";
-import { resolveTrainer } from "./catch.mjs";
+import { resolveTrainer, ownedByTrainer } from "./catch.mjs";
 import { addToParty } from "./storage.mjs";
 import { markCaught } from "./dex.mjs";
 import { applyIndividuality } from "./individuality.mjs";
@@ -17,6 +17,29 @@ async function findSpecies(name) {
   const key = String(name).toLowerCase();
   const entry = pack.index.find((e) => e.name.toLowerCase() === key);
   return entry ? pack.getDocument(entry._id) : null;
+}
+
+/** A gear item's source object (from the compendium) with a set quantity. */
+async function gearItem(name, quantity) {
+  const pack = game.packs.get("pokemon-masters.gear");
+  const entry = pack?.index.find((e) => e.name.toLowerCase() === name.toLowerCase());
+  if (!entry) return null;
+  const src = (await pack.getDocument(entry._id)).toObject();
+  delete src._id;
+  src.system = { ...(src.system ?? {}), quantity };
+  return src;
+}
+
+/** Every new trainer's starting bag — Poké Balls & a few Potions, once. */
+async function giveStartingKit(trainer) {
+  if (!trainer || trainer.getFlag("pokemon-masters", "starterKit")) return;
+  const KIT = [["Poké Ball", 10], ["Great Ball", 5], ["Potion", 5], ["Antidote", 2]];
+  const items = [];
+  for (const [name, qty] of KIT) { const it = await gearItem(name, qty); if (it) items.push(it); }
+  try {
+    if (items.length) await trainer.createEmbeddedDocuments("Item", items);
+    await trainer.setFlag("pokemon-masters", "starterKit", true);
+  } catch (err) { console.warn("Pokémon Masters | could not grant starting kit", err); }
 }
 
 /** Import a starter at level 5 and add it to the trainer's party. */
@@ -30,12 +53,19 @@ export async function grantStarter(trainer, speciesName) {
   source.system.level = 5;
   source.system.hp = { value: null, max: 0 };
   source.system.trainer = trainer.uuid;
+  source.ownership = ownedByTrainer(trainer);   // the player owns their first partner
   applyIndividuality(source.system);
 
-  const created = await Actor.implementation.create(source);
+  let created;
+  try {
+    created = await Actor.implementation.create(source);
+  } catch (err) {
+    return ui.notifications?.warn(`Could not create ${species.name}. Enable "Create New Actors" for the Player role once (Configure Permissions).`);
+  }
   if (!created) return;
   await addToParty(trainer, created);
   await markCaught(trainer, species.name);
+  await giveStartingKit(trainer);   // hand out the starting Poké Balls
 
   const professor = PM.gymLeaders?.[species.system.nativeRegion]?.professor ?? "The Professor";
   await ChatMessage.create({

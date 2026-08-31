@@ -36,7 +36,7 @@ import { registerOrgApi } from "./module/organizations.mjs";
 import { registerNpcApi } from "./module/npc.mjs";
 import { registerDexApi } from "./module/dex.mjs";
 import { registerItemsApi } from "./module/items.mjs";
-import { registerSystemSettings } from "./module/permissions.mjs";
+import { registerSystemSettings, ensurePlayerAutonomy } from "./module/permissions.mjs";
 import { registerSpriteSystem } from "./module/sprites.mjs";
 import { registerGymApi } from "./module/gyms.mjs";
 import { registerBreedingApi } from "./module/breeding.mjs";
@@ -143,5 +143,8 @@ Hooks.once("ready", () => {
   registerTrainerChallenges();
   registerPlacementApi();
   registerWorldPop();
+  // Make the world fully self-service (players create/own their own Pokémon &
+  // tokens with no GM approval). GM-only, one-time, idempotent.
+  ensurePlayerAutonomy();
   console.log("Pokémon Masters | Ready");
 });

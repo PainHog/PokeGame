@@ -43,10 +43,47 @@ export function isResponsible(token = null) {
 export function registerSystemSettings() {
   game.settings.register("pokemon-masters", "gmlessPlay", {
     name: "Play without a GM online",
-    hint: "When no Gamemaster is connected, the acting player's client resolves encounters, catches, and heals. For full offline play, also enable 'Create New Actors' and 'Create New Tokens' for the Player role under Configure Permissions.",
+    hint: "When no Gamemaster is connected, the acting player's client resolves encounters, catches, and heals. Players are auto-granted the Create-Actor/Token permissions they need, so the game is fully self-service.",
     scope: "world",
     config: true,
     type: Boolean,
     default: true
   });
+}
+
+/**
+ * Make the world self-service so NOTHING routine needs a Gamemaster: grant the
+ * Player role the Foundry permissions the game relies on — creating their own
+ * caught/starter Pokémon (ACTOR_CREATE) and placing their own tokens
+ * (TOKEN_CREATE / TOKEN_CONFIGURE). Only a GM can write the core permission
+ * config, so this applies once, automatically, on whichever GM client first
+ * loads the world (its creator). After that every player plays with equal rules
+ * and no per-action approval. Additive and idempotent — it never removes a grant
+ * a world already has, and it preserves the default roles for each permission.
+ */
+export async function ensurePlayerAutonomy() {
+  try {
+    if (!game.user?.isGM) return;
+    const ROLES = CONST.USER_ROLES;
+    const PLAYER = ROLES.PLAYER;
+    const NEED = ["ACTOR_CREATE", "TOKEN_CREATE", "TOKEN_CONFIGURE"];
+    const rolesAtLeast = (min) => [PLAYER, ROLES.TRUSTED, ROLES.ASSISTANT, ROLES.GAMEMASTER].filter((r) => r >= min);
+    const stored = game.settings.get("core", "permissions") ?? {};
+    const perms = foundry.utils.deepClone(stored);
+    let changed = false;
+    for (const key of NEED) {
+      // Keep whatever the world already grants; if it's never been configured,
+      // seed with this permission's default roles so higher roles aren't dropped.
+      const def = CONST.USER_PERMISSIONS?.[key]?.defaultRole ?? ROLES.ASSISTANT;
+      const current = Array.isArray(perms[key]) ? perms[key] : rolesAtLeast(def);
+      if (!current.includes(PLAYER)) { perms[key] = [...new Set([...current, PLAYER])]; changed = true; }
+      else perms[key] = current;
+    }
+    if (changed) {
+      await game.settings.set("core", "permissions", perms);
+      console.log("Pokémon Masters | Granted the Player role Create-Actor/Token permissions — the game is now fully GM-less.");
+    }
+  } catch (err) {
+    console.warn("Pokémon Masters | could not auto-grant player permissions (enable Create New Actors/Tokens for the Player role under Configure Permissions):", err);
+  }
 }
