@@ -201,10 +201,74 @@ export async function repopulateWorld() {
   ui.notifications?.info("Pokémon Masters: world NPCs refreshed.");
 }
 
+/**
+ * One-click world refresh for the GM after a system update. NON-destructive: it
+ * refreshes each already-imported map from the compendium (lighting/vision,
+ * background art) and adds any regions the new build introduced (Gym, Police),
+ * then (re)places every world NPC. Existing tokens are kept.
+ */
+export async function rebuildWorld() {
+  if (!canPlace()) return ui.notifications?.warn("Only the GM can rebuild the world.");
+  const DialogV2 = foundry.applications?.api?.DialogV2;
+  const pack = game.packs.get("pokemon-masters.scenes");
+  if (!pack) return ui.notifications?.warn("Pokémon Masters scene compendium not found.");
+  await pack.getIndex();
+  const names = new Set(pack.index.map((e) => e.name));
+  const worldScenes = (game.scenes ?? []).filter((s) => names.has(s.name));
+
+  if (DialogV2) {
+    const ok = await DialogV2.confirm({
+      window: { title: "Rebuild Pokémon World" },
+      content: `<p>Refresh <strong>${worldScenes.length}</strong> imported map(s) from the compendium — updated map art &amp; lighting, plus any new buildings (Gym, Police) &amp; regions — then (re)place all world NPCs.</p><p>Your existing tokens are kept. Continue?</p>`,
+    }).catch(() => false);
+    if (!ok) return;
+  }
+
+  let refreshed = 0, regionsAdded = 0;
+  for (const s of worldScenes) {
+    try {
+      const entry = pack.index.find((e) => e.name === s.name);
+      const o = (await pack.getDocument(entry._id)).toObject();
+      await s.update({
+        backgroundColor: o.backgroundColor, tokenVision: o.tokenVision, globalLight: o.globalLight,
+        fog: o.fog, environment: o.environment, "background.src": o.background?.src,
+      });
+      const have = new Set(s.regions.map((r) => r.name));
+      const toAdd = o.regions.filter((r) => !have.has(r.name)).map((r) => {
+        const c = foundry.utils.deepClone(r); delete c._id; delete c._key;
+        (c.behaviors ?? []).forEach((b) => { delete b._id; delete b._key; });
+        return c;
+      });
+      if (toAdd.length) { await s.createEmbeddedDocuments("Region", toAdd); regionsAdded += toAdd.length; }
+      refreshed++;
+    } catch (err) {
+      console.warn("Pokémon Masters | rebuild: could not refresh", s?.name, err);
+    }
+  }
+
+  await game.settings.set(FLAG, "worldPopVersion", 0).catch(() => {});
+  for (const scene of game.scenes ?? []) {
+    await scene.unsetFlag(FLAG, "populated").catch(() => {});
+    await populateScene(scene);
+  }
+  ui.notifications?.info(`Pokémon Masters: refreshed ${refreshed} map(s), added ${regionsAdded} new region(s), repopulated NPCs.`);
+}
+
+/** Ensure a clickable "Rebuild Pokémon World" macro exists for the GM. */
+async function ensureRebuildMacro() {
+  if (!game.user?.isGM) return;
+  const name = "Rebuild Pokémon World";
+  if (game.macros?.getName?.(name)) return;
+  await Macro.create({
+    name, type: "script", img: "icons/svg/regen.svg", scope: "global",
+    command: "game.pokemonMasters?.world?.rebuild?.();",
+  }).catch(() => {});
+}
+
 export function registerWorldPop() {
   game.settings.register(FLAG, "worldPopVersion", { scope: "world", config: false, type: Number, default: 0 });
   game.pokemonMasters = Object.assign(game.pokemonMasters ?? {}, {
-    world: { populateScene, interactNpc, repopulate: repopulateWorld },
+    world: { populateScene, interactNpc, repopulate: repopulateWorld, rebuild: rebuildWorld },
   });
 
   // Populate a scene the moment it's imported into the world.
@@ -214,6 +278,7 @@ export function registerWorldPop() {
   Hooks.once("ready", async () => {
     installNpcClick();
     if (!canPlace()) return;
+    await ensureRebuildMacro();
     try {
       if ((game.settings.get(FLAG, "worldPopVersion") ?? 0) >= POP_VERSION) return;
       for (const scene of game.scenes ?? []) await populateScene(scene);
