@@ -15,7 +15,8 @@
     "clean": "node -e \"import('node:fs').then(fs=>{for(const d of ['packs','src/packs']){fs.rmSync(d,{recursive:true,force:true})}})\"",
     "trainers": "node scripts/fetch-trainers.mjs",
     "avatars": "node scripts/fetch-trainer-avatars.mjs",
-    "maps": "node scripts/rasterize-maps.mjs"
+    "maps": "node scripts/rasterize-maps.mjs",
+    "gbamaps": "node scripts/build-gba-maps.mjs"
   },
   "devDependencies": {
     "@foundryvtt/foundryvtt-cli": "^3.0.4",
