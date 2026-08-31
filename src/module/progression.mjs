@@ -6,6 +6,8 @@
  * level-up moves for the new level, and triggers a level-based evolution.
  */
 
+import { teachMove } from "./tms.mjs";
+
 /** XP needed to advance *from* the given level to the next (a gentle escalating curve). */
 export function xpToNext(level) {
   return 10 + level * 12;
@@ -30,22 +32,46 @@ async function learnMovesAt(pokemon, level) {
   for (const entry of entries) {
     const already = pokemon.items.some((i) => i.type === "move" && i.name.toLowerCase() === entry.move.toLowerCase());
     if (already) continue;
-    const moveDoc = await findInPack("pokemon-masters.moves", entry.move);
-    if (!moveDoc) continue;
     const known = pokemon.items.filter((i) => i.type === "move").length;
     if (known >= 4) {
-      await ChatMessage.create({
-        speaker: { alias: pokemon.name },
-        content: `<p>${pokemon.name} wants to learn <strong>${entry.move}</strong>, but already knows four moves. Teach it manually to replace one.</p>`
-      });
+      // Already knows four — let the player choose whether to replace one
+      // (teachMove runs the "forget which move?" prompt on the owning client).
+      await teachMove(pokemon, entry.move);
       continue;
     }
+    const moveDoc = await findInPack("pokemon-masters.moves", entry.move);
+    if (!moveDoc) continue;
     await pokemon.createEmbeddedDocuments("Item", [moveDoc.toObject()]);
     await ChatMessage.create({
       speaker: { alias: pokemon.name },
       content: `<p>${pokemon.name} learned <strong>${entry.move}</strong>!</p>`
     });
   }
+}
+
+/**
+ * Seed a freshly-obtained Pokémon with the moves it would know at its level —
+ * the four most-recent level-up moves at or below its current level. Without
+ * this a new starter/catch/egg/wild owns zero moves and can only Struggle.
+ * No-op if it already knows a move (e.g. a bred egg with inherited moves).
+ */
+export async function seedMoves(pokemon) {
+  if (pokemon?.type !== "pokemon") return;
+  if (pokemon.items.some((i) => i.type === "move")) return;
+  const level = pokemon.system.level ?? 5;
+  const learnable = (pokemon.system.learnset ?? [])
+    .filter((l) => l.level > 0 && l.level <= level)
+    .sort((a, b) => a.level - b.level);
+  // De-dupe keeping the latest occurrence, then take the last four learned.
+  const names = [];
+  for (const l of learnable) { const k = l.move; if (!names.includes(k)) names.push(k); }
+  const chosen = names.slice(-4);
+  const docs = [];
+  for (const name of chosen) {
+    const moveDoc = await findInPack("pokemon-masters.moves", name);
+    if (moveDoc) docs.push(moveDoc.toObject());
+  }
+  if (docs.length) await pokemon.createEmbeddedDocuments("Item", docs);
 }
 
 /** Add XP; handle any resulting level-ups, move learning, and evolution. */
@@ -229,7 +255,18 @@ export function registerProgressionHooks() {
       await awardXp(attacker, xpFromDefeat(target));
     }
   });
+  // Every newly-created Pokémon (starter, catch, egg, wild spawn) gets its
+  // level-appropriate moves, so it never enters battle able only to Struggle.
+  Hooks.on("createActor", (actor) => {
+    if (actor?.type === "pokemon" && actor.isOwner) seedMoves(actor).catch((e) => console.warn("Pokémon Masters | seedMoves failed", e));
+  });
+  // Backfill any pre-existing moveless Pokémon once, so older worlds catch up.
+  for (const actor of game.actors ?? []) {
+    if (actor.type === "pokemon" && actor.isOwner && !actor.items.some((i) => i.type === "move")) {
+      seedMoves(actor).catch(() => {});
+    }
+  }
   game.pokemonMasters = Object.assign(game.pokemonMasters ?? {}, {
-    progression: { awardXp, evolve, maybeEvolve, evolveWithItem, evolveByTrade, xpToNext, xpFromDefeat }
+    progression: { awardXp, evolve, maybeEvolve, evolveWithItem, evolveByTrade, seedMoves, xpToNext, xpFromDefeat }
   });
 }
