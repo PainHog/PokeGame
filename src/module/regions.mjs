@@ -343,7 +343,7 @@ export class SafeZoneBehaviorType extends foundry.data.regionBehaviors.RegionBeh
       if (this.announce) {
         const label = PM.safeZoneKinds[this.kind] ?? "a safe area";
         const msg = this.kind === "mart"
-          ? `🛒 <strong>${actor.name}</strong> entered the Poké Mart.`
+          ? `🛒 <strong>${actor.name}</strong> entered the Poké Mart. Open your sheet → 🛒 Shop to buy & sell.`
           : `<strong>${actor.name}</strong> entered ${label}.`;
         await ChatMessage.create({ speaker: { alias: "World" }, content: `<p>${msg}</p>` });
       }

@@ -15,6 +15,7 @@ import { AmbushBehaviorType, registerFactionApi } from "./module/factions.mjs";
 import { FieldMoveGateBehaviorType, registerTmApi } from "./module/tms.mjs";
 import { registerTravelApi } from "./module/travel.mjs";
 import { registerTradeApi } from "./module/trade.mjs";
+import { registerShopApi } from "./module/shop.mjs";
 import { registerWorldHooks } from "./module/world.mjs";
 import { registerCatchHooks } from "./module/catch.mjs";
 import { registerBattleApi } from "./module/battle.mjs";
@@ -114,5 +115,6 @@ Hooks.once("ready", () => {
   registerTravelSocket();
   registerTravelApi();
   registerTradeApi();
+  registerShopApi();
   console.log("Pokémon Masters | Ready");
 });

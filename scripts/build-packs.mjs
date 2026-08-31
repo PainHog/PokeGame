@@ -149,6 +149,20 @@ function deriveRequirements(s, rarity, nativeReg, varReg) {
   return { habitats, regions, methods, times: [] };
 }
 
+/** Shop prices (buy). Anything unlisted is not sold in Marts (price 0). */
+const ITEM_PRICES = {
+  "poké ball": 200, "great ball": 600, "ultra ball": 800, "premier ball": 200, "heal ball": 300, "luxury ball": 3000,
+  "net ball": 1000, "dusk ball": 1000, "quick ball": 1000, "timer ball": 1000, "nest ball": 1000, "dive ball": 1000, "repeat ball": 1000,
+  "potion": 300, "super potion": 700, "hyper potion": 1500, "max potion": 2500, "full restore": 3000,
+  "revive": 2000, "max revive": 4000, "fresh water": 200, "soda pop": 300, "lemonade": 350, "moomoo milk": 600,
+  "antidote": 100, "paralyze heal": 200, "parlyz heal": 200, "awakening": 100, "burn heal": 250, "ice heal": 250, "full heal": 600,
+  "escape rope": 1000, "repel": 400, "super repel": 700, "max repel": 900, "poké doll": 1000,
+  "fire stone": 3000, "water stone": 3000, "thunder stone": 3000, "leaf stone": 3000, "moon stone": 3000,
+  "sun stone": 3000, "shiny stone": 3000, "dusk stone": 3000, "dawn stone": 3000, "ice stone": 3000,
+  "rare candy": 10000
+};
+const priceFor = (name, isBall) => ITEM_PRICES[name.toLowerCase()] ?? (isBall ? 1000 : 0);
+
 const BALL_MODIFIERS = {
   "poke ball": 1, "great ball": 1.5, "ultra ball": 2, "master ball": 255,
   "net ball": 3.5, "dive ball": 3.5, "nest ball": 4, "repeat ball": 3.5,
@@ -359,24 +373,28 @@ function buildGear() {
       img: isBall ? "icons/svg/target.svg" : "icons/svg/item-bag.svg",
       system: {
         category,
-        price: 0,
+        price: priceFor(it.name, isBall),
         quantity: 1,
         catchModifier: isBall ? (BALL_MODIFIERS[lower] ?? 1) : 1,
         description: it.desc || it.shortDesc || ""
       }
     });
   }
-  // Key items the games have that aren't in the competitive dataset.
-  const KEY_ITEMS = [
-    ["S.S. Ticket", "A ticket to board the S.S. Anne and sail between ports."],
-    ["Bike Voucher", "Redeem for a Bicycle."],
-    ["Bicycle", "A folding bike for faster overland travel."],
-    ["Old Rod", "A cheap fishing rod. Reels in easy Pokémon."],
-    ["Good Rod", "A decent fishing rod."],
-    ["Super Rod", "An excellent fishing rod. Reels in strong Pokémon."]
+  // Standard shop/utility items the competitive dataset omits. [name, category, price, catchMod].
+  const have = new Set(docs.map((d) => d.name.toLowerCase()));
+  const CUSTOM = [
+    ["Poké Ball", "ball", 200, 1], ["Great Ball", "ball", 600, 1.5], ["Ultra Ball", "ball", 800, 2],
+    ["Potion", "medicine", 300, 1], ["Super Potion", "medicine", 700, 1], ["Hyper Potion", "medicine", 1500, 1], ["Max Potion", "medicine", 2500, 1], ["Full Restore", "medicine", 3000, 1],
+    ["Revive", "medicine", 2000, 1], ["Max Revive", "medicine", 4000, 1],
+    ["Antidote", "medicine", 100, 1], ["Paralyze Heal", "medicine", 200, 1], ["Awakening", "medicine", 100, 1], ["Burn Heal", "medicine", 250, 1], ["Ice Heal", "medicine", 250, 1], ["Full Heal", "medicine", 600, 1],
+    ["Escape Rope", "item", 1000, 1], ["Repel", "item", 400, 1], ["Super Repel", "item", 700, 1], ["Max Repel", "item", 900, 1], ["Poké Doll", "item", 1000, 1],
+    ["Fire Stone", "item", 3000, 1], ["Water Stone", "item", 3000, 1], ["Thunder Stone", "item", 3000, 1], ["Leaf Stone", "item", 3000, 1], ["Moon Stone", "item", 3000, 1],
+    ["Sun Stone", "item", 3000, 1], ["Shiny Stone", "item", 3000, 1], ["Dusk Stone", "item", 3000, 1], ["Dawn Stone", "item", 3000, 1], ["Ice Stone", "item", 3000, 1],
+    ["S.S. Ticket", "key", 0, 1], ["Bike Voucher", "key", 0, 1], ["Bicycle", "key", 0, 1], ["Old Rod", "key", 0, 1], ["Good Rod", "key", 0, 1], ["Super Rod", "key", 0, 1]
   ];
-  for (const [name, desc] of KEY_ITEMS) {
-    docs.push({ _id: stableId("gear", name), name, type: "gear", img: "icons/svg/item-bag.svg", system: { category: "key", price: 0, quantity: 1, catchModifier: 1, description: desc } });
+  for (const [name, category, price, catchMod] of CUSTOM) {
+    if (have.has(name.toLowerCase())) continue;
+    docs.push({ _id: stableId("gear", name), name, type: "gear", img: category === "ball" ? "icons/svg/target.svg" : "icons/svg/item-bag.svg", system: { category, price, quantity: 1, catchModifier: catchMod, description: "" } });
   }
   return docs;
 }
