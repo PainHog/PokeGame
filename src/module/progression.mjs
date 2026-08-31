@@ -74,6 +74,27 @@ export async function seedMoves(pokemon) {
   if (docs.length) await pokemon.createEmbeddedDocuments("Item", docs);
 }
 
+/**
+ * Award effort values (EVs) for defeating a Pokémon. Yields go into the
+ * defeated species' two highest base stats — approximating canon yields — and
+ * respect the 252-per-stat / 510-total caps. The stat formula already consumes
+ * EVs, so this makes stat-training actually matter.
+ */
+export async function awardEvs(winner, defeated) {
+  if (winner?.type !== "pokemon" || !winner.isOwner || defeated?.type !== "pokemon") return;
+  const base = defeated.system?.baseStats ?? {};
+  const ranked = Object.entries(base).sort((a, b) => b[1] - a[1]).map(([k]) => k);
+  const gains = { [ranked[0]]: 2, [ranked[1]]: 1 };
+  const evs = { hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0, ...(winner.system.evs ?? {}) };
+  let total = Object.values(evs).reduce((a, b) => a + b, 0);
+  const update = {};
+  for (const [stat, amt] of Object.entries(gains)) {
+    const room = Math.min(amt, 252 - (evs[stat] ?? 0), 510 - total);
+    if (room > 0) { evs[stat] += room; total += room; update[`system.evs.${stat}`] = evs[stat]; }
+  }
+  if (Object.keys(update).length) await winner.update(update);
+}
+
 /** Add XP; handle any resulting level-ups, move learning, and evolution. */
 export async function awardXp(pokemon, amount) {
   if (pokemon?.type !== "pokemon" || !amount) return;
@@ -253,6 +274,7 @@ export function registerProgressionHooks() {
   Hooks.on("pmPokemonFainted", async ({ attacker, target }) => {
     if (attacker?.type === "pokemon" && attacker.isOwner) {
       await awardXp(attacker, xpFromDefeat(target));
+      await awardEvs(attacker, target);
     }
   });
   // Every newly-created Pokémon (starter, catch, egg, wild spawn) gets its
@@ -267,6 +289,6 @@ export function registerProgressionHooks() {
     }
   }
   game.pokemonMasters = Object.assign(game.pokemonMasters ?? {}, {
-    progression: { awardXp, evolve, maybeEvolve, evolveWithItem, evolveByTrade, seedMoves, xpToNext, xpFromDefeat }
+    progression: { awardXp, awardEvs, evolve, maybeEvolve, evolveWithItem, evolveByTrade, seedMoves, xpToNext, xpFromDefeat }
   });
 }
