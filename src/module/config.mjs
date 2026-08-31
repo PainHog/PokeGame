@@ -314,7 +314,9 @@ PM.venueKinds = {
   raid: "Max Raid Den",
   fossil: "Fossil Lab",
   lottery: "Lottery Corner",
-  berry: "Berry Garden"
+  berry: "Berry Garden",
+  police: "Police Station",
+  questboard: "Quest Board"
 };
 
 PM.venueInfo = {
@@ -325,7 +327,9 @@ PM.venueInfo = {
   raid: { label: "Max Raid Den", icon: "🔴", cta: "Challenge the den" },
   fossil: { label: "Fossil Lab", icon: "🦴", cta: "Revive a fossil" },
   lottery: { label: "Lottery Corner", icon: "🎫", cta: "Draw a ticket" },
-  berry: { label: "Berry Garden", icon: "🫐", cta: "Tend the garden" }
+  berry: { label: "Berry Garden", icon: "🫐", cta: "Tend the garden" },
+  police: { label: "Police Station", icon: "🚓", cta: "Speak to Officer Jenny" },
+  questboard: { label: "Quest Board", icon: "📋", cta: "Check for jobs" }
 };
 
 /**
@@ -359,7 +363,24 @@ PM.organizations = {
   anglers: { label: "Anglers' Society", align: "neutral", desc: "Fish for and trade aquatic Pokémon.", ranks: ["Novice", "Angler", "Master Angler"] },
   rocket: { label: "Team Rocket", align: "villain", desc: "Steal, scheme, and rise through the syndicate.", ranks: ["Recruit", "Grunt", "Agent", "Executive", "Admin", "Boss"] },
   magma: { label: "Team Magma", align: "villain", desc: "Expand the land at any cost.", ranks: ["Grunt", "Agent", "Admin", "Leader"] },
-  aqua: { label: "Team Aqua", align: "villain", desc: "Expand the sea at any cost.", ranks: ["Grunt", "Agent", "Admin", "Leader"] }
+  aqua: { label: "Team Aqua", align: "villain", desc: "Expand the sea at any cost.", ranks: ["Grunt", "Agent", "Admin", "Leader"] },
+  galactic: { label: "Team Galactic", align: "villain", desc: "Harness legendary power to remake the universe.", ranks: ["Grunt", "Commander", "Boss"] },
+  plasma: { label: "Team Plasma", align: "villain", desc: "\"Liberate\" Pokémon — or seize power behind the cause.", ranks: ["Grunt", "Knight", "Sage", "Shadow", "King"] },
+  flare: { label: "Team Flare", align: "villain", desc: "Wealth, beauty, and a chillingly selective new world.", ranks: ["Grunt", "Admin", "Scientist", "Boss"] },
+  skull: { label: "Team Skull", align: "villain", desc: "Misfits making trouble across the islands.", ranks: ["Grunt", "Enforcer", "Big Sister/Brother", "Boss"] },
+  star: { label: "Team Star", align: "villain", desc: "Rule the school through the Starfall Street crews.", ranks: ["Cadet", "Grunt", "Squad Boss", "Big Boss"] },
+  aether: { label: "Aether Foundation", align: "neutral", desc: "Conserve and protect Pokémon — officially, at least.", ranks: ["Intern", "Employee", "Researcher", "Branch Chief", "President"] },
+  yell: { label: "Team Yell", align: "neutral", desc: "Rowdy super-fans cheering their idol to the top.", ranks: ["Fan", "Rowdy Fan", "Biker"] },
+  macro: { label: "Macro Cosmos", align: "neutral", desc: "The corporation that powers Galar — and its League.", ranks: ["Employee", "Manager", "Executive", "Chairman"] },
+  silph: { label: "Silph Co.", align: "good", desc: "Kanto's tech giant — the makers of the Master Ball.", ranks: ["Intern", "Engineer", "Lead", "President"] },
+  devon: { label: "Devon Corporation", align: "good", desc: "Hoenn's innovator in Poké Balls, PokéNav, and more.", ranks: ["Intern", "Researcher", "Senior Researcher", "President"] }
+};
+
+/** Which region each organization is most associated with (flavor / availability). */
+PM.organizationRegions = {
+  rocket: "kanto", magma: "hoenn", aqua: "hoenn", galactic: "sinnoh", plasma: "unova",
+  flare: "kalos", skull: "alola", aether: "alola", star: "paldea", yell: "galar",
+  macro: "galar", silph: "kanto", devon: "hoenn"
 };
 
 /** Reputation needed to advance one rank (rank N needs N × this in total). */

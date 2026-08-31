@@ -14,6 +14,7 @@ export async function markSeen(trainer, name) {
   if (seen.has(name)) return;
   seen.add(name);
   await trainer.update({ "system.pokedex.seen": [...seen] });
+  Hooks.callAll("pmDexUpdated", { trainer, name });
 }
 
 export async function markCaught(trainer, name) {
@@ -25,6 +26,7 @@ export async function markCaught(trainer, name) {
   seen.add(name);
   caught.add(name);
   await trainer.update({ "system.pokedex.seen": [...seen], "system.pokedex.caught": [...caught] });
+  Hooks.callAll("pmDexUpdated", { trainer, name });
 }
 
 /** Whether the trainer has already caught a given species. */

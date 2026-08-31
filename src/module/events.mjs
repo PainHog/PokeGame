@@ -569,7 +569,9 @@ export function registerEventsApi() {
       raid: () => maxRaid(null, target),
       fossil: () => reviveFossil(),
       lottery: () => dailyLottery(),
-      berry: () => harvestBerries()
+      berry: () => harvestBerries(),
+      police: () => game.pokemonMasters?.services?.officerJenny?.(),
+      questboard: () => game.pokemonMasters?.quests?.board?.()
     }[btn.dataset.venue] ?? (() => {}))();
   });
 }

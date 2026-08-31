@@ -194,6 +194,7 @@ async function finalizeCapture({ trainer, species, level, shiny, token }) {
   if (trainer) {
     const where = await addToParty(trainer, created);
     await markCaught(trainer, species.name);
+    Hooks.callAll("pmPokemonCaught", { trainer, species: species.name, actor: created });
     if (where === "storage") ui.notifications?.info(`${species.name} was caught and sent to the PC (party full).`);
   }
 }

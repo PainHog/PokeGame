@@ -54,6 +54,49 @@ export async function nurseJoy(trainer) {
   }, { speaker: "Nurse Joy" });
 }
 
+/* ---- Police Station: Officer Jenny ------------------------- */
+
+/** Report a crime — earn a civic reward and, for a Rocket tip, maybe a pursuit. */
+async function reportCrime(trainer, kind) {
+  const reward = 400 + Math.floor(Math.random() * 600);
+  await trainer.update({ "system.money": (trainer.system.money ?? 0) + reward });
+  await ChatMessage.create({ speaker: { alias: "Officer Jenny" }, content: `<div class="pm-encounter-card"><p>Thank you for the tip! Here's a reward for your civic duty: <strong>₽${reward}</strong>.</p></div>` });
+  // A Rocket sighting can send you after the culprits then and there.
+  if (kind === "rocket" && Math.random() < 0.6) {
+    const { simulateBattle, teamOf } = await import("./npc.mjs");
+    const { generateFoeTeam } = await import("./events.mjs");
+    const myTeam = await teamOf(trainer);
+    if (myTeam.length) {
+      const level = Math.max(...myTeam.map((m) => m.level ?? 5));
+      const foes = await generateFoeTeam(Math.min(2, myTeam.length), level);
+      const { winner } = simulateBattle(myTeam.map((m) => ({ ...m, hp: { value: m.stats.hp, max: m.stats.hp } })), foes);
+      const bounty = winner === "A" ? level * 40 : 0;
+      if (bounty) await trainer.update({ "system.money": (trainer.system.money ?? 0) + bounty });
+      await ChatMessage.create({ speaker: { alias: "Officer Jenny" }, content: `<div class="pm-encounter-card"><h3>🚓 You joined the pursuit!</h3><p>${winner === "A" ? `The Team Rocket grunts were caught! Bounty: <strong>₽${bounty}</strong>.` : "The grunts slipped away this time…"}</p></div>` });
+    }
+  }
+}
+
+/** Officer Jenny at the police station — a real click-through report NPC. */
+export async function officerJenny(trainer) {
+  trainer ??= resolveTrainer();
+  if (!trainer) return ui.notifications?.warn("Assign your Trainer first.");
+  await startDialogue({
+    start: "desk",
+    nodes: {
+      desk: {
+        text: "This is the police station. Is there something you'd like to report?",
+        choices: [
+          { label: "🚨 A Team Rocket sighting", next: null, action: () => reportCrime(trainer, "rocket") },
+          { label: "💰 A theft", next: null, action: () => reportCrime(trainer, "theft") },
+          { label: "🐾 A lost Pokémon", next: null, action: () => reportCrime(trainer, "lost") },
+          { label: "Nothing, thanks", next: null }
+        ]
+      }
+    }
+  }, { speaker: "Officer Jenny" });
+}
+
 async function findSpecies(name) {
   const pack = game.packs.get("pokemon-masters.species");
   if (!pack) return null;
@@ -219,7 +262,7 @@ export function registerServicesApi() {
   game.pokemonMasters = Object.assign(game.pokemonMasters ?? {}, {
     services: {
       moveTutor, moveReminder, moveDeleter, nameRater,
-      fish, useRepel, toggleBike, ridePokemon, partyLead, nurseJoy
+      fish, useRepel, toggleBike, ridePokemon, partyLead, nurseJoy, officerJenny
     }
   });
 
