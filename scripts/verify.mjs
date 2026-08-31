@@ -129,7 +129,16 @@ const CANON_ADJACENCY = [
   ["Driftveil Drawbridge", "Driftveil City"], ["Chargestone Cave", "Mistralton City"], ["Twist Mountain", "Icirrus City"],
   ["Unova Route 9", "Opelucid City"], ["Opelucid City", "Unova Route 10"], ["Unova Route 10", "Unova Victory Road"],
   ["Unova Victory Road", "Unova Pokémon League"], ["Aspertia City", "Unova Route 19"], ["Unova Route 19", "Floccesy Town"],
-  ["Virbank City", "Castelia City"], ["Lacunosa Town", "Unova Route 13"], ["Unova Route 13", "Undella Town"]
+  ["Virbank City", "Castelia City"], ["Lacunosa Town", "Unova Route 13"], ["Unova Route 13", "Undella Town"],
+  // Kalos — a star centred on Lumiose City (Bulbapedia-sourced).
+  ["Canalave City", "Coumarine City"], // cross-region ferry
+  ["Vaniville Town", "Kalos Route 1"], ["Kalos Route 1", "Aquacorde Town"], ["Aquacorde Town", "Kalos Route 2"],
+  ["Kalos Route 3", "Santalune City"], ["Santalune City", "Kalos Route 4"], ["Kalos Route 4", "Lumiose City"],
+  ["Lumiose City", "Kalos Route 5"], ["Kalos Route 5", "Camphrier Town"], ["Kalos Route 8", "Cyllage City"],
+  ["Kalos Route 10", "Geosenge Town"], ["Reflection Cave", "Shalour City"], ["Kalos Route 12", "Coumarine City"],
+  ["Lumiose City", "Kalos Route 14"], ["Kalos Route 14", "Laverre City"], ["Kalos Route 17", "Anistar City"],
+  ["Kalos Route 19", "Snowbelle City"], ["Snowbelle City", "Kalos Route 21"], ["Kalos Route 21", "Kalos Victory Road"],
+  ["Kalos Victory Road", "Kalos Pokémon League"], ["Lumiose City", "Kiloude City"]
 ];
 
 async function verifyMaps() {

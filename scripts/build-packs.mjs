@@ -630,6 +630,35 @@ const REGION_MAPS = {
     "Lostlorn Forest": { kind: "forest", habitat: "forest" }, "Floccesy Ranch": { kind: "route", habitat: "grass" },
     "Seaside Cave": { kind: "cave", habitat: "cave" },
     "Unova Victory Road": { kind: "cave", habitat: "cave" }, "Unova Pokémon League": { kind: "town" }
+  },
+  kalos: {
+    "Vaniville Town": { kind: "town" }, "Aquacorde Town": { kind: "town" },
+    "Santalune City": { kind: "town" }, "Lumiose City": { kind: "town" },
+    "Camphrier Town": { kind: "town" }, "Cyllage City": { kind: "town" },
+    "Ambrette Town": { kind: "town" }, "Geosenge Town": { kind: "town" },
+    "Shalour City": { kind: "town", island: true }, "Coumarine City": { kind: "town" },
+    "Laverre City": { kind: "town" }, "Dendemille Town": { kind: "town" },
+    "Anistar City": { kind: "town" }, "Couriway Town": { kind: "town" },
+    "Snowbelle City": { kind: "town" }, "Kiloude City": { kind: "town" },
+    "Route 1": { kind: "route", habitat: "grass" }, "Route 2": { kind: "route", habitat: "grass" },
+    "Route 3": { kind: "route", habitat: "grass" }, "Route 4": { kind: "route", habitat: "urban" },
+    "Route 5": { kind: "route", habitat: "grass" }, "Route 6": { kind: "route", habitat: "grass" },
+    "Route 7": { kind: "route", habitat: "grass" }, "Route 8": { kind: "route", habitat: "water" },
+    "Route 9": { kind: "route", habitat: "mountain" }, "Route 10": { kind: "route", habitat: "grass" },
+    "Route 11": { kind: "route", habitat: "grass" }, "Route 12": { kind: "route", habitat: "water" },
+    "Route 13": { kind: "route", habitat: "sand" }, "Route 14": { kind: "route", habitat: "grass" },
+    "Route 15": { kind: "route", habitat: "grass" }, "Route 16": { kind: "route", habitat: "grass" },
+    "Route 17": { kind: "route", habitat: "mountain" }, "Route 18": { kind: "route", habitat: "mountain" },
+    "Route 19": { kind: "route", habitat: "grass" }, "Route 20": { kind: "forest", habitat: "forest" },
+    "Route 21": { kind: "route", habitat: "grass" }, "Route 22": { kind: "route", habitat: "grass" },
+    "Santalune Forest": { kind: "forest", habitat: "forest" }, "Parfum Palace": { kind: "venue" },
+    "Connecting Cave": { kind: "cave", habitat: "cave" }, "Glittering Cave": { kind: "cave", habitat: "cave" },
+    "Reflection Cave": { kind: "cave", habitat: "cave" }, "Tower of Mastery": { kind: "venue" },
+    "Azure Bay": { kind: "ocean", habitat: "water" }, "Kalos Power Plant": { kind: "venue" },
+    "Lost Hotel": { kind: "venue" }, "Frost Cavern": { kind: "cave", habitat: "mountain" },
+    "Team Flare Secret HQ": { kind: "venue" }, "Terminus Cave": { kind: "cave", habitat: "cave" },
+    "Pokémon Village": { kind: "forest", habitat: "forest" }, "Battle Maison": { kind: "venue", island: true },
+    "Kalos Victory Road": { kind: "cave", habitat: "cave" }, "Kalos Pokémon League": { kind: "town" }
   }
 };
 
@@ -846,6 +875,36 @@ const REGION_CONNECTIONS = {
     ["Humilau City", "north", "Route 21"], ["Route 21", "north", "Seaside Cave"],
     ["Humilau City", "west", "Route 22"], ["Route 22", "west", "Giant Chasm"],
     ["Giant Chasm", "west", "Route 23"], ["Route 23", "west", "Unova Victory Road"]
+  ],
+  kalos: [
+    ["Vaniville Town", "north", "Route 1"], ["Route 1", "north", "Aquacorde Town"],
+    ["Aquacorde Town", "north", "Route 2"], ["Route 2", "north", "Santalune Forest"],
+    ["Santalune Forest", "north", "Route 3"], ["Route 3", "east", "Santalune City"],
+    ["Santalune City", "north", "Route 4"], ["Route 4", "north", "Lumiose City"],
+    ["Lumiose City", "north", "Route 5"], ["Route 5", "north", "Camphrier Town"],
+    ["Camphrier Town", "north", "Route 7"], ["Route 7", "north", "Route 6"],
+    ["Route 6", "north", "Parfum Palace"], ["Route 7", "west", "Connecting Cave"],
+    ["Connecting Cave", "west", "Route 8"], ["Route 8", "west", "Cyllage City"],
+    ["Route 8", "south", "Ambrette Town"], ["Ambrette Town", "south", "Route 9"],
+    ["Route 9", "east", "Glittering Cave"], ["Cyllage City", "north", "Route 10"],
+    ["Route 10", "north", "Geosenge Town"], ["Geosenge Town", "north", "Route 11"],
+    ["Geosenge Town", "east", "Team Flare Secret HQ"], ["Route 11", "north", "Reflection Cave"],
+    ["Reflection Cave", "north", "Shalour City"], ["Shalour City", "west", "Tower of Mastery"],
+    ["Shalour City", "north", "Route 12"], ["Route 12", "north", "Azure Bay"],
+    ["Route 12", "east", "Coumarine City"], ["Coumarine City", "east", "Route 13"],
+    ["Route 13", "east", "Kalos Power Plant"], ["Route 13", "east", "Lumiose City"],
+    ["Lumiose City", "east", "Route 14"], ["Route 14", "east", "Laverre City"],
+    ["Laverre City", "north", "Route 15"], ["Route 15", "north", "Dendemille Town"],
+    ["Route 15", "south", "Route 16"], ["Route 16", "south", "Lumiose City"],
+    ["Route 15", "east", "Lost Hotel"], ["Dendemille Town", "west", "Frost Cavern"],
+    ["Dendemille Town", "east", "Route 17"], ["Route 17", "east", "Anistar City"],
+    ["Anistar City", "south", "Route 18"], ["Route 18", "south", "Couriway Town"],
+    ["Route 18", "east", "Terminus Cave"], ["Couriway Town", "south", "Route 19"],
+    ["Route 19", "south", "Snowbelle City"], ["Snowbelle City", "west", "Route 20"],
+    ["Route 20", "west", "Pokémon Village"], ["Snowbelle City", "north", "Route 21"],
+    ["Route 21", "north", "Kalos Victory Road"], ["Kalos Victory Road", "north", "Kalos Pokémon League"],
+    ["Kalos Victory Road", "south", "Route 22"], ["Route 22", "south", "Santalune City"],
+    ["Lumiose City", "ship", "Kiloude City"], ["Kiloude City", "south", "Battle Maison"]
   ]
 };
 
@@ -861,7 +920,9 @@ const INTER_REGION = [
   // Sinnoh by sea — a ferry from Lilycove (Hoenn) to the port of Canalave City.
   ["hoenn", "Lilycove City", "ship", "sinnoh", "Canalave City", "S.S. Ticket"],
   // Unova, far across the ocean — the international liner from Vermilion to Castelia.
-  ["kanto", "Vermilion City", "ship", "unova", "Castelia City", "S.S. Ticket"]
+  ["kanto", "Vermilion City", "ship", "unova", "Castelia City", "S.S. Ticket"],
+  // Kalos across the sea — a ferry from Canalave (Sinnoh) to the port of Coumarine City.
+  ["sinnoh", "Canalave City", "ship", "kalos", "Coumarine City", "S.S. Ticket"]
 ];
 
 const OPPOSITE = { north: "south", south: "north", east: "west", west: "east" };
