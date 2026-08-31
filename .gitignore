@@ -17,3 +17,6 @@ npm-debug.log*
 .smoke-extract/
 
 
+
+# Agent worktrees (session-local)
+.claude/worktrees/

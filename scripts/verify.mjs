@@ -274,15 +274,28 @@ async function verifyContentFidelity() {
   //    exists. A "town" is a map carrying the Town safe-zone (gym/trial sites on
   //    non-town maps have only a single gym door and are not held to this).
   let towns = 0;
+  const allDests = new Set();
   for (const s of scenes) {
     const doors = (s.regions ?? []).filter((r) => r.behaviors?.[0]?.system?.enterInterior);
     const dests = new Set(doors.map((d) => d.behaviors[0].system.destinationSceneName));
-    for (const d of dests) if (!sceneNames.has(d)) flag(`walk-in: "${s.name}" door leads to missing interior scene "${d}"`);
+    for (const d of dests) { allDests.add(d); if (!sceneNames.has(d)) flag(`walk-in: "${s.name}" door leads to missing interior scene "${d}"`); }
     if (!(s.regions ?? []).some((r) => r.name === "Town")) continue; // not a town
     towns++;
-    for (const n of ["Pokémon Center", "Poké Mart", "Police Station"]) if (!dests.has(n)) flag(`walk-in: town "${s.name}" is missing an enterable ${n}`);
-    if (!dests.has("House")) flag(`walk-in: town "${s.name}" has no enterable house`);
+    if (s.flags?.["pokemon-masters"]?.authentic) {
+      // Authentic maps mirror the real games: doors sit only where the game has
+      // real warps, so a small town legitimately has no Center/Mart/police (e.g.
+      // Pallet Town). We don't force a template — only guard against a town that
+      // rendered with no enterable buildings at all (a real render regression).
+      if (doors.length === 0) flag(`walk-in: authentic town "${s.name}" rendered with no enterable buildings`);
+    } else {
+      // Procedural towns are templated, so they must carry the full service set.
+      for (const n of ["Pokémon Center", "Poké Mart", "Police Station"]) if (!dests.has(n)) flag(`walk-in: town "${s.name}" is missing an enterable ${n}`);
+      if (!dests.has("House")) flag(`walk-in: town "${s.name}" has no enterable house`);
+    }
   }
+  // World-wide net: heal + shop must be reachable *somewhere* (authentic towns may
+  // individually lack them, but a Center and a Mart must exist to keep play going).
+  for (const n of ["Pokémon Center", "Poké Mart"]) if (!allDests.has(n)) flag(`walk-in: no enterable ${n} exists anywhere in the world`);
   return { named, towns };
 }
 

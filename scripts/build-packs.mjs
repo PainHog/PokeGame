@@ -1582,58 +1582,107 @@ async function buildScenes() {
     return sceneDoc(name, key, INT_W, INT_H, regions);
   }
 
+  // Authentic Gen-3 map metadata (from `npm run gbamaps`), keyed by scene slug.
+  // When present, a scene is rendered from the real game map (native size, doors
+  // at real warp tiles, wild zones over real grass) instead of the procedural art.
+  const AUTH = {};
+  for (const f of ["gba-kanto.json", "gba-sevii.json", "gba-hoenn.json", "gba-johto.json"]) {
+    try { Object.assign(AUTH, JSON.parse(fsSync.readFileSync(path.join(mapsDir, f), "utf8"))); } catch { /* region not rendered */ }
+  }
+  const authName = {}; for (const m of Object.values(AUTH)) authName[m.name] = m; // by scene name
+  // Fallback matcher: our route/cave scenes carry a region prefix ("Hoenn Route 101")
+  // while the renderer keys them regionless ("route-101"). Normalise both sides so a
+  // scene still finds its authentic art even if the slug/prefix differs.
+  const authNorm = {};
+  const normName = (s) => slug(String(s).replace(/^(hoenn|johto|kanto|sevii|orange|sinnoh|unova|kalos|galar|paldea|alola|hisui)\s+/i, ""));
+  for (const m of Object.values(AUTH)) authNorm[normName(m.name)] = m;
+  const authFor = (m) => AUTH[m.key] ?? authNorm[normName(m.name)] ?? null;
+  const dimsOf = (name) => (authName[name] ? [authName[name].w * authName[name].grid, authName[name].h * authName[name].grid] : (DIMS[name] ?? [2400, 1600]));
+  // A warp's destination map → which of our interiors it opens (or null if it's
+  // actually an outdoor connection, not a building door).
+  const destInterior = (dest, map) => {
+    // The warp dest is a full map constant (e.g. MAP_PALLET_TOWN_PLAYERS_HOUSE_1F),
+    // so the town/city name is embedded — match the *building* type positively.
+    const d = String(dest || "").toLowerCase();
+    if (/pokemon_?center|pokecenter/.test(d)) return "Pokémon Center";
+    if (/mart|store|shop/.test(d)) return "Poké Mart";
+    if (/gym/.test(d)) return map.gym ? `${map.gym.leader}'s Gym` : "House";
+    // Outdoor transitions (gates, cave/forest entrances, stairs, route links) are
+    // handled by edge exits, not building doors — skip them.
+    if (/gate|entrance|_stairs?|_cave|_tunnel|underground|_ledge|forest|route\d/.test(d)) return null;
+    // Anything else a warp reaches on an overworld map is an enterable structure
+    // (house, lab, dojo, club…) → our generic interior.
+    return "House";
+  };
+
   const scenes = [];
   for (const map of allMaps()) {
-    const w = map.w ?? 2400;
-    const h = map.h ?? 1600;
     // A gym/trial lands on its city whatever the map kind — so Grusha's gym sits
     // on Glaseado Mountain and Alola's captains at their trial sites, not nowhere.
     map.gym = GYM_BY_CITY.get(map.name) ?? null;
-    await fs.writeFile(path.join(mapsDir, `${map.key}.svg`), mapSvg(map));
+    const auth = authFor(map);
     const regions = [];
     // A door tile: stepping on it walks you into a building interior (a separate
     // scene); the interior's exit brings you back just below the door.
-    const doorTo = (name, color, x, y, dest) => region(name, color, x, y, 200, 200, "zoneTransit",
+    const doorTo = (name, color, x, y, sz, dest) => region(name, color, x, y, sz, sz, "zoneTransit",
       { enterInterior: true, destinationSceneName: dest, destX: INT_W / 2, destY: INT_H - 320, announce: false });
-    if (map.kind === "town") {
-      const door = (name, color, x, dest) => doorTo(name, color, x, h / 2 - 120, dest);
-      regions.push(region("Town", KIND_FILL.town, 120, 120, w - 240, h - 240, "safeZone", { kind: "town", announce: false }));
-      regions.push(door("Poké Center", "#e0554f", w / 2 - 500, "Pokémon Center"));
-      regions.push(door("Poké Mart", "#4f7fd0", w / 2 - 100, "Poké Mart"));
-      regions.push(door("Police Station", "#2f5aa8", w / 2 + 220, "Police Station"));
-      // Two enterable houses (aligned with the drawn buildings) → a shared home.
-      const [hd1, hd2] = HOUSE_DOORS(map);
-      regions.push(doorTo("House 1", "#caa15e", hd1[0], hd1[1] - 20, "House"));
-      regions.push(doorTo("House 2", "#8a9b53", hd2[0], hd2[1] - 20, "House"));
-      if (map.gym) {
-        const [gx, gy] = GYM_DOOR(map);
-        regions.push(doorTo("Gym", "#7b2ff7", gx, gy, `${map.gym.leader}'s Gym`));
-        gymInteriors.set(map.gym.leader, map.gym);
+
+    let w, h, gridSize;
+    if (auth) {
+      // ---- Authentic Gen-3 map: native size + real doors + real grass ----
+      gridSize = auth.grid; w = auth.w * gridSize; h = auth.h * gridSize;
+      // Base zone: towns/venues are safe; routes/forests get a wild zone over the
+      // real tall-grass footprint; caves have encounters throughout.
+      if (map.kind === "town" || !map.habitat) {
+        regions.push(region("Town", "rgba(0,0,0,0)", 0, 0, w, h, "safeZone", { kind: map.kind === "town" ? "town" : "indoor", announce: false }));
+      } else {
+        const band = HABITAT_LEVELS[map.habitat] ?? [2, 12];
+        const wild = { category: map.habitat, chance: 25, poolSource: "requirements", announceOnly: true, minLevel: band[0], maxLevel: band[1] };
+        if (auth.grass) regions.push(region("Wild Area", "rgba(0,0,0,0.1)", auth.grass.x * gridSize, auth.grass.y * gridSize, auth.grass.w * gridSize, auth.grass.h * gridSize, "wildTile", wild));
+        else if (map.kind === "cave") regions.push(region("Wild Area", "rgba(0,0,0,0.1)", 0, 0, w, h, "wildTile", wild));
       }
-    } else if (map.habitat) {
-      // A wild zone: its encounter category is the map's real habitat, never a
-      // blanket default. Level band scales a little with the habitat's danger.
-      const band = HABITAT_LEVELS[map.habitat] ?? [2, 12];
-      regions.push(region("Wild Area", "rgba(0,0,0,0.1)", w * 0.10, h * 0.10, w * 0.80, h * 0.80, "wildTile", {
-        category: map.habitat, chance: 25, poolSource: "requirements", announceOnly: true, minLevel: band[0], maxLevel: band[1]
-      }));
+      // Doors at the real warp tiles (a 2×2-tile pad so they're easy to step on).
+      const seen = new Set();
+      for (const wv of auth.warps ?? []) {
+        const dest = destInterior(wv.dest, map);
+        if (!dest) continue;
+        const dx = wv.x * gridSize, dy = wv.y * gridSize, k = `${dx},${dy}`;
+        if (seen.has(k)) continue; seen.add(k);
+        regions.push(doorTo(dest === "Pokémon Center" ? "Poké Center" : dest.endsWith("Gym") ? "Gym" : dest, "#e0554f", dx, dy, gridSize * 2, dest));
+        if (dest.endsWith("Gym") && map.gym) gymInteriors.set(map.gym.leader, map.gym);
+      }
     } else {
-      // A venue with no habitat (lab, gate, resort, ship, academy…) is a safe
-      // indoor area — it must NOT spawn wild grass Pokémon.
-      regions.push(region("Indoors", KIND_FILL.venue, 120, 120, w - 240, h - 240, "safeZone", { kind: "indoor", announce: false }));
+      // ---- Procedural stylized map (regions not yet authored from real data) ----
+      w = map.w ?? 2400; h = map.h ?? 1600; gridSize = 100;
+      await fs.writeFile(path.join(mapsDir, `${map.key}.svg`), mapSvg(map));
+      if (map.kind === "town") {
+        const door = (name, color, x, dest) => doorTo(name, color, x, h / 2 - 120, 200, dest);
+        regions.push(region("Town", KIND_FILL.town, 120, 120, w - 240, h - 240, "safeZone", { kind: "town", announce: false }));
+        regions.push(door("Poké Center", "#e0554f", w / 2 - 500, "Pokémon Center"));
+        regions.push(door("Poké Mart", "#4f7fd0", w / 2 - 100, "Poké Mart"));
+        regions.push(door("Police Station", "#2f5aa8", w / 2 + 220, "Police Station"));
+        const [hd1, hd2] = HOUSE_DOORS(map);
+        regions.push(doorTo("House 1", "#caa15e", hd1[0], hd1[1] - 20, 200, "House"));
+        regions.push(doorTo("House 2", "#8a9b53", hd2[0], hd2[1] - 20, 200, "House"));
+        if (map.gym) { const [gx, gy] = GYM_DOOR(map); regions.push(doorTo("Gym", "#7b2ff7", gx, gy, 200, `${map.gym.leader}'s Gym`)); gymInteriors.set(map.gym.leader, map.gym); }
+      } else if (map.habitat) {
+        const band = HABITAT_LEVELS[map.habitat] ?? [2, 12];
+        regions.push(region("Wild Area", "rgba(0,0,0,0.1)", w * 0.10, h * 0.10, w * 0.80, h * 0.80, "wildTile", {
+          category: map.habitat, chance: 25, poolSource: "requirements", announceOnly: true, minLevel: band[0], maxLevel: band[1]
+        }));
+      } else {
+        regions.push(region("Indoors", KIND_FILL.venue, 120, 120, w - 240, h - 240, "safeZone", { kind: "indoor", announce: false }));
+      }
+      if (map.gym && map.kind !== "town") { const [gx, gy] = GYM_DOOR(map); regions.push(doorTo("Gym", "#7b2ff7", gx, gy, 200, `${map.gym.leader}'s Gym`)); gymInteriors.set(map.gym.leader, map.gym); }
     }
-    // A gym/trial on a non-town map (Grusha's mountain, Alola's trial sites) gets
-    // its leader's building here too — placed centrally, clear of the exits.
-    if (map.gym && map.kind !== "town") {
-      const [gx, gy] = GYM_DOOR(map);
-      regions.push(doorTo("Gym", "#7b2ff7", gx, gy, `${map.gym.leader}'s Gym`));
-      gymInteriors.set(map.gym.leader, map.gym);
-    }
+
+    // Edge exits + ferries (shared): positioned on this scene's edges, landing the
+    // player near the matching edge of the destination (authentic size if known).
     let shipIdx = 0;
     for (const ex of map.exits) {
-      const [dw, dh] = DIMS[ex.to] ?? [2400, 1600];
+      const [dw, dh] = dimsOf(ex.to);
       if (ex.ship) {
-        const [rx, ry, rw, rh] = dockRect(w, h, shipIdx++);
+        const [rx, ry, rw, rh] = auth ? [w - Math.min(300, w * 0.2), h - Math.min(300, h * 0.2), Math.min(200, w * 0.15), Math.min(200, h * 0.15)] : dockRect(w, h, shipIdx++);
         const [ex2, ey2] = dockEntry(dw, dh);
         regions.push(region(`Ship to ${ex.to}`, "#8a6d3b", rx, ry, rw, rh, "zoneTransit", {
           zoneName: `Ferry → ${ex.to}`, destinationSceneName: ex.to, destX: ex2, destY: ey2, announce: true, requiredItem: ex.ticket ?? ""
@@ -1650,16 +1699,12 @@ async function buildScenes() {
       _id: stableId("scene", map.key),
       name: map.name,
       width: w, height: h, padding: 0.25,
-      // v14 "Ground" level carries the map (level.background.src) + legacy fields.
       ...mapBackground(map.key),
-      grid: { type: 1, size: 100 },
-      // Overworld maps are fully visible — no token-vision fog (the #1 cause of a
-      // "black scene"), full global light, day-time. (globalLight lives under
-      // environment since v12; the old top-level boolean is dropped.)
+      grid: { type: 1, size: gridSize },
       tokenVision: false,
       fog: { exploration: false },
       environment: { globalLight: { enabled: true }, darknessLevel: 0 },
-      flags: { "pokemon-masters": { region: map.region, mapSrc: mapSrc(map.key) } },
+      flags: { "pokemon-masters": { region: map.region, mapSrc: mapSrc(map.key), authentic: !!auth } },
       regions
     });
   }

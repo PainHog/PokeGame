@@ -1,0 +1,1670 @@
+{
+ "pallet-town": {
+  "name": "Pallet Town",
+  "kind": "town",
+  "w": 24,
+  "h": 20,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 6,
+    "y": 7,
+    "dest": "MAP_PALLET_TOWN_PLAYERS_HOUSE_1F"
+   },
+   {
+    "x": 15,
+    "y": 7,
+    "dest": "MAP_PALLET_TOWN_RIVALS_HOUSE"
+   },
+   {
+    "x": 16,
+    "y": 13,
+    "dest": "MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "up",
+    "map": "MAP_ROUTE1",
+    "offset": 0
+   },
+   {
+    "dir": "down",
+    "map": "MAP_ROUTE21_NORTH",
+    "offset": 0
+   }
+  ],
+  "grass": null
+ },
+ "viridian-city": {
+  "name": "Viridian City",
+  "kind": "town",
+  "w": 48,
+  "h": 40,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 26,
+    "y": 26,
+    "dest": "MAP_VIRIDIAN_CITY_POKEMON_CENTER_1F"
+   },
+   {
+    "x": 25,
+    "y": 11,
+    "dest": "MAP_VIRIDIAN_CITY_HOUSE"
+   },
+   {
+    "x": 36,
+    "y": 10,
+    "dest": "MAP_VIRIDIAN_CITY_GYM"
+   },
+   {
+    "x": 25,
+    "y": 18,
+    "dest": "MAP_VIRIDIAN_CITY_SCHOOL"
+   },
+   {
+    "x": 36,
+    "y": 19,
+    "dest": "MAP_VIRIDIAN_CITY_MART"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "up",
+    "map": "MAP_ROUTE2",
+    "offset": 12
+   },
+   {
+    "dir": "down",
+    "map": "MAP_ROUTE1",
+    "offset": 12
+   },
+   {
+    "dir": "left",
+    "map": "MAP_ROUTE22",
+    "offset": 10
+   }
+  ],
+  "grass": null
+ },
+ "pewter-city": {
+  "name": "Pewter City",
+  "kind": "town",
+  "w": 48,
+  "h": 40,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 17,
+    "y": 6,
+    "dest": "MAP_PEWTER_CITY_MUSEUM_1F"
+   },
+   {
+    "x": 25,
+    "y": 4,
+    "dest": "MAP_PEWTER_CITY_MUSEUM_1F"
+   },
+   {
+    "x": 15,
+    "y": 16,
+    "dest": "MAP_PEWTER_CITY_GYM"
+   },
+   {
+    "x": 28,
+    "y": 18,
+    "dest": "MAP_PEWTER_CITY_MART"
+   },
+   {
+    "x": 33,
+    "y": 11,
+    "dest": "MAP_PEWTER_CITY_HOUSE1"
+   },
+   {
+    "x": 17,
+    "y": 25,
+    "dest": "MAP_PEWTER_CITY_POKEMON_CENTER_1F"
+   },
+   {
+    "x": 9,
+    "y": 30,
+    "dest": "MAP_PEWTER_CITY_HOUSE2"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "down",
+    "map": "MAP_ROUTE2",
+    "offset": 12
+   },
+   {
+    "dir": "right",
+    "map": "MAP_ROUTE3",
+    "offset": 10
+   }
+  ],
+  "grass": null
+ },
+ "cerulean-city": {
+  "name": "Cerulean City",
+  "kind": "town",
+  "w": 48,
+  "h": 40,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 10,
+    "y": 11,
+    "dest": "MAP_CERULEAN_CITY_HOUSE1"
+   },
+   {
+    "x": 30,
+    "y": 11,
+    "dest": "MAP_CERULEAN_CITY_HOUSE2"
+   },
+   {
+    "x": 15,
+    "y": 17,
+    "dest": "MAP_CERULEAN_CITY_HOUSE3"
+   },
+   {
+    "x": 22,
+    "y": 19,
+    "dest": "MAP_CERULEAN_CITY_POKEMON_CENTER_1F"
+   },
+   {
+    "x": 31,
+    "y": 21,
+    "dest": "MAP_CERULEAN_CITY_GYM"
+   },
+   {
+    "x": 13,
+    "y": 28,
+    "dest": "MAP_CERULEAN_CITY_BIKE_SHOP"
+   },
+   {
+    "x": 29,
+    "y": 28,
+    "dest": "MAP_CERULEAN_CITY_MART"
+   },
+   {
+    "x": 1,
+    "y": 12,
+    "dest": "MAP_CERULEAN_CAVE_1F"
+   },
+   {
+    "x": 10,
+    "y": 8,
+    "dest": "MAP_CERULEAN_CITY_HOUSE1"
+   },
+   {
+    "x": 31,
+    "y": 8,
+    "dest": "MAP_CERULEAN_CITY_HOUSE2"
+   },
+   {
+    "x": 31,
+    "y": 9,
+    "dest": "MAP_CERULEAN_CITY_HOUSE2"
+   },
+   {
+    "x": 14,
+    "y": 28,
+    "dest": "MAP_CERULEAN_CITY_BIKE_SHOP"
+   },
+   {
+    "x": 23,
+    "y": 28,
+    "dest": "MAP_CERULEAN_CITY_HOUSE4"
+   },
+   {
+    "x": 17,
+    "y": 11,
+    "dest": "MAP_CERULEAN_CITY_HOUSE5"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "up",
+    "map": "MAP_ROUTE24",
+    "offset": 12
+   },
+   {
+    "dir": "down",
+    "map": "MAP_ROUTE5",
+    "offset": 0
+   },
+   {
+    "dir": "left",
+    "map": "MAP_ROUTE4",
+    "offset": 10
+   },
+   {
+    "dir": "right",
+    "map": "MAP_ROUTE9",
+    "offset": 10
+   }
+  ],
+  "grass": null
+ },
+ "vermilion-city": {
+  "name": "Vermilion City",
+  "kind": "town",
+  "w": 48,
+  "h": 40,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 22,
+    "y": 34,
+    "dest": "MAP_SSANNE_EXTERIOR"
+   },
+   {
+    "x": 23,
+    "y": 34,
+    "dest": "MAP_SSANNE_EXTERIOR"
+   },
+   {
+    "x": 24,
+    "y": 34,
+    "dest": "MAP_SSANNE_EXTERIOR"
+   },
+   {
+    "x": 9,
+    "y": 6,
+    "dest": "MAP_VERMILION_CITY_HOUSE1"
+   },
+   {
+    "x": 15,
+    "y": 6,
+    "dest": "MAP_VERMILION_CITY_POKEMON_CENTER_1F"
+   },
+   {
+    "x": 12,
+    "y": 17,
+    "dest": "MAP_VERMILION_CITY_POKEMON_FAN_CLUB"
+   },
+   {
+    "x": 19,
+    "y": 17,
+    "dest": "MAP_VERMILION_CITY_HOUSE2"
+   },
+   {
+    "x": 29,
+    "y": 17,
+    "dest": "MAP_VERMILION_CITY_MART"
+   },
+   {
+    "x": 28,
+    "y": 24,
+    "dest": "MAP_VERMILION_CITY_HOUSE3"
+   },
+   {
+    "x": 14,
+    "y": 25,
+    "dest": "MAP_VERMILION_CITY_GYM"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "up",
+    "map": "MAP_ROUTE6",
+    "offset": 12
+   },
+   {
+    "dir": "right",
+    "map": "MAP_ROUTE11",
+    "offset": 10
+   }
+  ],
+  "grass": null
+ },
+ "lavender-town": {
+  "name": "Lavender Town",
+  "kind": "town",
+  "w": 24,
+  "h": 20,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 18,
+    "y": 6,
+    "dest": "MAP_POKEMON_TOWER_1F"
+   },
+   {
+    "x": 6,
+    "y": 5,
+    "dest": "MAP_LAVENDER_TOWN_POKEMON_CENTER_1F"
+   },
+   {
+    "x": 10,
+    "y": 11,
+    "dest": "MAP_LAVENDER_TOWN_VOLUNTEER_POKEMON_HOUSE"
+   },
+   {
+    "x": 5,
+    "y": 16,
+    "dest": "MAP_LAVENDER_TOWN_HOUSE1"
+   },
+   {
+    "x": 10,
+    "y": 16,
+    "dest": "MAP_LAVENDER_TOWN_HOUSE2"
+   },
+   {
+    "x": 20,
+    "y": 15,
+    "dest": "MAP_LAVENDER_TOWN_MART"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "up",
+    "map": "MAP_ROUTE10",
+    "offset": 0
+   },
+   {
+    "dir": "down",
+    "map": "MAP_ROUTE12",
+    "offset": 0
+   },
+   {
+    "dir": "left",
+    "map": "MAP_ROUTE8",
+    "offset": 0
+   }
+  ],
+  "grass": null
+ },
+ "celadon-city": {
+  "name": "Celadon City",
+  "kind": "town",
+  "w": 60,
+  "h": 40,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 34,
+    "y": 21,
+    "dest": "MAP_CELADON_CITY_GAME_CORNER"
+   },
+   {
+    "x": 11,
+    "y": 14,
+    "dest": "MAP_CELADON_CITY_DEPARTMENT_STORE_1F"
+   },
+   {
+    "x": 15,
+    "y": 14,
+    "dest": "MAP_CELADON_CITY_DEPARTMENT_STORE_1F"
+   },
+   {
+    "x": 30,
+    "y": 11,
+    "dest": "MAP_CELADON_CITY_CONDOMINIUMS_1F"
+   },
+   {
+    "x": 48,
+    "y": 11,
+    "dest": "MAP_CELADON_CITY_POKEMON_CENTER_1F"
+   },
+   {
+    "x": 39,
+    "y": 20,
+    "dest": "MAP_CELADON_CITY_GAME_CORNER_PRIZE_ROOM"
+   },
+   {
+    "x": 11,
+    "y": 30,
+    "dest": "MAP_CELADON_CITY_GYM"
+   },
+   {
+    "x": 37,
+    "y": 29,
+    "dest": "MAP_CELADON_CITY_RESTAURANT"
+   },
+   {
+    "x": 41,
+    "y": 29,
+    "dest": "MAP_CELADON_CITY_HOUSE1"
+   },
+   {
+    "x": 49,
+    "y": 29,
+    "dest": "MAP_CELADON_CITY_HOTEL"
+   },
+   {
+    "x": 29,
+    "y": 5,
+    "dest": "MAP_CELADON_CITY_CONDOMINIUMS_1F"
+   },
+   {
+    "x": 30,
+    "y": 4,
+    "dest": "MAP_CELADON_CITY_CONDOMINIUMS_1F"
+   },
+   {
+    "x": 31,
+    "y": 5,
+    "dest": "MAP_CELADON_CITY_CONDOMINIUMS_1F"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "left",
+    "map": "MAP_ROUTE16",
+    "offset": 10
+   },
+   {
+    "dir": "right",
+    "map": "MAP_ROUTE7",
+    "offset": 10
+   }
+  ],
+  "grass": null
+ },
+ "fuchsia-city": {
+  "name": "Fuchsia City",
+  "kind": "town",
+  "w": 48,
+  "h": 40,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 24,
+    "y": 5,
+    "dest": "MAP_FUCHSIA_CITY_SAFARI_ZONE_ENTRANCE"
+   },
+   {
+    "x": 33,
+    "y": 31,
+    "dest": "MAP_FUCHSIA_CITY_WARDENS_HOUSE"
+   },
+   {
+    "x": 11,
+    "y": 15,
+    "dest": "MAP_FUCHSIA_CITY_MART"
+   },
+   {
+    "x": 28,
+    "y": 16,
+    "dest": "MAP_FUCHSIA_CITY_SAFARI_ZONE_OFFICE"
+   },
+   {
+    "x": 9,
+    "y": 32,
+    "dest": "MAP_FUCHSIA_CITY_GYM"
+   },
+   {
+    "x": 14,
+    "y": 31,
+    "dest": "MAP_FUCHSIA_CITY_HOUSE1"
+   },
+   {
+    "x": 25,
+    "y": 31,
+    "dest": "MAP_FUCHSIA_CITY_POKEMON_CENTER_1F"
+   },
+   {
+    "x": 38,
+    "y": 31,
+    "dest": "MAP_FUCHSIA_CITY_HOUSE2"
+   },
+   {
+    "x": 39,
+    "y": 28,
+    "dest": "MAP_FUCHSIA_CITY_HOUSE2"
+   },
+   {
+    "x": 39,
+    "y": 29,
+    "dest": "MAP_FUCHSIA_CITY_HOUSE2"
+   },
+   {
+    "x": 19,
+    "y": 31,
+    "dest": "MAP_FUCHSIA_CITY_HOUSE3"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "down",
+    "map": "MAP_ROUTE19",
+    "offset": 12
+   },
+   {
+    "dir": "left",
+    "map": "MAP_ROUTE18",
+    "offset": 10
+   },
+   {
+    "dir": "right",
+    "map": "MAP_ROUTE15",
+    "offset": 10
+   }
+  ],
+  "grass": null
+ },
+ "saffron-city": {
+  "name": "Saffron City",
+  "kind": "town",
+  "w": 66,
+  "h": 55,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 33,
+    "y": 30,
+    "dest": "MAP_SILPH_CO_1F"
+   },
+   {
+    "x": 22,
+    "y": 14,
+    "dest": "MAP_SAFFRON_CITY_COPYCATS_HOUSE_1F"
+   },
+   {
+    "x": 40,
+    "y": 12,
+    "dest": "MAP_SAFFRON_CITY_DOJO"
+   },
+   {
+    "x": 46,
+    "y": 12,
+    "dest": "MAP_SAFFRON_CITY_GYM"
+   },
+   {
+    "x": 27,
+    "y": 21,
+    "dest": "MAP_SAFFRON_CITY_HOUSE"
+   },
+   {
+    "x": 40,
+    "y": 21,
+    "dest": "MAP_SAFFRON_CITY_MART"
+   },
+   {
+    "x": 24,
+    "y": 38,
+    "dest": "MAP_SAFFRON_CITY_POKEMON_CENTER_1F"
+   },
+   {
+    "x": 43,
+    "y": 38,
+    "dest": "MAP_SAFFRON_CITY_MR_PSYCHICS_HOUSE"
+   },
+   {
+    "x": 8,
+    "y": 27,
+    "dest": "MAP_ROUTE7_EAST_ENTRANCE"
+   },
+   {
+    "x": 34,
+    "y": 5,
+    "dest": "MAP_ROUTE5_SOUTH_ENTRANCE"
+   },
+   {
+    "x": 58,
+    "y": 27,
+    "dest": "MAP_ROUTE8_WEST_ENTRANCE"
+   },
+   {
+    "x": 34,
+    "y": 46,
+    "dest": "MAP_ROUTE6_NORTH_ENTRANCE"
+   },
+   {
+    "x": 35,
+    "y": 46,
+    "dest": "MAP_ROUTE6_NORTH_ENTRANCE"
+   },
+   {
+    "x": 35,
+    "y": 5,
+    "dest": "MAP_ROUTE5_SOUTH_ENTRANCE"
+   },
+   {
+    "x": 47,
+    "y": 21,
+    "dest": "MAP_SAFFRON_CITY_POKEMON_TRAINER_FAN_CLUB"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "up",
+    "map": "MAP_ROUTE5",
+    "offset": 0
+   },
+   {
+    "dir": "down",
+    "map": "MAP_ROUTE6",
+    "offset": 12
+   },
+   {
+    "dir": "left",
+    "map": "MAP_ROUTE7",
+    "offset": 10
+   },
+   {
+    "dir": "right",
+    "map": "MAP_ROUTE8",
+    "offset": 10
+   }
+  ],
+  "grass": {
+   "x": 0,
+   "y": 19,
+   "w": 5,
+   "h": 5
+  }
+ },
+ "cinnabar-island": {
+  "name": "Cinnabar Island",
+  "kind": "town",
+  "w": 24,
+  "h": 20,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 8,
+    "y": 3,
+    "dest": "MAP_POKEMON_MANSION_1F"
+   },
+   {
+    "x": 20,
+    "y": 4,
+    "dest": "MAP_CINNABAR_ISLAND_GYM"
+   },
+   {
+    "x": 8,
+    "y": 9,
+    "dest": "MAP_CINNABAR_ISLAND_POKEMON_LAB_ENTRANCE"
+   },
+   {
+    "x": 14,
+    "y": 11,
+    "dest": "MAP_CINNABAR_ISLAND_POKEMON_CENTER_1F"
+   },
+   {
+    "x": 19,
+    "y": 11,
+    "dest": "MAP_CINNABAR_ISLAND_MART"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "up",
+    "map": "MAP_ROUTE21_SOUTH",
+    "offset": 0
+   },
+   {
+    "dir": "right",
+    "map": "MAP_ROUTE20",
+    "offset": 0
+   }
+  ],
+  "grass": null
+ },
+ "indigo-plateau": {
+  "name": "Indigo Plateau",
+  "kind": "town",
+  "w": 24,
+  "h": 20,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 11,
+    "y": 6,
+    "dest": "MAP_INDIGO_PLATEAU_POKEMON_CENTER_1F"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "down",
+    "map": "MAP_ROUTE23",
+    "offset": 0
+   }
+  ],
+  "grass": null
+ },
+ "viridian-forest": {
+  "name": "Viridian Forest",
+  "kind": "forest",
+  "w": 54,
+  "h": 69,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 29,
+    "y": 62,
+    "dest": "MAP_ROUTE2_VIRIDIAN_FOREST_SOUTH_ENTRANCE"
+   },
+   {
+    "x": 28,
+    "y": 62,
+    "dest": "MAP_ROUTE2_VIRIDIAN_FOREST_SOUTH_ENTRANCE"
+   },
+   {
+    "x": 5,
+    "y": 9,
+    "dest": "MAP_ROUTE2_VIRIDIAN_FOREST_NORTH_ENTRANCE"
+   },
+   {
+    "x": 6,
+    "y": 9,
+    "dest": "MAP_ROUTE2_VIRIDIAN_FOREST_NORTH_ENTRANCE"
+   },
+   {
+    "x": 30,
+    "y": 62,
+    "dest": "MAP_ROUTE2_VIRIDIAN_FOREST_SOUTH_ENTRANCE"
+   },
+   {
+    "x": 4,
+    "y": 9,
+    "dest": "MAP_ROUTE2_VIRIDIAN_FOREST_NORTH_ENTRANCE"
+   }
+  ],
+  "connections": [],
+  "grass": {
+   "x": 3,
+   "y": 12,
+   "w": 48,
+   "h": 50
+  }
+ },
+ "route-1": {
+  "name": "Route 1",
+  "kind": "route",
+  "w": 24,
+  "h": 40,
+  "grid": 32,
+  "warps": [],
+  "connections": [
+   {
+    "dir": "up",
+    "map": "MAP_VIRIDIAN_CITY",
+    "offset": -12
+   },
+   {
+    "dir": "down",
+    "map": "MAP_PALLET_TOWN",
+    "offset": 0
+   }
+  ],
+  "grass": {
+   "x": 2,
+   "y": 6,
+   "w": 20,
+   "h": 34
+  }
+ },
+ "route-2": {
+  "name": "Route 2",
+  "kind": "route",
+  "w": 24,
+  "h": 80,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 5,
+    "y": 13,
+    "dest": "MAP_ROUTE2_VIRIDIAN_FOREST_NORTH_ENTRANCE"
+   },
+   {
+    "x": 6,
+    "y": 13,
+    "dest": "MAP_ROUTE2_VIRIDIAN_FOREST_NORTH_ENTRANCE"
+   },
+   {
+    "x": 5,
+    "y": 51,
+    "dest": "MAP_ROUTE2_VIRIDIAN_FOREST_SOUTH_ENTRANCE"
+   },
+   {
+    "x": 17,
+    "y": 11,
+    "dest": "MAP_DIGLETTS_CAVE_NORTH_ENTRANCE"
+   },
+   {
+    "x": 17,
+    "y": 22,
+    "dest": "MAP_ROUTE2_HOUSE"
+   },
+   {
+    "x": 18,
+    "y": 46,
+    "dest": "MAP_ROUTE2_EAST_BUILDING"
+   },
+   {
+    "x": 18,
+    "y": 41,
+    "dest": "MAP_ROUTE2_EAST_BUILDING"
+   },
+   {
+    "x": 19,
+    "y": 41,
+    "dest": "MAP_ROUTE2_EAST_BUILDING"
+   },
+   {
+    "x": 19,
+    "y": 46,
+    "dest": "MAP_ROUTE2_EAST_BUILDING"
+   },
+   {
+    "x": 6,
+    "y": 51,
+    "dest": "MAP_ROUTE2_VIRIDIAN_FOREST_SOUTH_ENTRANCE"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "up",
+    "map": "MAP_PEWTER_CITY",
+    "offset": -12
+   },
+   {
+    "dir": "down",
+    "map": "MAP_VIRIDIAN_CITY",
+    "offset": -12
+   }
+  ],
+  "grass": {
+   "x": 2,
+   "y": 2,
+   "w": 11,
+   "h": 59
+  }
+ },
+ "route-3": {
+  "name": "Route 3",
+  "kind": "route",
+  "w": 84,
+  "h": 20,
+  "grid": 32,
+  "warps": [],
+  "connections": [
+   {
+    "dir": "up",
+    "map": "MAP_ROUTE4",
+    "offset": 60
+   },
+   {
+    "dir": "left",
+    "map": "MAP_PEWTER_CITY",
+    "offset": -10
+   }
+  ],
+  "grass": {
+   "x": 33,
+   "y": 10,
+   "w": 46,
+   "h": 7
+  }
+ },
+ "route-4": {
+  "name": "Route 4",
+  "kind": "route",
+  "w": 108,
+  "h": 20,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 19,
+    "y": 5,
+    "dest": "MAP_MT_MOON_1F"
+   },
+   {
+    "x": 32,
+    "y": 5,
+    "dest": "MAP_MT_MOON_B1F"
+   },
+   {
+    "x": 12,
+    "y": 5,
+    "dest": "MAP_ROUTE4_POKEMON_CENTER_1F"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "down",
+    "map": "MAP_ROUTE3",
+    "offset": -60
+   },
+   {
+    "dir": "right",
+    "map": "MAP_CERULEAN_CITY",
+    "offset": -10
+   }
+  ],
+  "grass": {
+   "x": 75,
+   "y": 11,
+   "w": 13,
+   "h": 7
+  }
+ },
+ "route-5": {
+  "name": "Route 5",
+  "kind": "route",
+  "w": 48,
+  "h": 40,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 31,
+    "y": 31,
+    "dest": "MAP_UNDERGROUND_PATH_NORTH_ENTRANCE"
+   },
+   {
+    "x": 23,
+    "y": 25,
+    "dest": "MAP_ROUTE5_POKEMON_DAY_CARE"
+   },
+   {
+    "x": 24,
+    "y": 32,
+    "dest": "MAP_ROUTE5_SOUTH_ENTRANCE"
+   },
+   {
+    "x": 25,
+    "y": 32,
+    "dest": "MAP_ROUTE5_SOUTH_ENTRANCE"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "up",
+    "map": "MAP_CERULEAN_CITY",
+    "offset": 0
+   },
+   {
+    "dir": "down",
+    "map": "MAP_SAFFRON_CITY_CONNECTION",
+    "offset": 0
+   }
+  ],
+  "grass": {
+   "x": 20,
+   "y": 5,
+   "w": 8,
+   "h": 12
+  }
+ },
+ "route-6": {
+  "name": "Route 6",
+  "kind": "route",
+  "w": 24,
+  "h": 40,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 19,
+    "y": 13,
+    "dest": "MAP_UNDERGROUND_PATH_SOUTH_ENTRANCE"
+   },
+   {
+    "x": 12,
+    "y": 5,
+    "dest": "MAP_ROUTE6_NORTH_ENTRANCE"
+   },
+   {
+    "x": 13,
+    "y": 5,
+    "dest": "MAP_ROUTE6_NORTH_ENTRANCE"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "up",
+    "map": "MAP_SAFFRON_CITY_CONNECTION",
+    "offset": 0
+   },
+   {
+    "dir": "down",
+    "map": "MAP_VERMILION_CITY",
+    "offset": -12
+   }
+  ],
+  "grass": {
+   "x": 2,
+   "y": 15,
+   "w": 20,
+   "h": 19
+  }
+ },
+ "route-7": {
+  "name": "Route 7",
+  "kind": "route",
+  "w": 24,
+  "h": 20,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 14,
+    "dest": "MAP_UNDERGROUND_PATH_WEST_ENTRANCE"
+   },
+   {
+    "x": 15,
+    "y": 10,
+    "dest": "MAP_ROUTE7_EAST_ENTRANCE"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "left",
+    "map": "MAP_CELADON_CITY",
+    "offset": -10
+   },
+   {
+    "dir": "right",
+    "map": "MAP_SAFFRON_CITY_CONNECTION",
+    "offset": -10
+   }
+  ],
+  "grass": {
+   "x": 11,
+   "y": 2,
+   "w": 8,
+   "h": 5
+  }
+ },
+ "route-8": {
+  "name": "Route 8",
+  "kind": "route",
+  "w": 72,
+  "h": 20,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 13,
+    "y": 4,
+    "dest": "MAP_UNDERGROUND_PATH_EAST_ENTRANCE"
+   },
+   {
+    "x": 7,
+    "y": 10,
+    "dest": "MAP_ROUTE8_WEST_ENTRANCE"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "left",
+    "map": "MAP_SAFFRON_CITY_CONNECTION",
+    "offset": -10
+   },
+   {
+    "dir": "right",
+    "map": "MAP_LAVENDER_TOWN",
+    "offset": 0
+   }
+  ],
+  "grass": {
+   "x": 35,
+   "y": 9,
+   "w": 11,
+   "h": 10
+  }
+ },
+ "route-9": {
+  "name": "Route 9",
+  "kind": "route",
+  "w": 72,
+  "h": 20,
+  "grid": 32,
+  "warps": [],
+  "connections": [
+   {
+    "dir": "left",
+    "map": "MAP_CERULEAN_CITY",
+    "offset": -10
+   },
+   {
+    "dir": "right",
+    "map": "MAP_ROUTE10",
+    "offset": 0
+   }
+  ],
+  "grass": {
+   "x": 7,
+   "y": 1,
+   "w": 35,
+   "h": 5
+  }
+ },
+ "route-10": {
+  "name": "Route 10",
+  "kind": "route",
+  "w": 24,
+  "h": 80,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 8,
+    "y": 19,
+    "dest": "MAP_ROCK_TUNNEL_1F"
+   },
+   {
+    "x": 8,
+    "y": 57,
+    "dest": "MAP_ROCK_TUNNEL_1F"
+   },
+   {
+    "x": 7,
+    "y": 40,
+    "dest": "MAP_POWER_PLANT"
+   },
+   {
+    "x": 13,
+    "y": 20,
+    "dest": "MAP_ROUTE10_POKEMON_CENTER_1F"
+   },
+   {
+    "x": 2,
+    "y": 37,
+    "dest": "MAP_POWER_PLANT"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "down",
+    "map": "MAP_LAVENDER_TOWN",
+    "offset": 0
+   },
+   {
+    "dir": "left",
+    "map": "MAP_ROUTE9",
+    "offset": 0
+   }
+  ],
+  "grass": {
+   "x": 6,
+   "y": 6,
+   "w": 11,
+   "h": 5
+  }
+ },
+ "route-11": {
+  "name": "Route 11",
+  "kind": "route",
+  "w": 72,
+  "h": 20,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 6,
+    "y": 7,
+    "dest": "MAP_DIGLETTS_CAVE_SOUTH_ENTRANCE"
+   },
+   {
+    "x": 58,
+    "y": 10,
+    "dest": "MAP_ROUTE11_EAST_ENTRANCE_1F"
+   },
+   {
+    "x": 65,
+    "y": 10,
+    "dest": "MAP_ROUTE11_EAST_ENTRANCE_1F"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "left",
+    "map": "MAP_VERMILION_CITY",
+    "offset": -10
+   },
+   {
+    "dir": "right",
+    "map": "MAP_ROUTE12",
+    "offset": -60
+   }
+  ],
+  "grass": {
+   "x": 15,
+   "y": 2,
+   "w": 40,
+   "h": 18
+  }
+ },
+ "route-12": {
+  "name": "Route 12",
+  "kind": "route",
+  "w": 24,
+  "h": 120,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 12,
+    "y": 86,
+    "dest": "MAP_ROUTE12_FISHING_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 15,
+    "dest": "MAP_ROUTE12_NORTH_ENTRANCE_1F"
+   },
+   {
+    "x": 15,
+    "y": 15,
+    "dest": "MAP_ROUTE12_NORTH_ENTRANCE_1F"
+   },
+   {
+    "x": 14,
+    "y": 21,
+    "dest": "MAP_ROUTE12_NORTH_ENTRANCE_1F"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "up",
+    "map": "MAP_LAVENDER_TOWN",
+    "offset": 0
+   },
+   {
+    "dir": "down",
+    "map": "MAP_ROUTE13",
+    "offset": -48
+   },
+   {
+    "dir": "left",
+    "map": "MAP_ROUTE11",
+    "offset": 60
+   }
+  ],
+  "grass": {
+   "x": 8,
+   "y": 112,
+   "w": 4,
+   "h": 7
+  }
+ },
+ "route-13": {
+  "name": "Route 13",
+  "kind": "route",
+  "w": 72,
+  "h": 20,
+  "grid": 32,
+  "warps": [],
+  "connections": [
+   {
+    "dir": "up",
+    "map": "MAP_ROUTE12",
+    "offset": 48
+   },
+   {
+    "dir": "left",
+    "map": "MAP_ROUTE14",
+    "offset": 0
+   }
+  ],
+  "grass": {
+   "x": 49,
+   "y": 5,
+   "w": 10,
+   "h": 4
+  }
+ },
+ "route-14": {
+  "name": "Route 14",
+  "kind": "route",
+  "w": 24,
+  "h": 60,
+  "grid": 32,
+  "warps": [],
+  "connections": [
+   {
+    "dir": "left",
+    "map": "MAP_ROUTE15",
+    "offset": 40
+   },
+   {
+    "dir": "right",
+    "map": "MAP_ROUTE13",
+    "offset": 0
+   }
+  ],
+  "grass": {
+   "x": 7,
+   "y": 19,
+   "w": 5,
+   "h": 6
+  }
+ },
+ "route-15": {
+  "name": "Route 15",
+  "kind": "route",
+  "w": 72,
+  "h": 20,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 9,
+    "y": 11,
+    "dest": "MAP_ROUTE15_WEST_ENTRANCE_1F"
+   },
+   {
+    "x": 16,
+    "y": 11,
+    "dest": "MAP_ROUTE15_WEST_ENTRANCE_1F"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "left",
+    "map": "MAP_FUCHSIA_CITY",
+    "offset": -10
+   },
+   {
+    "dir": "right",
+    "map": "MAP_ROUTE14",
+    "offset": -40
+   }
+  ],
+  "grass": {
+   "x": 20,
+   "y": 10,
+   "w": 46,
+   "h": 2
+  }
+ },
+ "route-16": {
+  "name": "Route 16",
+  "kind": "route",
+  "w": 48,
+  "h": 20,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 10,
+    "y": 5,
+    "dest": "MAP_ROUTE16_HOUSE"
+   },
+   {
+    "x": 20,
+    "y": 6,
+    "dest": "MAP_ROUTE16_NORTH_ENTRANCE_1F"
+   },
+   {
+    "x": 27,
+    "y": 6,
+    "dest": "MAP_ROUTE16_NORTH_ENTRANCE_1F"
+   },
+   {
+    "x": 20,
+    "y": 13,
+    "dest": "MAP_ROUTE16_NORTH_ENTRANCE_1F"
+   },
+   {
+    "x": 27,
+    "y": 13,
+    "dest": "MAP_ROUTE16_NORTH_ENTRANCE_1F"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "down",
+    "map": "MAP_ROUTE17",
+    "offset": 0
+   },
+   {
+    "dir": "right",
+    "map": "MAP_CELADON_CITY",
+    "offset": -10
+   }
+  ],
+  "grass": {
+   "x": 33,
+   "y": 5,
+   "w": 9,
+   "h": 3
+  }
+ },
+ "route-17": {
+  "name": "Route 17",
+  "kind": "route",
+  "w": 24,
+  "h": 160,
+  "grid": 32,
+  "warps": [],
+  "connections": [
+   {
+    "dir": "up",
+    "map": "MAP_ROUTE16",
+    "offset": 0
+   },
+   {
+    "dir": "down",
+    "map": "MAP_ROUTE18",
+    "offset": 0
+   }
+  ],
+  "grass": null
+ },
+ "route-18": {
+  "name": "Route 18",
+  "kind": "route",
+  "w": 60,
+  "h": 20,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 41,
+    "y": 9,
+    "dest": "MAP_ROUTE18_EAST_ENTRANCE_1F"
+   },
+   {
+    "x": 48,
+    "y": 9,
+    "dest": "MAP_ROUTE18_EAST_ENTRANCE_1F"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "up",
+    "map": "MAP_ROUTE17",
+    "offset": 0
+   },
+   {
+    "dir": "right",
+    "map": "MAP_FUCHSIA_CITY",
+    "offset": -10
+   }
+  ],
+  "grass": {
+   "x": 40,
+   "y": 13,
+   "w": 6,
+   "h": 4
+  }
+ },
+ "route-19": {
+  "name": "Route 19",
+  "kind": "route",
+  "w": 24,
+  "h": 60,
+  "grid": 32,
+  "warps": [],
+  "connections": [
+   {
+    "dir": "up",
+    "map": "MAP_FUCHSIA_CITY",
+    "offset": -12
+   },
+   {
+    "dir": "left",
+    "map": "MAP_ROUTE20",
+    "offset": 40
+   }
+  ],
+  "grass": null
+ },
+ "route-20": {
+  "name": "Route 20",
+  "kind": "route",
+  "w": 120,
+  "h": 20,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 60,
+    "y": 8,
+    "dest": "MAP_SEAFOAM_ISLANDS_1F"
+   },
+   {
+    "x": 72,
+    "y": 14,
+    "dest": "MAP_SEAFOAM_ISLANDS_1F"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "left",
+    "map": "MAP_CINNABAR_ISLAND",
+    "offset": 0
+   },
+   {
+    "dir": "right",
+    "map": "MAP_ROUTE19",
+    "offset": -40
+   }
+  ],
+  "grass": null
+ },
+ "route-22": {
+  "name": "Route 22",
+  "kind": "route",
+  "w": 48,
+  "h": 24,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 8,
+    "y": 5,
+    "dest": "MAP_ROUTE22_NORTH_ENTRANCE"
+   },
+   {
+    "x": 9,
+    "y": 5,
+    "dest": "MAP_ROUTE22_NORTH_ENTRANCE"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "up",
+    "map": "MAP_ROUTE23",
+    "offset": 0
+   },
+   {
+    "dir": "right",
+    "map": "MAP_VIRIDIAN_CITY",
+    "offset": -10
+   }
+  ],
+  "grass": {
+   "x": 15,
+   "y": 9,
+   "w": 25,
+   "h": 5
+  }
+ },
+ "route-23": {
+  "name": "Route 23",
+  "kind": "route",
+  "w": 24,
+  "h": 160,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 5,
+    "y": 28,
+    "dest": "MAP_VICTORY_ROAD_1F"
+   },
+   {
+    "x": 18,
+    "y": 28,
+    "dest": "MAP_VICTORY_ROAD_2F"
+   },
+   {
+    "x": 8,
+    "y": 153,
+    "dest": "MAP_ROUTE22_NORTH_ENTRANCE"
+   },
+   {
+    "x": 9,
+    "y": 154,
+    "dest": "MAP_ROUTE22_NORTH_ENTRANCE"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "up",
+    "map": "MAP_INDIGO_PLATEAU_EXTERIOR",
+    "offset": 0
+   },
+   {
+    "dir": "down",
+    "map": "MAP_ROUTE22",
+    "offset": 0
+   }
+  ],
+  "grass": {
+   "x": 8,
+   "y": 42,
+   "w": 14,
+   "h": 35
+  }
+ },
+ "route-24": {
+  "name": "Route 24",
+  "kind": "route",
+  "w": 24,
+  "h": 40,
+  "grid": 32,
+  "warps": [],
+  "connections": [
+   {
+    "dir": "down",
+    "map": "MAP_CERULEAN_CITY",
+    "offset": -12
+   },
+   {
+    "dir": "right",
+    "map": "MAP_ROUTE25",
+    "offset": 0
+   }
+  ],
+  "grass": {
+   "x": 3,
+   "y": 19,
+   "w": 3,
+   "h": 13
+  }
+ },
+ "route-25": {
+  "name": "Route 25",
+  "kind": "route",
+  "w": 72,
+  "h": 20,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 51,
+    "y": 4,
+    "dest": "MAP_ROUTE25_SEA_COTTAGE"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "left",
+    "map": "MAP_ROUTE24",
+    "offset": 0
+   }
+  ],
+  "grass": {
+   "x": 1,
+   "y": 3,
+   "w": 8,
+   "h": 2
+  }
+ }
+}

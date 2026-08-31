@@ -16,7 +16,8 @@
     "trainers": "node scripts/fetch-trainers.mjs",
     "avatars": "node scripts/fetch-trainer-avatars.mjs",
     "maps": "node scripts/rasterize-maps.mjs",
-    "gbamaps": "node scripts/build-gba-maps.mjs"
+    "gbamaps": "node scripts/build-gba-maps.mjs",
+    "emeraldmaps": "node scripts/build-emerald-maps.mjs"
   },
   "devDependencies": {
     "@foundryvtt/foundryvtt-cli": "^3.0.4",
