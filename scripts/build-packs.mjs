@@ -191,11 +191,35 @@ const BALL_MODIFIERS = {
   "premier ball": 1
 };
 
+// Foundry's LevelDB packs are keyed "!<collection>!<id>"; compilePack SKIPS any
+// source doc without a `_key`, so every doc must carry one or the pack is empty.
+// Embedded documents (a Scene's Regions, and their RegionBehaviors) are packed
+// as their own entries too, so they each need a nested key of the form
+// "!<parent>.<embedded>!<parentId>.<embeddedId>".
+const PACK_COLLECTION = { species: "actors", moves: "items", abilities: "items", gear: "items", scenes: "scenes" };
+
+function assignSceneKeys(scene) {
+  scene._key = `!scenes!${scene._id}`;
+  for (const region of scene.regions ?? []) {
+    region._key = `!scenes.regions!${scene._id}.${region._id}`;
+    for (const beh of region.behaviors ?? []) {
+      beh._key = `!scenes.regions.behaviors!${scene._id}.${region._id}.${beh._id}`;
+    }
+  }
+}
+
 async function writePack(name, docs) {
+  const collection = PACK_COLLECTION[name] ?? "items";
   const dir = path.join(SRC, name);
   await fs.rm(dir, { recursive: true, force: true });
   await fs.mkdir(dir, { recursive: true });
+  // Guard against duplicate ids clobbering each other's source file (and pack entry).
+  const seen = new Set();
   for (const doc of docs) {
+    if (seen.has(doc._id)) throw new Error(`duplicate _id '${doc._id}' in ${name} pack (${doc.name}) — ids must be unique`);
+    seen.add(doc._id);
+    if (collection === "scenes") assignSceneKeys(doc);
+    else doc._key = `!${collection}!${doc._id}`;
     await fs.writeFile(path.join(dir, `${doc._id}.json`), JSON.stringify(doc, null, 2));
   }
   const dest = path.join(OUT, name);
@@ -416,12 +440,11 @@ function buildGear() {
     ["Sun Stone", "item", 3000, 1], ["Shiny Stone", "item", 3000, 1], ["Dusk Stone", "item", 3000, 1], ["Dawn Stone", "item", 3000, 1], ["Ice Stone", "item", 3000, 1],
     ["S.S. Ticket", "key", 0, 1], ["Bike Voucher", "key", 0, 1], ["Bicycle", "key", 0, 1], ["Old Rod", "key", 0, 1], ["Good Rod", "key", 0, 1], ["Super Rod", "key", 0, 1],
     // Battle-gimmick triggers (held): a Tera Orb terastallizes; a Z-Crystal powers one Z-Move.
-    ["Tera Orb", "item", 0, 1], ["Z-Crystal", "item", 0, 1],
-    // Field utilities: Repels suppress wild encounters for a number of steps.
-    ["Repel", "item", 350, 1], ["Super Repel", "item", 500, 1], ["Max Repel", "item", 700, 1]
+    ["Tera Orb", "item", 0, 1], ["Z-Crystal", "item", 0, 1]
   ];
   for (const [name, category, price, catchMod] of CUSTOM) {
     if (have.has(name.toLowerCase())) continue;
+    have.add(name.toLowerCase()); // dedupe within CUSTOM as well as against the dataset
     docs.push({ _id: stableId("gear", name), name, type: "gear", img: category === "ball" ? "icons/svg/target.svg" : "icons/svg/item-bag.svg", system: { category, price, quantity: 1, catchModifier: catchMod, description: "" } });
   }
   return docs;

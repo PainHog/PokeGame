@@ -13,11 +13,12 @@
  * is structurally sound enough to load.
  */
 
-import { promises as fs } from "node:fs";
+import { promises as fs, rmSync } from "node:fs";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
+import { extractPack } from "@foundryvtt/foundryvtt-cli";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const problems = [];
@@ -128,12 +129,21 @@ for (const pack of manifest.packs) {
   if (existsSync(src)) {
     const nJson = readdirSync(src).filter((f) => f.endsWith(".json")).length;
     if (nJson === 0) fail(`source pack '${pack.name}' has 0 documents`);
-    // Compiled pack should be newer than or equal to source (not stale).
+    // Round-trip: decompile the LevelDB pack and confirm it holds the same count.
+    // This catches empty/partial packs (e.g. a missing _key) that a mere file
+    // check would miss — Foundry would otherwise load an empty compendium.
+    const out = path.join(ROOT, ".smoke-extract", pack.name);
     try {
-      if (statSync(path.join(dir, "CURRENT")).mtimeMs + 1000 < statSync(src).mtimeMs) note(`compiled pack '${pack.name}' looks older than its source — rebuild to be safe`);
-    } catch { /* ignore */ }
+      rmSync(out, { recursive: true, force: true });
+      await extractPack(dir, out, { log: false });
+      const nCompiled = readdirSync(out).filter((f) => f.endsWith(".json")).length;
+      if (nCompiled !== nJson) fail(`compiled pack '${pack.name}' holds ${nCompiled} docs but source has ${nJson} — rebuild (a missing _key silently drops docs)`);
+    } catch (e) {
+      fail(`could not read compiled pack '${pack.name}': ${String(e.message || e).split("\n")[0]}`);
+    }
   }
 }
+rmSync(path.join(ROOT, ".smoke-extract"), { recursive: true, force: true });
 
 /* 9. RegionBehavior subtypes: code registration must match the manifest. */
 const codeBehaviors = new Set();
