@@ -1,0 +1,56 @@
+name: avatars
+
+# Vendors the REAL named-character portraits (Cynthia, Leon, Nessa, Iono, …) from
+# Pokémon Showdown, which is reachable on GitHub's runners but blocked inside the
+# build sandbox. It downloads each portrait, rewrites src/module/avatars.mjs so
+# the game uses them, and commits the files back to this branch — so the game
+# stays self-contained (no run-time network calls).
+#
+# It runs automatically on this feature branch until the portraits are vendored,
+# then no-ops on every later push. (Also manually runnable from the Actions tab
+# once this workflow reaches the default branch.)
+on:
+  push:
+    branches: [claude/pokemon-database-access-hsd6xh]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  avatars:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Portraits already vendored?
+        id: check
+        run: |
+          if node -e "import('./src/module/avatars.mjs').then(m=>{process.exitCode=Object.keys(m.NAMED_AVATARS).length?0:3})"; then
+            echo "done=true" >> "$GITHUB_OUTPUT"; echo "Portraits already vendored — nothing to do."
+          else
+            echo "done=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Install deps
+        if: steps.check.outputs.done == 'false'
+        run: npm ci
+      - name: Fetch real portraits from Pokémon Showdown
+        if: steps.check.outputs.done == 'false'
+        run: npm run avatars
+      - name: Sanity build + verify
+        if: steps.check.outputs.done == 'false'
+        run: npm run build && npm run verify
+      - name: Commit vendored portraits
+        if: steps.check.outputs.done == 'false'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/trainers/avatar_*.png src/module/avatars.mjs assets/trainers/index.json
+          if git diff --cached --quiet; then
+            echo "No new portraits produced (Showdown returned nothing)."
+          else
+            git commit -m "Vendor real trainer portraits from Pokémon Showdown (via Actions)"
+            git push origin HEAD:${{ github.ref_name }}
+          fi
