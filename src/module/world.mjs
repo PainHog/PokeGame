@@ -56,7 +56,12 @@ function injectRegionSelect(app, html) {
  */
 async function organizeActor(actor, options, userId) {
   try {
-    if (game.users?.activeGM && game.user !== game.users.activeGM) return; // one client only
+    // Exactly one client organizes, so folders aren't duplicated. With a GM
+    // online that's the GM; in GM-less play it's the user who created the actor
+    // (so each player files their own trainer & catches).
+    const gm = game.users?.activeGM;
+    if (gm) { if (game.user !== gm) return; }
+    else if (userId && game.user.id !== userId) return;
     if (!game.user.can("FOLDER_CREATE")) return;
 
     if (actor.type === "trainer") {
@@ -79,8 +84,17 @@ async function organizeActor(actor, options, userId) {
       if (Object.keys(update).length) await actor.update(update);
     } else if (actor.type === "pokemon" && actor.system.trainer) {
       const trainer = await fromUuid(actor.system.trainer);
-      const sub = trainer?.getFlag?.("pokemon-masters", "pokeFolder");
-      if (sub && game.folders?.get(sub) && actor.folder?.id !== sub) await actor.update({ folder: sub });
+      if (!trainer || trainer.getFlag?.("pokemon-masters", "isNpc")) return; // don't file wild/NPC mons
+      let sub = trainer.getFlag?.("pokemon-masters", "pokeFolder");
+      if (!sub || !game.folders?.get(sub)) {
+        // The trainer isn't organized yet (e.g. created before this feature) —
+        // build its folder + Pokémon sub-folder now so the catch has a home.
+        const parentId = trainer.folder?.id ?? (await Folder.create({ name: trainer.name, type: "Actor", color: "#e3350d" })).id;
+        const subFolder = await Folder.create({ name: "Pokémon", type: "Actor", color: "#3b6db3", folder: parentId });
+        await trainer.update({ folder: parentId, "flags.pokemon-masters.pokeFolder": subFolder.id });
+        sub = subFolder.id;
+      }
+      if (actor.folder?.id !== sub) await actor.update({ folder: sub });
     }
   } catch (err) {
     console.warn("Pokémon Masters | could not auto-organize actor folders", err);
@@ -90,8 +104,9 @@ async function organizeActor(actor, options, userId) {
 export function registerWorldHooks() {
   Hooks.on("renderSceneConfig", injectRegionSelect);
   Hooks.on("createActor", organizeActor);
-  // A Pokémon caught/gifted later (its trainer set after creation) also gets filed.
-  Hooks.on("updateActor", (actor, changes) => {
-    if (actor.type === "pokemon" && changes.system?.trainer) organizeActor(actor);
+  // A Pokémon caught/gifted later (its trainer set after creation) also gets
+  // filed — pass the acting user so GM-less gating (creator-only) still works.
+  Hooks.on("updateActor", (actor, changes, options, userId) => {
+    if (actor.type === "pokemon" && changes.system?.trainer) organizeActor(actor, options, userId);
   });
 }
