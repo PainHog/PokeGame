@@ -524,6 +524,42 @@ const REGION_MAPS = {
     "Resolution Cave": { kind: "cave", habitat: "cave" }, "Exeggutor Island": { kind: "forest", habitat: "forest", island: true },
     // Aether Paradise (artificial island, center).
     "Aether Paradise": { kind: "venue", island: true }
+  },
+  hoenn: {
+    "Littleroot Town": { kind: "town" }, "Oldale Town": { kind: "town" },
+    "Petalburg City": { kind: "town" }, "Rustboro City": { kind: "town" },
+    "Dewford Town": { kind: "town", island: true }, "Slateport City": { kind: "town" },
+    "Mauville City": { kind: "town" }, "Verdanturf Town": { kind: "town" },
+    "Fallarbor Town": { kind: "town" }, "Lavaridge Town": { kind: "town" },
+    "Fortree City": { kind: "town" }, "Lilycove City": { kind: "town" },
+    "Mossdeep City": { kind: "town", island: true }, "Sootopolis City": { kind: "town", island: true },
+    "Pacifidlog Town": { kind: "town", island: true }, "Ever Grande City": { kind: "town", island: true },
+    "Route 101": { kind: "route", habitat: "grass" }, "Route 102": { kind: "route", habitat: "grass" },
+    "Route 103": { kind: "route", habitat: "grass" }, "Route 104": { kind: "route", habitat: "grass" },
+    "Route 105": { kind: "ocean", habitat: "water" }, "Route 106": { kind: "ocean", habitat: "water" },
+    "Route 107": { kind: "ocean", habitat: "water" }, "Route 108": { kind: "ocean", habitat: "water" },
+    "Route 109": { kind: "ocean", habitat: "water" }, "Route 110": { kind: "route", habitat: "grass" },
+    "Route 111": { kind: "route", habitat: "sand" }, "Route 112": { kind: "route", habitat: "mountain" },
+    "Route 113": { kind: "route", habitat: "mountain" }, "Route 114": { kind: "route", habitat: "grass" },
+    "Route 115": { kind: "ocean", habitat: "water" }, "Route 116": { kind: "route", habitat: "grass" },
+    "Route 117": { kind: "route", habitat: "grass" }, "Route 118": { kind: "route", habitat: "water" },
+    "Route 119": { kind: "route", habitat: "grass" }, "Route 120": { kind: "route", habitat: "grass" },
+    "Route 121": { kind: "route", habitat: "grass" }, "Route 122": { kind: "ocean", habitat: "water" },
+    "Route 123": { kind: "route", habitat: "grass" }, "Route 124": { kind: "ocean", habitat: "water" },
+    "Route 125": { kind: "ocean", habitat: "water" }, "Route 126": { kind: "ocean", habitat: "water" },
+    "Route 127": { kind: "ocean", habitat: "water" }, "Route 128": { kind: "ocean", habitat: "water" },
+    "Route 129": { kind: "ocean", habitat: "water" }, "Route 130": { kind: "ocean", habitat: "water" },
+    "Route 131": { kind: "ocean", habitat: "water" }, "Route 132": { kind: "ocean", habitat: "water" },
+    "Route 133": { kind: "ocean", habitat: "water" }, "Route 134": { kind: "ocean", habitat: "water" },
+    "Petalburg Woods": { kind: "forest", habitat: "forest" }, "Granite Cave": { kind: "cave", habitat: "cave" },
+    "Rusturf Tunnel": { kind: "cave", habitat: "cave" }, "Fiery Path": { kind: "cave", habitat: "mountain" },
+    "Jagged Pass": { kind: "cave", habitat: "mountain" }, "Mt. Chimney": { kind: "cave", habitat: "mountain" },
+    "Meteor Falls": { kind: "cave", habitat: "cave" }, "Weather Institute": { kind: "venue" },
+    "Hoenn Safari Zone": { kind: "venue" }, "Mt. Pyre": { kind: "cave", habitat: "cave" },
+    "Shoal Cave": { kind: "cave", habitat: "cave" }, "Seafloor Cavern": { kind: "cave", habitat: "cave" },
+    "Cave of Origin": { kind: "cave", habitat: "cave" }, "Sky Pillar": { kind: "cave", habitat: "cave" },
+    "Battle Frontier": { kind: "venue", island: true },
+    "Hoenn Victory Road": { kind: "cave", habitat: "cave" }, "Hoenn Pokémon League": { kind: "town" }
   }
 };
 
@@ -628,6 +664,44 @@ const REGION_CONNECTIONS = {
     ["Malie City", "ship", "Aether Paradise"], ["Seafolk Village", "ship", "Hau'oli City"],
     ["Seafolk Village", "ship", "Heahea City"], ["Seafolk Village", "ship", "Malie City"],
     ["Seafolk Village", "ship", "Aether Paradise"]
+  ],
+  hoenn: [
+    ["Littleroot Town", "north", "Route 101"], ["Route 101", "north", "Oldale Town"],
+    ["Oldale Town", "west", "Route 102"], ["Route 102", "west", "Petalburg City"],
+    ["Oldale Town", "north", "Route 103"], ["Route 103", "east", "Route 110"],
+    ["Petalburg City", "north", "Route 104"], ["Route 104", "west", "Petalburg Woods"],
+    ["Route 104", "north", "Rustboro City"], ["Route 104", "south", "Route 105"],
+    ["Route 105", "south", "Route 106"], ["Route 106", "south", "Dewford Town"],
+    ["Dewford Town", "south", "Granite Cave"], ["Dewford Town", "east", "Route 107"],
+    ["Route 107", "east", "Route 108"], ["Route 108", "east", "Route 109"],
+    ["Route 109", "north", "Slateport City"], ["Slateport City", "north", "Route 110"],
+    ["Route 110", "north", "Mauville City"], ["Mauville City", "west", "Route 117"],
+    ["Route 117", "west", "Verdanturf Town"], ["Verdanturf Town", "west", "Rusturf Tunnel"],
+    ["Rusturf Tunnel", "north", "Route 116"], ["Route 116", "west", "Rustboro City"],
+    ["Mauville City", "north", "Route 111"], ["Route 111", "north", "Route 112"],
+    ["Route 112", "north", "Lavaridge Town"], ["Route 112", "east", "Fiery Path"],
+    ["Lavaridge Town", "north", "Jagged Pass"], ["Jagged Pass", "north", "Mt. Chimney"],
+    ["Route 111", "west", "Route 113"], ["Route 113", "west", "Fallarbor Town"],
+    ["Fallarbor Town", "south", "Route 114"], ["Route 114", "south", "Meteor Falls"],
+    ["Meteor Falls", "south", "Route 115"], ["Route 115", "south", "Rustboro City"],
+    ["Mauville City", "east", "Route 118"], ["Route 118", "north", "Route 119"],
+    ["Route 119", "north", "Fortree City"], ["Route 119", "east", "Weather Institute"],
+    ["Fortree City", "east", "Route 120"], ["Route 120", "east", "Route 121"],
+    ["Route 121", "east", "Lilycove City"], ["Route 121", "south", "Hoenn Safari Zone"],
+    ["Lilycove City", "south", "Route 122"], ["Route 122", "south", "Mt. Pyre"],
+    ["Route 122", "west", "Route 123"], ["Route 123", "west", "Route 118"],
+    ["Lilycove City", "east", "Route 124"], ["Route 124", "east", "Mossdeep City"],
+    ["Route 124", "south", "Route 126"], ["Mossdeep City", "north", "Route 125"],
+    ["Route 125", "north", "Shoal Cave"], ["Mossdeep City", "south", "Route 127"],
+    ["Route 127", "west", "Route 126"], ["Route 126", "west", "Sootopolis City"],
+    ["Sootopolis City", "north", "Cave of Origin"], ["Route 127", "south", "Route 128"],
+    ["Route 128", "south", "Ever Grande City"], ["Route 128", "east", "Seafloor Cavern"],
+    ["Ever Grande City", "north", "Hoenn Victory Road"], ["Hoenn Victory Road", "north", "Hoenn Pokémon League"],
+    ["Route 128", "west", "Route 129"], ["Route 129", "west", "Route 130"],
+    ["Route 130", "west", "Route 131"], ["Route 131", "west", "Pacifidlog Town"],
+    ["Route 131", "south", "Sky Pillar"], ["Pacifidlog Town", "west", "Route 132"],
+    ["Route 132", "west", "Route 133"], ["Route 133", "west", "Route 134"],
+    ["Route 134", "north", "Slateport City"], ["Lilycove City", "north", "Battle Frontier"]
   ]
 };
 
@@ -637,7 +711,9 @@ const INTER_REGION = [
   // Johto joins Kanto by land: New Bark Town ↔ Kanto's Route 27 (via Tohjo Falls).
   ["johto", "New Bark Town", "east", "kanto", "Route 27"],
   // Alola is reachable only by sea — a cruise from Vermilion Harbor to Hau'oli City.
-  ["kanto", "Vermilion City", "ship", "alola", "Hau'oli City", "S.S. Ticket"]
+  ["kanto", "Vermilion City", "ship", "alola", "Hau'oli City", "S.S. Ticket"],
+  // Hoenn by sea — the S.S. Tidal ferry runs from Olivine (Johto) to Slateport.
+  ["johto", "Olivine City", "ship", "hoenn", "Slateport City", "S.S. Ticket"]
 ];
 
 const OPPOSITE = { north: "south", south: "north", east: "west", west: "east" };

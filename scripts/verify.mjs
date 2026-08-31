@@ -102,7 +102,16 @@ const CANON_ADJACENCY = [
   ["Alola Route 9", "Konikoni City"], ["Malie City", "Alola Route 10"], ["Alola Route 17", "Po Town"],
   ["Mount Lanakila", "Alola Pokémon League"], ["Seafolk Village", "Poni Wilds"], ["Poni Wilds", "Ancient Poni Path"],
   // Inter-island ferries.
-  ["Hau'oli City", "Heahea City"], ["Heahea City", "Malie City"], ["Seafolk Village", "Aether Paradise"]
+  ["Hau'oli City", "Heahea City"], ["Heahea City", "Malie City"], ["Seafolk Village", "Aether Paradise"],
+  // Hoenn — a sea-heavy region reached by the S.S. Tidal from Olivine (Bulbapedia-sourced).
+  ["Olivine City", "Slateport City"], // cross-region ferry
+  ["Littleroot Town", "Hoenn Route 101"], ["Hoenn Route 101", "Oldale Town"], ["Oldale Town", "Hoenn Route 102"],
+  ["Hoenn Route 102", "Petalburg City"], ["Petalburg City", "Hoenn Route 104"], ["Hoenn Route 104", "Rustboro City"],
+  ["Hoenn Route 109", "Slateport City"], ["Slateport City", "Hoenn Route 110"], ["Hoenn Route 110", "Mauville City"],
+  ["Mauville City", "Hoenn Route 117"], ["Hoenn Route 117", "Verdanturf Town"], ["Hoenn Route 112", "Lavaridge Town"],
+  ["Hoenn Route 113", "Fallarbor Town"], ["Hoenn Route 119", "Fortree City"], ["Hoenn Route 121", "Lilycove City"],
+  ["Hoenn Route 124", "Mossdeep City"], ["Hoenn Route 126", "Sootopolis City"], ["Hoenn Route 128", "Ever Grande City"],
+  ["Hoenn Route 131", "Pacifidlog Town"], ["Ever Grande City", "Hoenn Victory Road"], ["Hoenn Victory Road", "Hoenn Pokémon League"]
 ];
 
 async function verifyMaps() {
