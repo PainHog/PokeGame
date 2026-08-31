@@ -120,7 +120,16 @@ const CANON_ADJACENCY = [
   ["Sinnoh Route 209", "Solaceon Town"], ["Hearthome City", "Sinnoh Route 212"], ["Sinnoh Route 212", "Pastoria City"],
   ["Sinnoh Route 215", "Veilstone City"], ["Jubilife City", "Sinnoh Route 218"], ["Sinnoh Route 218", "Canalave City"],
   ["Sinnoh Route 217", "Snowpoint City"], ["Sunyshore City", "Sinnoh Route 223"], ["Sinnoh Route 223", "Sinnoh Victory Road"],
-  ["Sinnoh Victory Road", "Sinnoh Pokémon League"], ["Snowpoint City", "Fight Area"], ["Fight Area", "Survival Area"]
+  ["Sinnoh Victory Road", "Sinnoh Pokémon League"], ["Snowpoint City", "Fight Area"], ["Fight Area", "Survival Area"],
+  // Unova — a loop across the sea (Bulbapedia-sourced).
+  ["Vermilion City", "Castelia City"], // international liner
+  ["Nuvema Town", "Unova Route 1"], ["Unova Route 1", "Accumula Town"], ["Accumula Town", "Unova Route 2"],
+  ["Unova Route 2", "Striaton City"], ["Striaton City", "Unova Route 3"], ["Unova Route 3", "Nacrene City"],
+  ["Skyarrow Bridge", "Castelia City"], ["Castelia City", "Unova Route 4"], ["Unova Route 4", "Nimbasa City"],
+  ["Driftveil Drawbridge", "Driftveil City"], ["Chargestone Cave", "Mistralton City"], ["Twist Mountain", "Icirrus City"],
+  ["Unova Route 9", "Opelucid City"], ["Opelucid City", "Unova Route 10"], ["Unova Route 10", "Unova Victory Road"],
+  ["Unova Victory Road", "Unova Pokémon League"], ["Aspertia City", "Unova Route 19"], ["Unova Route 19", "Floccesy Town"],
+  ["Virbank City", "Castelia City"], ["Lacunosa Town", "Unova Route 13"], ["Unova Route 13", "Undella Town"]
 ];
 
 async function verifyMaps() {

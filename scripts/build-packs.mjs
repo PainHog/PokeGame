@@ -597,6 +597,39 @@ const REGION_MAPS = {
     "Lake Acuity": { kind: "ocean", habitat: "water" }, "Snowpoint Temple": { kind: "cave", habitat: "cave" },
     "Stark Mountain": { kind: "cave", habitat: "mountain" }, "Sinnoh Battle Tower": { kind: "venue", island: true },
     "Sinnoh Victory Road": { kind: "cave", habitat: "cave" }, "Sinnoh Pokémon League": { kind: "town" }
+  },
+  unova: {
+    "Nuvema Town": { kind: "town" }, "Accumula Town": { kind: "town" },
+    "Striaton City": { kind: "town" }, "Nacrene City": { kind: "town" },
+    "Castelia City": { kind: "town" }, "Nimbasa City": { kind: "town" },
+    "Driftveil City": { kind: "town" }, "Mistralton City": { kind: "town" },
+    "Icirrus City": { kind: "town" }, "Opelucid City": { kind: "town" },
+    "Lacunosa Town": { kind: "town" }, "Undella Town": { kind: "town" },
+    "Aspertia City": { kind: "town" }, "Floccesy Town": { kind: "town" },
+    "Virbank City": { kind: "town" }, "Humilau City": { kind: "town", island: true },
+    "Black City": { kind: "town" }, "White Forest": { kind: "forest", habitat: "forest" },
+    "Route 1": { kind: "route", habitat: "grass" }, "Route 2": { kind: "route", habitat: "grass" },
+    "Route 3": { kind: "route", habitat: "grass" }, "Route 4": { kind: "route", habitat: "sand" },
+    "Route 5": { kind: "route", habitat: "urban" }, "Route 6": { kind: "route", habitat: "grass" },
+    "Route 7": { kind: "route", habitat: "grass" }, "Route 8": { kind: "route", habitat: "grass" },
+    "Route 9": { kind: "route", habitat: "urban" }, "Route 10": { kind: "route", habitat: "mountain" },
+    "Route 11": { kind: "route", habitat: "grass" }, "Route 12": { kind: "route", habitat: "grass" },
+    "Route 13": { kind: "route", habitat: "grass" }, "Route 14": { kind: "route", habitat: "grass" },
+    "Route 15": { kind: "route", habitat: "grass" }, "Route 16": { kind: "route", habitat: "grass" },
+    "Route 17": { kind: "ocean", habitat: "water" }, "Route 18": { kind: "route", habitat: "water" },
+    "Route 19": { kind: "route", habitat: "grass" }, "Route 20": { kind: "route", habitat: "grass" },
+    "Route 21": { kind: "ocean", habitat: "water" }, "Route 22": { kind: "route", habitat: "grass" },
+    "Route 23": { kind: "route", habitat: "grass" },
+    "Wellspring Cave": { kind: "cave", habitat: "cave" }, "Pinwheel Forest": { kind: "forest", habitat: "forest" },
+    "Skyarrow Bridge": { kind: "route", habitat: "urban" }, "Desert Resort": { kind: "route", habitat: "sand" },
+    "Relic Castle": { kind: "cave", habitat: "sand" }, "Driftveil Drawbridge": { kind: "route", habitat: "water" },
+    "Chargestone Cave": { kind: "cave", habitat: "cave" }, "Twist Mountain": { kind: "cave", habitat: "mountain" },
+    "Moor of Icirrus": { kind: "route", habitat: "water" }, "Tubeline Bridge": { kind: "route", habitat: "urban" },
+    "Challenger's Cave": { kind: "cave", habitat: "cave" }, "Village Bridge": { kind: "route", habitat: "urban" },
+    "Giant Chasm": { kind: "cave", habitat: "cave" }, "Marvelous Bridge": { kind: "route", habitat: "urban" },
+    "Lostlorn Forest": { kind: "forest", habitat: "forest" }, "Floccesy Ranch": { kind: "route", habitat: "grass" },
+    "Seaside Cave": { kind: "cave", habitat: "cave" },
+    "Unova Victory Road": { kind: "cave", habitat: "cave" }, "Unova Pokémon League": { kind: "town" }
   }
 };
 
@@ -779,6 +812,40 @@ const REGION_CONNECTIONS = {
     ["Survival Area", "east", "Route 228"], ["Route 228", "south", "Route 229"],
     ["Route 229", "east", "Resort Area"], ["Resort Area", "east", "Sinnoh Battle Tower"],
     ["Route 230", "north", "Resort Area"]
+  ],
+  unova: [
+    ["Nuvema Town", "north", "Route 1"], ["Route 1", "north", "Accumula Town"],
+    ["Route 1", "east", "Route 17"], ["Route 17", "south", "Route 18"],
+    ["Accumula Town", "north", "Route 2"], ["Route 2", "north", "Striaton City"],
+    ["Striaton City", "north", "Route 3"], ["Route 3", "west", "Wellspring Cave"],
+    ["Route 3", "west", "Nacrene City"], ["Nacrene City", "west", "Pinwheel Forest"],
+    ["Pinwheel Forest", "west", "Skyarrow Bridge"], ["Skyarrow Bridge", "south", "Castelia City"],
+    ["Castelia City", "north", "Route 4"], ["Route 4", "west", "Desert Resort"],
+    ["Desert Resort", "south", "Relic Castle"], ["Route 4", "north", "Nimbasa City"],
+    ["Nimbasa City", "west", "Route 5"], ["Route 5", "west", "Driftveil Drawbridge"],
+    ["Driftveil Drawbridge", "west", "Driftveil City"], ["Driftveil City", "north", "Route 6"],
+    ["Route 6", "north", "Chargestone Cave"], ["Chargestone Cave", "north", "Mistralton City"],
+    ["Mistralton City", "north", "Route 7"], ["Route 7", "east", "Twist Mountain"],
+    ["Twist Mountain", "north", "Icirrus City"], ["Icirrus City", "east", "Route 8"],
+    ["Route 8", "east", "Moor of Icirrus"], ["Route 8", "east", "Tubeline Bridge"],
+    ["Tubeline Bridge", "south", "Route 9"], ["Route 9", "south", "Opelucid City"],
+    ["Route 9", "north", "Challenger's Cave"], ["Opelucid City", "north", "Route 10"],
+    ["Route 10", "north", "Unova Victory Road"], ["Unova Victory Road", "north", "Unova Pokémon League"],
+    ["Opelucid City", "east", "Route 11"], ["Route 11", "east", "Village Bridge"],
+    ["Village Bridge", "south", "Route 12"], ["Route 12", "south", "Lacunosa Town"],
+    ["Lacunosa Town", "east", "Route 13"], ["Route 13", "north", "Giant Chasm"],
+    ["Route 13", "south", "Undella Town"], ["Undella Town", "west", "Route 14"],
+    ["Route 14", "west", "Black City"], ["Black City", "west", "Route 15"],
+    ["Route 15", "west", "White Forest"], ["Route 15", "west", "Marvelous Bridge"],
+    ["Marvelous Bridge", "west", "Route 16"], ["Route 16", "west", "Lostlorn Forest"],
+    ["Lostlorn Forest", "west", "Nimbasa City"],
+    // Southwestern Unova (Black 2 & White 2 start).
+    ["Aspertia City", "east", "Route 19"], ["Route 19", "east", "Floccesy Town"],
+    ["Floccesy Town", "north", "Route 20"], ["Route 20", "north", "Floccesy Ranch"],
+    ["Route 20", "east", "Virbank City"], ["Virbank City", "ship", "Castelia City"],
+    ["Humilau City", "north", "Route 21"], ["Route 21", "north", "Seaside Cave"],
+    ["Humilau City", "west", "Route 22"], ["Route 22", "west", "Giant Chasm"],
+    ["Giant Chasm", "west", "Route 23"], ["Route 23", "west", "Unova Victory Road"]
   ]
 };
 
@@ -792,7 +859,9 @@ const INTER_REGION = [
   // Hoenn by sea — the S.S. Tidal ferry runs from Olivine (Johto) to Slateport.
   ["johto", "Olivine City", "ship", "hoenn", "Slateport City", "S.S. Ticket"],
   // Sinnoh by sea — a ferry from Lilycove (Hoenn) to the port of Canalave City.
-  ["hoenn", "Lilycove City", "ship", "sinnoh", "Canalave City", "S.S. Ticket"]
+  ["hoenn", "Lilycove City", "ship", "sinnoh", "Canalave City", "S.S. Ticket"],
+  // Unova, far across the ocean — the international liner from Vermilion to Castelia.
+  ["kanto", "Vermilion City", "ship", "unova", "Castelia City", "S.S. Ticket"]
 ];
 
 const OPPOSITE = { north: "south", south: "north", east: "west", west: "east" };
