@@ -38,6 +38,33 @@ async function pickOpponent(behavior) {
   return null;
 }
 
+/** Villains (Team Rocket & co.) make off with one of your Pokémon on a loss. */
+async function villainSteal(player, faction, thiefName) {
+  const party = await player.getParty();
+  if (party.length <= 1) return; // never leave a trainer with no Pokémon
+  const victim = party[party.length - 1];
+  await victim.setFlag("pokemon-masters", "stolenBy", faction);
+  const newParty = (player.system.party ?? []).filter((u) => u !== victim.uuid);
+  await player.update({ "system.party": newParty });
+  const team = PM.organizations[faction]?.label ?? thiefName;
+  await ChatMessage.create({
+    speaker: { alias: "⚠ Theft!" },
+    content: `<div class="pm-encounter-card"><h3>😈 ${team} stole your ${victim.name}!</h3><p>Defeat them in a rematch to get it back.</p></div>`
+  });
+}
+
+/** Recover any Pokémon this faction stole from you (on a win against them). */
+async function recoverStolen(player, faction) {
+  const stolen = (game.actors ?? []).filter((a) => a.type === "pokemon"
+    && a.system?.trainer === player.uuid && a.getFlag("pokemon-masters", "stolenBy") === faction);
+  for (const mon of stolen) {
+    await mon.unsetFlag("pokemon-masters", "stolenBy");
+    const party = player.system.party ?? [];
+    if (party.length < 6 && !party.includes(mon.uuid)) await player.update({ "system.party": [...party, mon.uuid] });
+    await ChatMessage.create({ speaker: { alias: "Recovered!" }, content: `<div class="pm-encounter-card"><p>💪 You got your <strong>${mon.name}</strong> back!</p></div>` });
+  }
+}
+
 /** Award/deduct money and reputation after an ambush. */
 async function settleAmbush(player, opponent, faction, won, moneyReward) {
   const money = player.system.money ?? 0;
@@ -49,10 +76,15 @@ async function settleAmbush(player, opponent, faction, won, moneyReward) {
       await addReputation(player, "league", 40);
     }
     await ChatMessage.create({ speaker: { alias: "Battle" }, content: `<p>${player.name} won and earned ₽${moneyReward}!</p>` });
+    if (PM.organizations[faction]?.align === "villain") await recoverStolen(player, faction);
   } else {
     const lost = Math.floor(money / 2);
     await player.update({ "system.money": money - lost });
     await ChatMessage.create({ speaker: { alias: "Battle" }, content: `<p>${player.name} lost to ${opponent.name} and dropped ₽${lost}.</p>` });
+    // Villains don't just take your money — they may steal a Pokémon.
+    if (PM.organizations[faction]?.align === "villain" && Math.random() < 0.3) {
+      await villainSteal(player, faction, opponent.name);
+    }
   }
 }
 

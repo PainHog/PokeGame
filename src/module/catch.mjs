@@ -279,13 +279,23 @@ export function registerCatchHooks() {
  * ownership to the thief, flags it stolen, tips villainy vs. League reputation,
  * and alerts the police (a `pmCrimeCommitted` hook that Officer Jenny hears).
  */
-export async function stealPokemon(thief, target = null) {
+export async function stealPokemon(thief, target = null, { confirmed = false } = {}) {
   thief ??= resolveTrainer();
   const actor = target?.actor ?? target ?? [...(game.user.targets ?? [])][0]?.actor;
   if (!thief || actor?.type !== "pokemon") return ui.notifications?.warn("Target a Pokémon to steal.");
   const owner = actor.system.trainer;
   if (!owner || owner === thief.uuid) return ui.notifications?.warn("That Pokémon isn't owned by another trainer.");
   if (!game.user.isGM && !actor.isOwner) return ui.notifications?.warn("You don't have permission to take that Pokémon (ask your GM).");
+
+  // Warn first — this is a crime. Only a deliberate "yes, do it" goes through.
+  if (!confirmed) {
+    const D = foundry.applications?.api?.DialogV2;
+    const ok = D ? await D.confirm({
+      window: { title: "⚠ This is stealing!" },
+      content: `<p><strong>${actor.name}</strong> belongs to another trainer. Taking it is a crime — the police will come after you, and your reputation will suffer.</p><p>Steal it anyway?</p>`
+    }).catch(() => false) : false;
+    if (!ok) return ui.notifications?.info("You thought better of it and left the Pokémon alone.");
+  }
 
   await actor.update({ "system.trainer": thief.uuid });
   await actor.setFlag("pokemon-masters", "stolen", true);
