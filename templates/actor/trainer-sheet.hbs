@@ -27,10 +27,12 @@
 
   <section class="pm-section">
     <h2>Party
-      <button type="button" class="pm-starter-btn" data-action="chooseStarter">Choose Starter</button>
-      <button type="button" class="pm-starter-btn" data-action="fly">🕊️ Fly</button>
-      <button type="button" class="pm-starter-btn" data-action="tradeService">🔄 Trade</button>
-      <button type="button" class="pm-starter-btn" data-action="shop">🛒 Shop</button>
+      <span class="pm-toolbar">
+        <button type="button" class="pm-iconbtn" data-action="chooseStarter" data-tooltip="Choose a starter">⭐</button>
+        <button type="button" class="pm-iconbtn" data-action="fly" data-tooltip="Fly to a visited town">🕊️</button>
+        <button type="button" class="pm-iconbtn" data-action="tradeService" data-tooltip="Trade Pokémon">🔄</button>
+        <button type="button" class="pm-iconbtn" data-action="shop" data-tooltip="Poké Mart">🛒</button>
+      </span>
     </h2>
     {{#if party.length}}
       <ul class="pm-party">
@@ -67,7 +69,7 @@
   </section>
 
   <section class="pm-section">
-    <h2>Daycare <button type="button" class="pm-starter-btn" data-action="collectEgg">Collect Egg</button></h2>
+    <h2>Daycare <button type="button" class="pm-iconbtn" data-action="collectEgg" data-tooltip="Collect egg">🥚</button></h2>
     {{#if daycare.length}}
       <ul class="pm-storage">
         {{#each daycare as |mon|}}
@@ -84,7 +86,7 @@
   </section>
 
   <section class="pm-section">
-    <h2>Organizations <button type="button" class="pm-starter-btn" data-action="joinOrg">Join</button></h2>
+    <h2>Organizations <button type="button" class="pm-iconbtn" data-action="joinOrg" data-tooltip="Join an organization">➕</button></h2>
     {{#if affiliations.length}}
       <ul class="pm-orgs">
         {{#each affiliations as |a|}}

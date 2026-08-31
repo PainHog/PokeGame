@@ -29,19 +29,9 @@
     <input type="number" name="system.hp.value" value="{{system.hp.value}}" min="0" max="{{system.hp.max}}">
     <span>/ {{system.hp.max}}</span>
     <div class="pm-hptrack"><div class="pm-hpfill" style="width: {{hpPct}}%"></div></div>
-    <button type="button" class="pm-usemove" data-action="useItem">Use Item</button>
-  </section>
-
-  <section class="pm-gimmickbar">
-    {{#if gimmick.active}}
-      <span class="pm-badge pm-gimmick-active">⚡ {{gimmick.active}} active</span>
-      <button type="button" class="pm-usemove" data-action="revertGimmick">Revert</button>
-    {{else}}
-      {{#if gimmick.mega}}<button type="button" class="pm-usemove pm-gimmick-btn" data-action="gimmick" data-kind="mega">Mega Evolve</button>{{/if}}
-      {{#if gimmick.tera}}<button type="button" class="pm-usemove pm-gimmick-btn" data-action="gimmick" data-kind="tera">Terastallize</button>{{/if}}
-      {{#if gimmick.z}}<button type="button" class="pm-usemove pm-gimmick-btn" data-action="gimmick" data-kind="z">Z-Power</button>{{/if}}
-      {{#if gimmick.dynamax}}<button type="button" class="pm-usemove pm-gimmick-btn" data-action="gimmick" data-kind="dynamax">Dynamax</button>{{/if}}
-    {{/if}}
+    <button type="button" class="pm-iconbtn" data-action="useItem" data-tooltip="Use an item">🎒</button>
+    <button type="button" class="pm-iconbtn pm-gimmick-chip{{#if gimmick.active}} is-active{{/if}}" data-action="gimmick"
+      data-tooltip="{{#if gimmick.active}}{{gimmick.active}} active — click to revert{{else}}Battle gimmick{{/if}}">⚡</button>
   </section>
 
   <section class="pm-section">
@@ -69,7 +59,7 @@
   </section>
 
   <section class="pm-section">
-    <h2>Known Moves <button type="button" class="pm-starter-btn" data-action="teachMove">Teach (TM/HM)</button></h2>
+    <h2>Known Moves <button type="button" class="pm-iconbtn" data-action="teachMove" data-tooltip="Teach a TM / HM">📀</button></h2>
     {{#if knownMoves.length}}
       <ul class="pm-knownmoves">
         {{#each knownMoves as |m|}}

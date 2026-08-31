@@ -302,6 +302,33 @@ PM.safeZoneKinds = {
 };
 
 /**
+ * Special venues — tag a Scene Region with a Venue behavior so walking into the
+ * building offers the activity (no crowded sheet buttons). `venueInfo` drives
+ * the themed arrival card.
+ */
+PM.venueKinds = {
+  safari: "Safari Zone",
+  bugcontest: "Bug-Catching Contest",
+  gamecorner: "Game Corner",
+  battletower: "Battle Tower",
+  raid: "Max Raid Den",
+  fossil: "Fossil Lab",
+  lottery: "Lottery Corner",
+  berry: "Berry Garden"
+};
+
+PM.venueInfo = {
+  safari: { label: "Safari Zone", icon: "🦓", cta: "Enter the Safari Zone" },
+  bugcontest: { label: "Bug-Catching Contest", icon: "🐛", cta: "Join the contest" },
+  gamecorner: { label: "Game Corner", icon: "🎰", cta: "Play the Game Corner" },
+  battletower: { label: "Battle Tower", icon: "🏯", cta: "Take the challenge" },
+  raid: { label: "Max Raid Den", icon: "🔴", cta: "Challenge the den" },
+  fossil: { label: "Fossil Lab", icon: "🦴", cta: "Revive a fossil" },
+  lottery: { label: "Lottery Corner", icon: "🎫", cta: "Draw a ticket" },
+  berry: { label: "Berry Garden", icon: "🫐", cta: "Tend the garden" }
+};
+
+/**
  * Region starter trios (anime/game accurate). The starter picker grants one at
  * level 5. Names resolve against the Pokédex compendium.
  */

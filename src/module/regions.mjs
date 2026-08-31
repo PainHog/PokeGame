@@ -352,6 +352,43 @@ export class SafeZoneBehaviorType extends foundry.data.regionBehaviors.RegionBeh
 }
 
 /* -------------------------------------------- */
+/*  Venue behavior (Safari, Game Corner, …)      */
+/* -------------------------------------------- */
+
+/**
+ * Walking into a tagged building posts a themed arrival card with a single
+ * "enter" button, so players opt into the activity instead of a dialog popping
+ * on movement or another button cluttering their sheet. The button is wired by
+ * `events.mjs`; the card is posted once, by the responsible client.
+ */
+export class VenueBehaviorType extends foundry.data.regionBehaviors.RegionBehaviorType {
+  static LOCALIZATION_PREFIXES = ["PM.RegionBehavior.Venue"];
+
+  static defineSchema() {
+    return {
+      venue: new fields.StringField({ required: true, blank: false, initial: "gamecorner", choices: PM.venueKinds }),
+      target: new fields.StringField({ required: false, blank: true, initial: "" })
+    };
+  }
+
+  static events = {
+    [EVENTS.TOKEN_ENTER]: async function (event) {
+      const { token, actor } = trainerFromEvent(event);
+      if (!actor || !isResponsible(token)) return;
+      const meta = PM.venueInfo?.[this.venue] ?? { label: "a venue", icon: "🏛️", cta: "Enter" };
+      await ChatMessage.create({
+        speaker: { alias: meta.label },
+        content: `<div class="pm-encounter-card pm-venue-card">
+          <h3>${meta.icon} ${meta.label}</h3>
+          <p><strong>${actor.name}</strong> arrived at ${meta.label}.</p>
+          <button type="button" class="pm-venue-btn" data-venue="${this.venue}" data-target="${this.target ?? ""}">${meta.cta}</button>
+        </div>`
+      });
+    }
+  };
+}
+
+/* -------------------------------------------- */
 /*  Zone-transit behavior                        */
 /* -------------------------------------------- */
 

@@ -91,8 +91,7 @@ export class PokemonSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       useMove(event, target) { return this._useMove(target); },
       useItem() { return game.pokemonMasters?.items?.useDialog(this.actor); },
       teachMove() { return game.pokemonMasters?.tms?.teachDialog(this.actor); },
-      gimmick(event, target) { return game.pokemonMasters?.battle?.activateGimmick(this.actor, target?.dataset?.kind); },
-      revertGimmick() { return game.pokemonMasters?.battle?.revertGimmick(this.actor); }
+      gimmick() { return this._gimmickMenu(); }
     }
   };
 
@@ -104,6 +103,29 @@ export class PokemonSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   _useMove(target) {
     const move = this.actor.items.get(target?.dataset?.itemId);
     if (move && game.pokemonMasters?.battle) game.pokemonMasters.battle.useMove(this.actor, move, null, { autoRetaliate: true });
+  }
+
+  /** A single, tidy picker for whatever battle gimmick this Pokémon can use. */
+  async _gimmickMenu() {
+    const battle = game.pokemonMasters?.battle;
+    if (!battle) return;
+    const active = this.actor.getFlag("pokemon-masters", "gimmick");
+    if (active?.form) return battle.revertGimmick(this.actor);
+    const D = foundry.applications?.api?.DialogV2;
+    const s = this.actor.system;
+    const held = (s.heldItem ?? "").toLowerCase();
+    const avail = [];
+    if ((s.megaData ?? []).some((m) => (m.item ?? "").toLowerCase() === held)) avail.push({ action: "mega", label: "✨ Mega Evolve" });
+    if (held === "tera orb") avail.push({ action: "tera", label: "💎 Terastallize" });
+    if (held === "z-crystal") avail.push({ action: "z", label: "⚡ Z-Power" });
+    avail.push({ action: "dynamax", label: "🔴 Dynamax" });
+    if (!D) return battle.activateGimmick(this.actor, avail[0].action);
+    const kind = await D.wait({
+      window: { title: "Battle Gimmick" },
+      content: `<p style="margin:.2rem 0">Unleash a battle gimmick for <strong>${this.actor.name}</strong>?</p>`,
+      buttons: [...avail, { action: "cancel", label: "Cancel" }]
+    }).catch(() => "cancel");
+    if (kind && kind !== "cancel") return battle.activateGimmick(this.actor, kind);
   }
 
   async _prepareContext(options) {
@@ -118,16 +140,8 @@ export class PokemonSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     context.statuses = PM.statuses;
     context.natures = Object.fromEntries(Object.keys(PM.natures).map((n) => [n, n.charAt(0).toUpperCase() + n.slice(1)]));
     context.hpPct = sys.hp?.max ? Math.round(((sys.hp.value ?? 0) / sys.hp.max) * 100) : 0;
-    // Which battle gimmicks this Pokémon can trigger right now (held-item gated).
-    const held = (sys.heldItem ?? "").toLowerCase();
-    const active = this.actor.getFlag("pokemon-masters", "gimmick");
-    context.gimmick = {
-      active: active?.form ?? "",
-      mega: (sys.megaData ?? []).some((m) => (m.item ?? "").toLowerCase() === held),
-      tera: held === "tera orb",
-      z: held === "z-crystal",
-      dynamax: true
-    };
+    // A single compact gimmick chip: its state is all the sheet needs to show.
+    context.gimmick = { active: this.actor.getFlag("pokemon-masters", "gimmick")?.form ?? "" };
     // Level-up moves available at or below this Pokémon's level.
     context.levelMoves = (sys.learnset ?? [])
       .filter((l) => l.level > 0 && l.level <= sys.level)
