@@ -84,16 +84,25 @@ const CANON_ADJACENCY = [
   ["Victory Road", "Indigo Plateau"], ["Vermilion City", "S.S. Anne"],
   // Kanto–Johto border corridor + Johto backbone (Bulbapedia-sourced).
   ["Indigo Plateau", "Route 26"], ["Route 26", "Tohjo Falls"], ["Tohjo Falls", "Route 27"],
-  ["Route 27", "New Bark Town"], ["New Bark Town", "Route 29"], ["Route 29", "Cherrygrove City"],
-  ["Cherrygrove City", "Route 30"], ["Route 30", "Route 31"], ["Route 31", "Violet City"],
-  ["Violet City", "Route 32"], ["Route 32", "Union Cave"], ["Union Cave", "Route 33"],
-  ["Route 33", "Azalea Town"], ["Azalea Town", "Ilex Forest"], ["Ilex Forest", "Route 34"],
-  ["Route 34", "Goldenrod City"], ["Goldenrod City", "Route 35"], ["Route 35", "National Park"],
-  ["National Park", "Route 36"], ["Route 36", "Route 37"], ["Route 37", "Ecruteak City"],
-  ["Ecruteak City", "Route 38"], ["Route 38", "Route 39"], ["Route 39", "Olivine City"],
-  ["Olivine City", "Route 40"], ["Route 40", "Route 41"], ["Route 41", "Cianwood City"],
-  ["Ecruteak City", "Route 42"], ["Route 42", "Mt. Mortar"], ["Mt. Mortar", "Mahogany Town"],
-  ["Mahogany Town", "Route 44"], ["Route 44", "Ice Path"], ["Ice Path", "Blackthorn City"]
+  ["Route 27", "New Bark Town"], ["New Bark Town", "Johto Route 29"], ["Johto Route 29", "Cherrygrove City"],
+  ["Cherrygrove City", "Johto Route 30"], ["Johto Route 30", "Johto Route 31"], ["Johto Route 31", "Violet City"],
+  ["Violet City", "Johto Route 32"], ["Johto Route 32", "Union Cave"], ["Union Cave", "Johto Route 33"],
+  ["Johto Route 33", "Azalea Town"], ["Azalea Town", "Ilex Forest"], ["Ilex Forest", "Johto Route 34"],
+  ["Johto Route 34", "Goldenrod City"], ["Goldenrod City", "Johto Route 35"], ["Johto Route 35", "National Park"],
+  ["National Park", "Johto Route 36"], ["Johto Route 36", "Johto Route 37"], ["Johto Route 37", "Ecruteak City"],
+  ["Ecruteak City", "Johto Route 38"], ["Johto Route 38", "Johto Route 39"], ["Johto Route 39", "Olivine City"],
+  ["Olivine City", "Johto Route 40"], ["Johto Route 40", "Johto Route 41"], ["Johto Route 41", "Cianwood City"],
+  ["Ecruteak City", "Johto Route 42"], ["Johto Route 42", "Mt. Mortar"], ["Mt. Mortar", "Mahogany Town"],
+  ["Mahogany Town", "Johto Route 44"], ["Johto Route 44", "Ice Path"], ["Ice Path", "Blackthorn City"],
+  // Alola — four islands crossed only by sea (Bulbapedia-sourced). Routes carry the
+  // "Alola " prefix because their numbers collide with Kanto's.
+  ["Vermilion City", "Hau'oli City"], // the cross-region cruise
+  ["Iki Town", "Alola Route 1"], ["Alola Route 1", "Hau'oli City"], ["Hau'oli City", "Alola Route 2"],
+  ["Alola Route 2", "Alola Route 3"], ["Heahea City", "Alola Route 4"], ["Alola Route 4", "Paniola Town"],
+  ["Alola Route 9", "Konikoni City"], ["Malie City", "Alola Route 10"], ["Alola Route 17", "Po Town"],
+  ["Mount Lanakila", "Alola Pokémon League"], ["Seafolk Village", "Poni Wilds"], ["Poni Wilds", "Ancient Poni Path"],
+  // Inter-island ferries.
+  ["Hau'oli City", "Heahea City"], ["Heahea City", "Malie City"], ["Seafolk Village", "Aether Paradise"]
 ];
 
 async function verifyMaps() {

@@ -479,6 +479,46 @@ const REGION_MAPS = {
     "Lake of Rage": { kind: "ocean", habitat: "water" }, "Ice Path": { kind: "cave", habitat: "cave" },
     "Dragon's Den": { kind: "cave", habitat: "cave" }, "Dark Cave": { kind: "cave", habitat: "cave" },
     "Safari Zone Gate": { kind: "venue" }
+  },
+  alola: {
+    // Melemele Island (northwest).
+    "Iki Town": { kind: "town", island: true }, "Hau'oli City": { kind: "town", island: true },
+    "Route 1": { kind: "route", habitat: "grass" }, "Route 2": { kind: "route", habitat: "grass" },
+    "Route 3": { kind: "route", habitat: "mountain" }, "Trainers' School": { kind: "venue" },
+    "Mahalo Trail": { kind: "route", habitat: "grass" }, "Ruins of Conflict": { kind: "cave", habitat: "cave" },
+    "Verdant Cavern": { kind: "cave", habitat: "cave" }, "Melemele Meadow": { kind: "forest", habitat: "forest" },
+    "Seaward Cave": { kind: "cave", habitat: "cave" }, "Ten Carat Hill": { kind: "cave", habitat: "cave" },
+    "Kala'e Bay": { kind: "ocean", habitat: "water" },
+    // Akala Island (northeast).
+    "Heahea City": { kind: "town", island: true }, "Paniola Town": { kind: "town", island: true },
+    "Konikoni City": { kind: "town", island: true }, "Royal Avenue": { kind: "town", island: true },
+    "Route 4": { kind: "route", habitat: "grass" }, "Route 5": { kind: "route", habitat: "grass" },
+    "Route 6": { kind: "route", habitat: "grass" }, "Route 7": { kind: "route", habitat: "mountain" },
+    "Route 8": { kind: "route", habitat: "mountain" }, "Route 9": { kind: "route", habitat: "grass" },
+    "Brooklet Hill": { kind: "ocean", habitat: "water" }, "Lush Jungle": { kind: "forest", habitat: "forest" },
+    "Wela Volcano Park": { kind: "cave", habitat: "mountain" }, "Diglett's Tunnel": { kind: "cave", habitat: "cave" },
+    "Battle Royal Dome": { kind: "venue" }, "Memorial Hill": { kind: "cave", habitat: "cave" },
+    "Hano Grand Resort": { kind: "venue" },
+    // Ula'ula Island (southeast, largest).
+    "Malie City": { kind: "town", island: true }, "Tapu Village": { kind: "town", island: true },
+    "Po Town": { kind: "town", island: true }, "Route 10": { kind: "route", habitat: "mountain" },
+    "Route 11": { kind: "route", habitat: "grass" }, "Route 12": { kind: "route", habitat: "grass" },
+    "Route 13": { kind: "route", habitat: "sand" }, "Route 14": { kind: "route", habitat: "grass" },
+    "Route 15": { kind: "route", habitat: "water" }, "Route 16": { kind: "route", habitat: "grass" },
+    "Route 17": { kind: "route", habitat: "mountain" }, "Mount Hokulani": { kind: "cave", habitat: "mountain" },
+    "Hokulani Observatory": { kind: "venue" }, "Blush Mountain": { kind: "cave", habitat: "mountain" },
+    "Haina Desert": { kind: "route", habitat: "sand" }, "Ula'ula Meadow": { kind: "forest", habitat: "forest" },
+    "Lake of the Sunne": { kind: "ocean", habitat: "water" }, "Lake of the Moone": { kind: "ocean", habitat: "water" },
+    "Thrifty Megamart": { kind: "venue" }, "Aether House": { kind: "venue" },
+    "Mount Lanakila": { kind: "cave", habitat: "cave" }, "Alola Pokémon League": { kind: "town" },
+    // Poni Island (southwest).
+    "Seafolk Village": { kind: "town", island: true }, "Ancient Poni Path": { kind: "town", island: true },
+    "Poni Wilds": { kind: "route", habitat: "grass" }, "Vast Poni Canyon": { kind: "cave", habitat: "mountain" },
+    "Altar of the Sunne": { kind: "venue" }, "Poni Plains": { kind: "route", habitat: "grass" },
+    "Poni Meadow": { kind: "forest", habitat: "forest" }, "Battle Tree": { kind: "venue" },
+    "Resolution Cave": { kind: "cave", habitat: "cave" }, "Exeggutor Island": { kind: "forest", habitat: "forest", island: true },
+    // Aether Paradise (artificial island, center).
+    "Aether Paradise": { kind: "venue", island: true }
   }
 };
 
@@ -542,6 +582,47 @@ const REGION_CONNECTIONS = {
     ["Route 46", "south", "Route 29"], ["Dark Cave", "north", "Route 46"],
     ["Cianwood City", "west", "Route 47"], ["Route 47", "north", "Safari Zone Gate"],
     ["Safari Zone Gate", "north", "Route 48"], ["Route 48", "east", "Route 42"]
+  ],
+  alola: [
+    // Melemele Island.
+    ["Iki Town", "south", "Route 1"], ["Route 1", "west", "Hau'oli City"],
+    ["Route 1", "east", "Trainers' School"], ["Iki Town", "north", "Mahalo Trail"],
+    ["Mahalo Trail", "north", "Ruins of Conflict"], ["Route 1", "south", "Ten Carat Hill"],
+    ["Hau'oli City", "north", "Route 2"], ["Route 2", "north", "Verdant Cavern"],
+    ["Route 2", "east", "Route 3"], ["Route 3", "north", "Melemele Meadow"],
+    ["Melemele Meadow", "north", "Seaward Cave"], ["Route 3", "west", "Kala'e Bay"],
+    // Akala Island.
+    ["Heahea City", "north", "Route 4"], ["Route 4", "north", "Paniola Town"],
+    ["Paniola Town", "north", "Route 5"], ["Route 5", "north", "Brooklet Hill"],
+    ["Route 5", "east", "Lush Jungle"], ["Brooklet Hill", "north", "Route 6"],
+    ["Route 6", "east", "Royal Avenue"], ["Royal Avenue", "east", "Battle Royal Dome"],
+    ["Royal Avenue", "north", "Route 7"], ["Route 7", "north", "Wela Volcano Park"],
+    ["Wela Volcano Park", "north", "Route 8"], ["Route 8", "east", "Diglett's Tunnel"],
+    ["Diglett's Tunnel", "east", "Route 9"], ["Route 9", "south", "Konikoni City"],
+    ["Konikoni City", "south", "Memorial Hill"], ["Konikoni City", "east", "Hano Grand Resort"],
+    // Ula'ula Island.
+    ["Malie City", "north", "Route 10"], ["Route 10", "north", "Mount Hokulani"],
+    ["Mount Hokulani", "north", "Hokulani Observatory"], ["Malie City", "east", "Route 11"],
+    ["Route 11", "east", "Route 12"], ["Route 12", "north", "Blush Mountain"],
+    ["Route 12", "east", "Route 13"], ["Route 13", "east", "Haina Desert"],
+    ["Route 13", "north", "Tapu Village"], ["Tapu Village", "north", "Route 14"],
+    ["Route 14", "west", "Thrifty Megamart"], ["Route 14", "north", "Route 15"],
+    ["Route 15", "east", "Aether House"], ["Route 15", "north", "Route 16"],
+    ["Route 16", "north", "Ula'ula Meadow"], ["Ula'ula Meadow", "west", "Lake of the Moone"],
+    ["Haina Desert", "east", "Lake of the Sunne"], ["Ula'ula Meadow", "north", "Route 17"],
+    ["Route 17", "north", "Po Town"], ["Tapu Village", "east", "Mount Lanakila"],
+    ["Mount Lanakila", "north", "Alola Pokémon League"],
+    // Poni Island.
+    ["Seafolk Village", "north", "Poni Wilds"], ["Poni Wilds", "north", "Ancient Poni Path"],
+    ["Ancient Poni Path", "north", "Vast Poni Canyon"], ["Vast Poni Canyon", "north", "Altar of the Sunne"],
+    ["Vast Poni Canyon", "east", "Poni Plains"], ["Poni Plains", "north", "Poni Meadow"],
+    ["Poni Meadow", "east", "Battle Tree"], ["Poni Plains", "east", "Resolution Cave"],
+    ["Seafolk Village", "ship", "Exeggutor Island"],
+    // Inter-island ferries — Alola is crossed only by sea. Seafolk Village is the hub.
+    ["Hau'oli City", "ship", "Heahea City"], ["Heahea City", "ship", "Malie City"],
+    ["Malie City", "ship", "Aether Paradise"], ["Seafolk Village", "ship", "Hau'oli City"],
+    ["Seafolk Village", "ship", "Heahea City"], ["Seafolk Village", "ship", "Malie City"],
+    ["Seafolk Village", "ship", "Aether Paradise"]
   ]
 };
 
@@ -549,7 +630,9 @@ const REGION_CONNECTIONS = {
 // A compass edge is a land border; "ship" is a ticketed ferry/flight.
 const INTER_REGION = [
   // Johto joins Kanto by land: New Bark Town ↔ Kanto's Route 27 (via Tohjo Falls).
-  ["johto", "New Bark Town", "east", "kanto", "Route 27"]
+  ["johto", "New Bark Town", "east", "kanto", "Route 27"],
+  // Alola is reachable only by sea — a cruise from Vermilion Harbor to Hau'oli City.
+  ["kanto", "Vermilion City", "ship", "alola", "Hau'oli City", "S.S. Ticket"]
 ];
 
 const OPPOSITE = { north: "south", south: "north", east: "west", west: "east" };
@@ -564,7 +647,14 @@ const KIND_FILL = { town: "#cdbd8f", route: "#8ec98e", forest: "#3f7a3f", cave: 
 function buildQualifier() {
   const counts = {};
   for (const defs of Object.values(REGION_MAPS)) for (const bare of Object.keys(defs)) counts[bare] = (counts[bare] || 0) + 1;
-  return (region, bare) => (region === "kanto" || counts[bare] === 1) ? bare : `${REGION_LABEL[region]} ${bare}`;
+  // Kanto stays fully bare (stable). Elsewhere, numbered routes are always
+  // region-prefixed (route numbers are region-scoped, à la "Johto Route 29"),
+  // and any other name is prefixed only when it collides across regions.
+  return (region, bare) => {
+    if (region === "kanto") return bare;
+    if (counts[bare] === 1 && !/^Route \d+$/.test(bare)) return bare;
+    return `${REGION_LABEL[region]} ${bare}`;
+  };
 }
 const qualifyName = buildQualifier();
 
