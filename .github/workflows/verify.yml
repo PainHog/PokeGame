@@ -22,3 +22,5 @@ jobs:
         run: npm run build
       - name: Verify lore accuracy
         run: npm run verify
+      - name: Pre-boot smoke test
+        run: npm run smoke

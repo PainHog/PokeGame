@@ -43,6 +43,8 @@
       "wildTile": {},
       "safeZone": {},
       "zoneTransit": {},
+      "venue": {},
+      "legendary": {},
       "ambush": {},
       "fieldGate": {}
     }
