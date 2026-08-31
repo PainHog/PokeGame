@@ -28,6 +28,7 @@ import { registerShopApi } from "./module/shop.mjs";
 import { registerWorldHooks } from "./module/world.mjs";
 import { registerCatchHooks } from "./module/catch.mjs";
 import { registerBattleApi } from "./module/battle.mjs";
+import { registerPvpApi } from "./module/pvp.mjs";
 import { registerProgressionHooks } from "./module/progression.mjs";
 import { registerStarterApi } from "./module/starters.mjs";
 import { registerAppearanceApi } from "./module/appearance.mjs";
@@ -118,6 +119,7 @@ Hooks.once("init", () => {
 Hooks.once("ready", () => {
   registerCatchHooks();
   registerBattleApi();
+  registerPvpApi();
   registerProgressionHooks();
   registerStarterApi();
   registerAppearanceApi();

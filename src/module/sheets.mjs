@@ -42,7 +42,8 @@ export class TrainerSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       tradeService() { return game.pokemonMasters?.trade?.serviceDialog(this.actor); },
       shop() { return game.pokemonMasters?.shop?.open(this.actor); },
       pokedex() { return game.pokemonMasters?.pokedex?.open(this.actor); },
-      appearance() { return game.pokemonMasters?.appearance?.choose(this.actor); }
+      appearance() { return game.pokemonMasters?.appearance?.choose(this.actor); },
+      battleChallenge() { return game.pokemonMasters?.pvp?.challengeDialog(this.actor); }
     }
   };
 

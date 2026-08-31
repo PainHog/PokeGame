@@ -14,6 +14,15 @@ import { typeMultiplier, effectivenessLabel } from "./typechart.mjs";
 
 export const CRIT_CHANCE = 1 / 24;
 
+/** Write a change to a target Pokémon. If it belongs to another player (a PvP
+ *  opponent), relay it over the socket so its owner applies it; otherwise write
+ *  directly. Falls back to a direct write when the PvP module isn't loaded. */
+async function applyToTarget(tgt, changes) {
+  const relay = game.pokemonMasters?.pvp?.relayApply;
+  if (tgt && !tgt.isOwner && relay) return relay(tgt, changes);
+  return tgt.update(changes);
+}
+
 /** End-of-turn chip damage as a fraction of max HP, per status. */
 export const STATUS_CHIP = { burn: 1 / 16, poison: 1 / 8 };
 
@@ -113,7 +122,7 @@ export async function useMove(attacker, move, target = null, { autoRetaliate = f
     const cur = d.hp?.value ?? d.hp?.max ?? 0;
     const newHp = Math.max(0, cur - result.damage);
     applied = cur - newHp;
-    try { await tgt.update({ "system.hp.value": newHp }); }
+    try { await applyToTarget(tgt, { "system.hp.value": newHp }); }
     catch (err) { ui.notifications?.warn(`Couldn't apply damage to ${tgt.name} (permission?).`); }
   }
 
@@ -122,7 +131,7 @@ export async function useMove(attacker, move, target = null, { autoRetaliate = f
   if ((tgt.system.hp?.value ?? 1) > 0 && tgt.system.status === "none") {
     if (facts.category === "Status" && facts.inflictStatus) inflicted = facts.inflictStatus;
     else if (facts.secondaryStatus && facts.secondaryChance && Math.floor(Math.random() * 100) < facts.secondaryChance) inflicted = facts.secondaryStatus;
-    if (inflicted) { try { await tgt.update({ "system.status": inflicted }); } catch (err) { /* perms */ } }
+    if (inflicted) { try { await applyToTarget(tgt, { "system.status": inflicted }); } catch (err) { /* perms */ } }
   }
 
   // A spent Z-Power is consumed whether or not it landed.
