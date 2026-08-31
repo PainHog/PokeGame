@@ -419,9 +419,19 @@ function currentSceneSrc(s) {
  * Ground level (v14) or the top-level background (v13), only when out of date.
  * Runtime-only — no `levels` are baked into the pack (that crashes v14 launch).
  */
+/** A scene name → its map-file key. MUST match build-packs' slug() exactly. */
+function mapKey(name) {
+  return String(name).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
 async function healSceneBackground(s) {
-  const want = s.getFlag(FLAG, "mapSrc");
-  if (!want || currentSceneSrc(s) === want) return false;
+  // Only touch OUR scenes (they carry a pokemon-masters flag: region and/or
+  // mapSrc) so a user's custom scene is never clobbered. New scenes have the
+  // mapSrc flag; scenes imported from an older pack don't, so derive the map
+  // path from the scene name (identical to how the WebP file is named).
+  const flags = s.flags?.[FLAG] ?? {};
+  if (!("mapSrc" in flags) && !("region" in flags)) return false;
+  const want = flags.mapSrc || `systems/pokemon-masters/assets/maps/${mapKey(s.name)}.webp`;
+  if (currentSceneSrc(s) === want) return false;
   try {
     const lvl = s.levels?.contents?.[0];
     if (lvl) await lvl.update({ "background.src": want, "background.color": "#000000" });
