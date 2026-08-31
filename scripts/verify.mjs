@@ -12,6 +12,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { Dex } from "@pkmn/dex";
+import { PM } from "../src/module/config.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const SRC = path.join(ROOT, "src", "packs");
@@ -232,6 +233,60 @@ async function verifyRegions() {
 }
 
 /* -------------------------------------------- */
+/*  Content fidelity (not just presence)         */
+/* -------------------------------------------- */
+
+/**
+ * Guards the things earlier "presence-only" checks missed: that every NAMED
+ * League character has a DEDICATED sprite (not a generic stand-in), that every
+ * gym leader's city actually has a gym building on a map, and that every town's
+ * buildings are genuinely enterable (a door → an interior scene that exists).
+ * These are fidelity checks — they fail the build if the world regresses to
+ * "technically there but wrong/empty".
+ */
+async function verifyContentFidelity() {
+  const idx = JSON.parse(await fs.readFile(path.join(ROOT, "assets", "trainers", "index.json"), "utf8"));
+  const have = new Set(idx.files);
+  const scenes = await loadPack("scenes");
+  const sceneNames = new Set(scenes.map((s) => s.name));
+  const gymScenes = new Set(scenes.filter((s) => s.regions?.some((r) => r.name === "Gym")).map((s) => s.name));
+  const matchKey = (name) => { for (const [re, key] of PM.npcSpriteMatch) if (re.test(name)) return key; return null; };
+
+  // 1) Named characters must each resolve to a real, dedicated sprite.
+  let named = 0;
+  for (const [region, data] of Object.entries(PM.gymLeaders ?? {})) {
+    const roster = [["professor", data.professor], ["champion", data.champion],
+      ...(data.leaders ?? []).map((l) => ["leader", l.name, l.city]),
+      ...(data.eliteFour ?? []).map((e) => ["E4", e.name])].filter((r) => r[1]);
+    for (const [role, name, city] of roster) {
+      named++;
+      const key = matchKey(name);
+      if (!key) flag(`sprite: ${region} ${role} "${name}" falls back to a generic class sprite (no dedicated match)`);
+      else if (!have.has(key)) flag(`sprite: ${region} ${role} "${name}" → "${key}.png" is missing from assets/trainers`);
+      if (role === "leader" && city && !gymScenes.has(city)) flag(`gym: ${region} leader "${name}" city "${city}" has no gym building on any map`);
+    }
+  }
+  // 2) Every sprite the matcher / pool can hand out must exist on disk.
+  for (const [, key] of PM.npcSpriteMatch) if (!have.has(key)) flag(`sprite: matcher references missing trainer sprite "${key}"`);
+  for (const key of PM.variedTrainerPool ?? []) if (!have.has(key)) flag(`sprite: generic pool references missing sprite "${key}"`);
+
+  // 3) Every town's buildings must be enterable: door → an interior scene that
+  //    exists. A "town" is a map carrying the Town safe-zone (gym/trial sites on
+  //    non-town maps have only a single gym door and are not held to this).
+  let towns = 0;
+  for (const s of scenes) {
+    const doors = (s.regions ?? []).filter((r) => r.behaviors?.[0]?.system?.enterInterior);
+    const dests = new Set(doors.map((d) => d.behaviors[0].system.destinationSceneName));
+    for (const d of dests) if (!sceneNames.has(d)) flag(`walk-in: "${s.name}" door leads to missing interior scene "${d}"`);
+    if (!(s.regions ?? []).some((r) => r.name === "Town")) continue; // not a town
+    towns++;
+    for (const n of ["Pokémon Center", "Poké Mart", "Police Station"]) if (!dests.has(n)) flag(`walk-in: town "${s.name}" is missing an enterable ${n}`);
+    if (!dests.has("House")) flag(`walk-in: town "${s.name}" has no enterable house`);
+  }
+  return { named, towns };
+}
+
+/* -------------------------------------------- */
 
 async function main() {
   console.log("Verifying lore accuracy against @pkmn + canonical maps…\n");
@@ -239,10 +294,12 @@ async function main() {
   const mv = await verifyMoves();
   const mp = await verifyMaps();
   const rg = await verifyRegions();
+  const cf = await verifyContentFidelity();
   console.log(`  species: ${sp.checked}/${sp.total} checked`);
   console.log(`  moves:   ${mv.checked}/${mv.total} checked`);
   console.log(`  maps:    ${mp.total} scenes checked`);
   console.log(`  regions: ${rg.mapped} mapped, encounter pools + regional forms checked`);
+  console.log(`  content: ${cf.named} named characters have dedicated sprites, ${cf.towns} towns' buildings are enterable`);
   if (!problems.length) {
     console.log("\n✅ No discrepancies — data and maps match canon.");
     return;
