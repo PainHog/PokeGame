@@ -98,7 +98,9 @@ async function pickBall(trainer) {
   const names = [...new Set([...owned, ...BALL_NAMES])];
   try {
     if (!DialogV2) return names[0];
-    const options = names.map((n) => `<option value="${n}">${n} (${(PM.ballModifiers[n.toLowerCase()] ?? 1)}×)</option>`).join("");
+    // Normalize the é in "Poké Ball" so the multiplier table (keyed "poke ball") matches.
+    const ballKey = (n) => n.toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "");
+    const options = names.map((n) => `<option value="${n}">${n} (${(PM.ballModifiers[ballKey(n)] ?? 1)}×)</option>`).join("");
     const ball = await DialogV2.prompt({
       window: { title: "Throw which ball?" },
       content: `<p>Choose a Poké Ball:</p><select name="ball" style="width:100%">${options}</select>`,

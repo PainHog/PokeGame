@@ -115,11 +115,19 @@ export const FOSSILS = {
   "jaw fossil": "Tyrunt", "sail fossil": "Amaura"
 };
 
-/** Kanto Safari Zone (Fuchsia) resident species. */
-export const SAFARI_KANTO = [
-  "Nidoran-F", "Nidoran-M", "Nidorina", "Nidorino", "Rhyhorn", "Venonat", "Exeggcute",
-  "Doduo", "Paras", "Paras", "Chansey", "Scyther", "Pinsir", "Tauros", "Kangaskhan", "Tangela", "Dratini"
-];
+/** Safari Zone resident species per region (Kanto's Fuchsia, Hoenn's Route 121). */
+export const SAFARI_POOLS = {
+  kanto: [
+    "Nidoran-F", "Nidoran-M", "Nidorina", "Nidorino", "Rhyhorn", "Venonat", "Exeggcute",
+    "Doduo", "Paras", "Chansey", "Scyther", "Pinsir", "Tauros", "Kangaskhan", "Tangela", "Dratini"
+  ],
+  hoenn: [
+    "Pikachu", "Oddish", "Gloom", "Doduo", "Rhyhorn", "Natu", "Girafarig", "Pinsir",
+    "Heracross", "Phanpy", "Wobbuffet", "Psyduck", "Geodude", "Aipom", "Stantler"
+  ]
+};
+/** Back-compat alias for the Kanto pool. */
+export const SAFARI_KANTO = SAFARI_POOLS.kanto;
 
 /** Bug-Catching Contest catch pool. */
 export const BUG_CONTEST_POOL = ["Caterpie", "Weedle", "Metapod", "Kakuna", "Butterfree", "Beedrill", "Venonat", "Pinsir", "Scyther", "Paras"];
@@ -198,11 +206,13 @@ const card = (title, body) => ChatMessage.create({ content: `<div class="pm-enco
 /* ---- Safari Zone ------------------------------------------- */
 
 /** Run a Safari Zone session: limited Safari Balls, bait/rock, flee mechanics. */
-export async function safariZone(trainer, { balls = 30, region = "kanto" } = {}) {
+export async function safariZone(trainer, { balls = 30, region = null } = {}) {
   trainer ??= resolveTrainer();
   if (!trainer) return ui.notifications?.warn("Assign your Trainer first.");
   const D = DialogV2();
-  const pool = region === "kanto" ? SAFARI_KANTO : SAFARI_KANTO;
+  // Draw from the Safari Zone that matches where the player actually is.
+  region ??= canvas?.scene?.getFlag?.("pokemon-masters", "region") ?? "kanto";
+  const pool = SAFARI_POOLS[region] ?? SAFARI_POOLS.kanto;
   let caught = [];
   let angry = 0; let eating = 0;
   while (balls > 0) {
@@ -335,7 +345,7 @@ async function prizeExchange(trainer) {
 /* ---- Battle Tower ------------------------------------------ */
 
 /** Build a random NPC combatant team scaled to a level, for gauntlets. */
-async function generateFoeTeam(size, level) {
+export async function generateFoeTeam(size, level) {
   const pack = game.packs.get("pokemon-masters.species");
   const pool = pack.index.filter((e) => e.name && !/-(Mega|Primal|Gmax)/.test(e.name));
   const team = [];
@@ -394,6 +404,7 @@ export async function battleTower(trainer) {
   const myTeam = (await teamOf(trainer)).map((m) => ({ ...m, hp: { value: m.stats.hp, max: m.stats.hp } }));
   const { winner, log } = simulateBattle(myTeam, foes);
   const won = winner === "A";
+  const priorStreak = streak; // the run that's on the line, before we update it
   streak = won ? streak + 1 : 0;
   await trainer.setFlag("pokemon-masters", "towerStreak", streak);
   const bp = won ? 3 : 0;
@@ -403,7 +414,7 @@ export async function battleTower(trainer) {
   }
   await card(`Battle Tower — ${won ? "Victory!" : "Defeat"}`,
     `<p>Opponents: ${foes.map((f) => f.name).join(", ")}.</p>` +
-    `<p>${won ? `You won! Streak: <strong>${streak}</strong> (+${bp} BP).` : `Your streak of ${trainer.getFlag("pokemon-masters", "towerStreak") ?? 0} ends here.`}</p>` +
+    `<p>${won ? `You won! Streak: <strong>${streak}</strong> (+${bp} BP).` : `Your streak of ${priorStreak} ends here.`}</p>` +
     `<details><summary>Battle log</summary><ol><li>${log.slice(0, 30).join("</li><li>")}</li></ol></details>`);
   return { won, streak };
 }

@@ -155,8 +155,11 @@ export class WildTileBehaviorType extends foundry.data.regionBehaviors.RegionBeh
       if (repel - 1 <= 0) await ChatMessage.create({ speaker: { alias: actor.name }, content: "<p>The effect of the Repel wore off.</p>" });
     }
 
-    // Gate: does anything happen on this step at all?
-    if (randInt(1, 100) > this.chance) return;
+    // Gate: does anything happen on this step at all? Cruising on the Bicycle
+    // covers ground fast, so wild encounters are noticeably rarer.
+    let chance = this.chance;
+    if (actor.getFlag("pokemon-masters", "onBike")) chance = Math.round(chance * 0.6);
+    if (randInt(1, 100) > chance) return;
 
     // Choose an outcome kind by weight.
     const o = this.outcomes;
@@ -284,13 +287,32 @@ export class WildTileBehaviorType extends foundry.data.regionBehaviors.RegionBeh
   }
 
   static async rollTrainer(token) {
+    const trainer = token.actor;
+    // A wandering Trainer challenges the player: resolve it as a real auto-battle.
+    const CLASSES = ["Youngster", "Lass", "Bug Catcher", "Hiker", "Beauty", "Ace Trainer", "Picnicker", "Camper"];
+    const who = CLASSES[Math.floor(Math.random() * CLASSES.length)];
+    if (trainer?.type !== "trainer") {
+      return ChatMessage.create({ speaker: { alias: "Trainer Battle" }, content: `<div class="pm-encounter-card"><h3>${who} wants to battle!</h3><p>No challenger is here to accept.</p></div>` });
+    }
+    const { simulateBattle, teamOf } = await import("./npc.mjs");
+    const { generateFoeTeam } = await import("./events.mjs");
+    const myTeam = await teamOf(trainer);
+    if (!myTeam.length) {
+      return ChatMessage.create({ speaker: { alias: who }, content: `<div class="pm-encounter-card"><h3>${who} wants to battle!</h3><p>${trainer.name} has no Pokémon to fight with.</p></div>` });
+    }
+    const level = Math.max(...myTeam.map((m) => m.level ?? 5));
+    const foes = await generateFoeTeam(Math.min(3, myTeam.length), level);
+    const { winner, log } = simulateBattle(myTeam.map((m) => ({ ...m, hp: { value: m.stats.hp, max: m.stats.hp } })), foes);
+    const won = winner === "A";
+    const prize = won ? level * 20 : 0;
+    if (won) await trainer.update({ "system.money": (trainer.system.money ?? 0) + prize });
     await ChatMessage.create({
-      speaker: { alias: "Trainer Battle" },
-      content: `
-        <div class="pm-encounter-card">
-          <h3>A Trainer wants to battle!</h3>
-          <p><em>${token.name} was spotted. (Set up the opposing team, GM — battle resolution is a later phase.)</em></p>
-        </div>`
+      speaker: { alias: `${who} battle` },
+      content: `<div class="pm-encounter-card">
+        <h3>${who} challenged ${trainer.name}!</h3>
+        <p>${won ? `<span class="pm-caught">You won!</span> Prize money: ₽${prize}.` : `${trainer.name} was defeated — no prize this time.`}</p>
+        <details><summary>Battle log</summary><ol class="pm-battle-log"><li>${log.slice(0, 24).join("</li><li>")}</li></ol></details>
+      </div>`
     });
   }
 

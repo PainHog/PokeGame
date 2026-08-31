@@ -152,6 +152,12 @@ export async function useMove(attacker, move, target = null, { autoRetaliate = f
     const npcMove = npc.chooseBestMove(npc.combatantFromActor(tgt), npc.combatantFromActor(attacker));
     if (npcMove) await useMove(tgt, npcMove, { actor: attacker }, { autoRetaliate: false });
   }
+  // End of the round: burn/poison/toxic chip both actives (the autoRetaliate
+  // call owns the turn, so this fires once per exchange, not on the reply).
+  if (autoRetaliate) {
+    if ((attacker.system.hp?.value ?? 0) > 0) await applyEndOfTurn(attacker);
+    if ((tgt.system.hp?.value ?? 0) > 0) await applyEndOfTurn(tgt);
+  }
   return result;
 }
 

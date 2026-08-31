@@ -166,7 +166,7 @@ export async function toggleBike(trainer) {
   if (!has) return ui.notifications?.warn("You don't have a Bicycle.");
   const on = !(trainer.getFlag("pokemon-masters", "onBike") ?? false);
   await trainer.setFlag("pokemon-masters", "onBike", on);
-  await ChatMessage.create({ speaker: { alias: trainer.name }, content: `<div class="pm-encounter-card"><p>🚲 ${trainer.name} ${on ? "hopped on the Bicycle — zoom!" : "got off the Bicycle."}</p></div>` });
+  await ChatMessage.create({ speaker: { alias: trainer.name }, content: `<div class="pm-encounter-card"><p>🚲 ${trainer.name} ${on ? "hopped on the Bicycle — zoom! (wild encounters are rarer while cycling)" : "got off the Bicycle."}</p></div>` });
 }
 
 /** Field ride: Tauros (charge), Lapras (surf), or Charizard (fly). */

@@ -42,6 +42,7 @@
             <span class="pm-party-name">{{mon.name}}</span>
             <span class="pm-badge">Lv {{mon.system.level}}</span>
             {{#each mon.system.types as |t|}}<span class="pm-type pm-type-{{pmLower t}}">{{t}}</span>{{/each}}
+            <button type="button" class="pm-iconbtn" data-action="deposit" data-uuid="{{mon.uuid}}" data-tooltip="Send to PC">📦</button>
           </li>
         {{/each}}
       </ul>
