@@ -426,7 +426,8 @@ function buildGear() {
  * link Fuchsia ↔ Seafoam ↔ Cinnabar ↔ Pallet; the S.S. Anne docks at Vermilion.
  * Data-driven — MAP_DEFS lists the places, CONNECTIONS the edges between them.
  */
-const MAP_DEFS = {
+const REGION_MAPS = {
+  kanto: {
   "Pallet Town": { kind: "town" }, "Viridian City": { kind: "town" }, "Pewter City": { kind: "town" },
   "Cerulean City": { kind: "town" }, "Saffron City": { kind: "town" }, "Celadon City": { kind: "town" },
   "Vermilion City": { kind: "town" }, "Lavender Town": { kind: "town" }, "Fuchsia City": { kind: "town" },
@@ -447,10 +448,17 @@ const MAP_DEFS = {
   "Route 20": { kind: "ocean", habitat: "water" }, "Route 21": { kind: "ocean", habitat: "water" },
   "Route 22": { kind: "route", habitat: "grass" }, "Route 23": { kind: "route", habitat: "mountain" },
   "Route 24": { kind: "route", habitat: "grass" }, "Route 25": { kind: "route", habitat: "grass" }
+  }
 };
 
-// [from, from's edge, to] — the reverse (opposite edge) is generated automatically.
-const CONNECTIONS = [
+const REGION_LABEL = {
+  kanto: "Kanto", johto: "Johto", hoenn: "Hoenn", sinnoh: "Sinnoh",
+  unova: "Unova", kalos: "Kalos", alola: "Alola", galar: "Galar", paldea: "Paldea"
+};
+
+// [from, from's edge, to] within a region — reverse (opposite edge) auto-generated.
+const REGION_CONNECTIONS = {
+  kanto: [
   ["Pallet Town", "north", "Route 1"], ["Route 1", "north", "Viridian City"],
   ["Viridian City", "north", "Viridian Forest"], ["Viridian Forest", "north", "Pewter City"],
   ["Viridian City", "west", "Route 22"], ["Route 22", "west", "Route 23"],
@@ -474,7 +482,11 @@ const CONNECTIONS = [
   ["Route 20", "west", "Cinnabar Island"], ["Cinnabar Island", "north", "Route 21"],
   ["Route 21", "north", "Pallet Town"],
   ["Vermilion City", "ship", "S.S. Anne", "S.S. Ticket"]
-];
+  ]
+};
+
+// Cross-region links (ferries/flights): [regionA, placeA, regionB, placeB, ticket?].
+const INTER_REGION = [];
 
 const OPPOSITE = { north: "south", south: "north", east: "west", west: "east" };
 const KIND_DIMS = { town: [2600, 1800], route: [3400, 1900], forest: [3400, 3400], cave: [2600, 2600], ocean: [4200, 3000], venue: [2400, 1600] };
@@ -482,34 +494,56 @@ const slug = (name) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^
 
 const KIND_FILL = { town: "#cdbd8f", route: "#8ec98e", forest: "#3f7a3f", cave: "#5a5560", ocean: "#4a86c5", venue: "#b08a5a" };
 
-/** Build each map's exit list from the (symmetric) connection graph. */
+// Global name resolver: Kanto keeps bare names (stable); any place name shared
+// across regions gets its region prefixed — so "Route 1" stays Kanto's while the
+// others become "Unova Route 1", "Kalos Route 1", etc. Unique names stay bare.
+function buildQualifier() {
+  const counts = {};
+  for (const defs of Object.values(REGION_MAPS)) for (const bare of Object.keys(defs)) counts[bare] = (counts[bare] || 0) + 1;
+  return (region, bare) => (region === "kanto" || counts[bare] === 1) ? bare : `${REGION_LABEL[region]} ${bare}`;
+}
+const qualifyName = buildQualifier();
+
+/** Build each map's exit list from the (symmetric) per-region + inter-region graph. */
 function exitsByMap() {
   const out = {};
   const add = (name, exit) => { (out[name] ??= []).push(exit); };
-  for (const [a, edge, b, ticket] of CONNECTIONS) {
-    if (edge === "ship") {
-      add(a, { ship: true, to: b, ticket }); add(b, { ship: true, to: a, ticket });
-    } else {
-      add(a, { edge, to: b }); add(b, { edge: OPPOSITE[edge], to: a });
+  for (const [region, conns] of Object.entries(REGION_CONNECTIONS)) {
+    for (const [a, edge, b, ticket] of conns) {
+      const A = qualifyName(region, a);
+      const B = qualifyName(region, b);
+      if (edge === "ship") { add(A, { ship: true, to: B, ticket }); add(B, { ship: true, to: A, ticket }); }
+      else { add(A, { edge, to: B }); add(B, { edge: OPPOSITE[edge], to: A }); }
     }
+  }
+  // Cross-region ferries/flights are always ticketed "ship" edges.
+  for (const [ra, a, rb, b, ticket] of INTER_REGION) {
+    const A = qualifyName(ra, a);
+    const B = qualifyName(rb, b);
+    add(A, { ship: true, to: B, ticket }); add(B, { ship: true, to: A, ticket });
   }
   return out;
 }
 
-/** Every map as a full object (name, kind, dims, exits). */
+/** Every map across every region as a full object (name, region, kind, dims, exits). */
 function allMaps() {
   const exits = exitsByMap();
-  return Object.entries(MAP_DEFS).map(([name, def]) => {
-    const [w, h] = KIND_DIMS[def.kind] ?? [2600, 1800];
-    return { key: slug(name), name, region: "kanto", w, h, exits: exits[name] ?? [], ...def };
-  });
+  const maps = [];
+  for (const [region, defs] of Object.entries(REGION_MAPS)) {
+    for (const [bare, def] of Object.entries(defs)) {
+      const name = qualifyName(region, bare);
+      const [w, h] = KIND_DIMS[def.kind] ?? [2600, 1800];
+      maps.push({ key: slug(name), name, region, w, h, exits: exits[name] ?? [], ...def });
+    }
+  }
+  return maps;
 }
 const DIMS = Object.fromEntries(allMaps().map((m) => [m.name, [m.w, m.h]]));
 
 const edgeRect = (e, w, h) => ({ north: [w / 2 - 150, 0, 300, 120], south: [w / 2 - 150, h - 120, 300, 120], east: [w - 120, h / 2 - 150, 120, 300], west: [0, h / 2 - 150, 120, 300] }[e]);
 const arriveEntry = (e, w, h) => ({ north: [w / 2, h - 320], south: [w / 2, 320], east: [320, h / 2], west: [w - 320, h / 2] }[e]);
 const edgeLabelPos = (e, w, h) => ({ north: [w / 2, 150], south: [w / 2, h - 150], east: [w - 220, h / 2], west: [220, h / 2] }[e]);
-const dockRect = (w, h) => [w - 360, h - 360, 300, 300];
+const dockRect = (w, h, i = 0) => [w - 360 - i * 340, h - 360, 300, 300];
 const dockEntry = (w, h) => [w - 560, h - 560];
 
 function mapSvg(map) {
@@ -525,10 +559,10 @@ function mapSvg(map) {
   } else {
     p.push(`<rect x="${w * 0.12}" y="${h * 0.12}" width="${w * 0.76}" height="${h * 0.76}" rx="24" fill="rgba(0,0,0,0.08)"/>`);
   }
-  if (map.exits.some((e) => e.ship)) {
-    const [dx, dy, dw, dh] = dockRect(w, h);
-    p.push(`<rect x="${dx}" y="${dy}" width="${dw}" height="${dh}" fill="#8a6d3b"/><text x="${dx + dw / 2}" y="${dy + dh / 2 + 8}" font-family="Arial" font-size="28" fill="#fff" text-anchor="middle">⚓ S.S. Dock</text>`);
-  }
+  map.exits.filter((e) => e.ship).forEach((ex, i) => {
+    const [dx, dy, dw, dh] = dockRect(w, h, i);
+    p.push(`<rect x="${dx}" y="${dy}" width="${dw}" height="${dh}" fill="#8a6d3b"/><text x="${dx + dw / 2}" y="${dy + dh / 2 + 8}" font-family="Arial" font-size="24" fill="#fff" text-anchor="middle">⚓ ${ex.to}</text>`);
+  });
   p.push(`<text x="${w / 2}" y="72" font-family="Arial" font-size="52" font-weight="bold" fill="#333" text-anchor="middle">${map.name}${map.island ? " (Island)" : ""}</text>`);
   for (const ex of map.exits) {
     if (ex.ship) continue;
@@ -566,13 +600,14 @@ async function buildScenes() {
         category: map.habitat ?? "grass", chance: 25, poolSource: "requirements", announceOnly: true, minLevel: 2, maxLevel: 10
       }));
     }
+    let shipIdx = 0;
     for (const ex of map.exits) {
       const [dw, dh] = DIMS[ex.to] ?? [2400, 1600];
       if (ex.ship) {
-        const [rx, ry, rw, rh] = dockRect(w, h);
+        const [rx, ry, rw, rh] = dockRect(w, h, shipIdx++);
         const [ex2, ey2] = dockEntry(dw, dh);
         regions.push(region(`Ship to ${ex.to}`, "#8a6d3b", rx, ry, rw, rh, "zoneTransit", {
-          zoneName: `S.S. Anne → ${ex.to}`, destinationSceneName: ex.to, destX: ex2, destY: ey2, announce: true, requiredItem: ex.ticket ?? ""
+          zoneName: `Ferry → ${ex.to}`, destinationSceneName: ex.to, destX: ex2, destY: ey2, announce: true, requiredItem: ex.ticket ?? ""
         }));
       } else {
         const [rx, ry, rw, rh] = edgeRect(ex.edge, w, h);
