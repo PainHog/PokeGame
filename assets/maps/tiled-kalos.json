@@ -1170,5 +1170,65 @@
    "w": 18,
    "h": 14
   }
+ },
+ "kalos-power-plant": {
+  "name": "Kalos Power Plant",
+  "kind": "venue",
+  "w": 49,
+  "h": 40,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "tower-of-mastery": {
+  "name": "Tower of Mastery",
+  "kind": "venue",
+  "w": 13,
+  "h": 16,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "battle-maison": {
+  "name": "Battle Maison",
+  "kind": "venue",
+  "w": 18,
+  "h": 17,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "team-flare-secret-hq": {
+  "name": "Team Flare Secret HQ",
+  "kind": "venue",
+  "w": 49,
+  "h": 40,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "lost-hotel": {
+  "name": "Lost Hotel",
+  "kind": "venue",
+  "w": 17,
+  "h": 11,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "parfum-palace": {
+  "name": "Parfum Palace",
+  "kind": "venue",
+  "w": 38,
+  "h": 35,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
  }
 }

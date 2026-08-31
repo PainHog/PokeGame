@@ -933,5 +933,25 @@
    "w": 18,
    "h": 7
   }
+ },
+ "olivine-lighthouse": {
+  "name": "Olivine Lighthouse",
+  "kind": "venue",
+  "w": 38,
+  "h": 35,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "safari-zone-gate": {
+  "name": "Safari Zone Gate",
+  "kind": "venue",
+  "w": 13,
+  "h": 11,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
  }
 }

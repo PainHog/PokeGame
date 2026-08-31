@@ -39,5 +39,15 @@
   ],
   "connections": [],
   "grass": null
+ },
+ "weather-institute": {
+  "name": "Weather Institute",
+  "kind": "venue",
+  "w": 13,
+  "h": 14,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
  }
 }

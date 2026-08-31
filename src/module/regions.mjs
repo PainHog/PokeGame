@@ -37,11 +37,18 @@ const EVENTS = {
   TOKEN_MOVE_WITHIN: "tokenMoveWithin"
 };
 
+// Tokens that just crossed scenes — suppress region behaviours re-firing on the
+// arrival tile (v14 fires tokenMoveIn when a token is *placed* inside a region too,
+// which would otherwise bounce the player straight back out).
+const recentlyTeleported = new Set();
+export function guardTeleport(actorId) { if (!actorId) return; recentlyTeleported.add(actorId); setTimeout(() => recentlyTeleported.delete(actorId), 1500); }
+
 /** Resolve the moving/entering actor from a region event, if it's a Trainer. */
 function trainerFromEvent(event) {
   const token = event?.data?.token;
   const actor = token?.actor ?? null;
   if (!actor || actor.type !== "trainer") return { token: null, actor: null };
+  if (recentlyTeleported.has(actor.id)) return { token: null, actor: null };
   // Placed NPC actors (Nurse Joy, Officer Jenny, townsfolk…) are scenery — they
   // must never trigger venue greetings, healing or wild encounters themselves.
   if (actor.getFlag?.("pokemon-masters", "isNpc")) return { token: null, actor: null };
@@ -355,7 +362,7 @@ export class SafeZoneBehaviorType extends foundry.data.regionBehaviors.RegionBeh
   }
 
   static events = {
-    [EVENTS.TOKEN_ENTER]: async function (event) {
+    [EVENTS.TOKEN_MOVE_IN]: async function (event) {
       const { token, actor } = trainerFromEvent(event);
       if (!actor) return;
       if (!isResponsible(token)) return;
@@ -449,7 +456,7 @@ export class VenueBehaviorType extends foundry.data.regionBehaviors.RegionBehavi
   }
 
   static events = {
-    [EVENTS.TOKEN_ENTER]: async function (event) {
+    [EVENTS.TOKEN_MOVE_IN]: async function (event) {
       const { token, actor } = trainerFromEvent(event);
       if (!actor || !isResponsible(token)) return;
       const meta = PM.venueInfo?.[this.venue] ?? { label: "a venue", icon: "🏛️", cta: "Enter" };
@@ -484,6 +491,9 @@ export class ZoneTransitBehaviorType extends foundry.data.regionBehaviors.Region
       destinationScene: new fields.DocumentUUIDField({ type: "Scene", required: false, nullable: true, initial: null }),
       /** Gear item the trainer must carry to pass (e.g. "S.S. Ticket" for a ship). */
       requiredItem: new fields.StringField({ required: false, blank: true, initial: "" }),
+      /** Field move a party Pokémon must know to cross (e.g. "surf" to reach a sea
+       *  route/lake — you can't walk onto open water without it). */
+      requiredMove: new fields.StringField({ required: false, blank: true, initial: "" }),
       /** This door walks the player INTO a building interior — remember where they
        *  came from so the interior's exit can send them back. */
       enterInterior: new fields.BooleanField({ initial: false }),
@@ -493,7 +503,7 @@ export class ZoneTransitBehaviorType extends foundry.data.regionBehaviors.Region
   }
 
   static events = {
-    [EVENTS.TOKEN_ENTER]: async function (event) {
+    [EVENTS.TOKEN_MOVE_IN]: async function (event) {
       const { token, actor } = trainerFromEvent(event);
       if (!actor) return;
 
@@ -526,6 +536,16 @@ export class ZoneTransitBehaviorType extends foundry.data.regionBehaviors.Region
           ui.notifications?.warn(`You need a ${this.requiredItem} to board.`);
           return;
         }
+        // Open water: you can't step onto a sea route/lake without a party Pokémon
+        // that knows the field move (Surf).
+        if (this.requiredMove) {
+          const moveName = CONFIG.PM?.fieldMoves?.[this.requiredMove] ?? this.requiredMove;
+          const partyKnows = game.pokemonMasters?.tms?.partyKnows;
+          if (partyKnows && !(await partyKnows(actor, moveName))) {
+            if (isResponsible(token)) ui.notifications?.warn(`You need a Pokémon that knows ${moveName} to cross the water.`);
+            return;
+          }
+        }
         // Remember the town + a spot just outside the door for the trip back.
         if (this.enterInterior) {
           await actor.setFlag("pokemon-masters", "returnScene", { name: token.parent?.name, x: token.x, y: token.y + 260 });
@@ -550,6 +570,7 @@ export async function crossScene(token, actor, destScene, x, y) {
   source.x = Math.max(0, Math.min(x || 0, Math.max(0, (destScene.width ?? gs) - gs)));
   source.y = Math.max(0, Math.min(y || 0, Math.max(0, (destScene.height ?? gs) - gs)));
   await destScene.createEmbeddedDocuments("Token", [source]);
+  guardTeleport(actor?.id);   // don't let the arrival tile bounce them straight back
   if (token.parent && token.id) await token.parent.deleteEmbeddedDocuments("Token", [token.id]);
 
   const ownerIds = (game.users?.contents ?? [])

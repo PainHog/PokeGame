@@ -962,5 +962,35 @@
   ],
   "connections": [],
   "grass": null
+ },
+ "zero-lab": {
+  "name": "Zero Lab",
+  "kind": "venue",
+  "w": 15,
+  "h": 11,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "blueberry-academy": {
+  "name": "Blueberry Academy",
+  "kind": "venue",
+  "w": 19,
+  "h": 17,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "zero-gate": {
+  "name": "Zero Gate",
+  "kind": "venue",
+  "w": 49,
+  "h": 40,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
  }
 }

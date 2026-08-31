@@ -1664,7 +1664,7 @@ async function buildScenes() {
       // Base zone: towns/venues are safe; routes/forests get a wild zone over the
       // real tall-grass footprint; caves have encounters throughout.
       if (map.kind === "town" || !map.habitat) {
-        regions.push(region("Town", "rgba(0,0,0,0)", 0, 0, w, h, "safeZone", { kind: map.kind === "town" ? "town" : "indoor", announce: false }));
+        regions.push(region(map.kind === "town" ? "Town" : "Indoors", "rgba(0,0,0,0)", 0, 0, w, h, "safeZone", { kind: map.kind === "town" ? "town" : "indoor", announce: false }));
       } else {
         const band = HABITAT_LEVELS[map.habitat] ?? [2, 12];
         const wild = { category: map.habitat, chance: 25, poolSource: "requirements", announceOnly: true, minLevel: band[0], maxLevel: band[1] };
@@ -1728,8 +1728,12 @@ async function buildScenes() {
       } else {
         const [rx, ry, rw, rh] = edgeRect(ex.edge, w, h);
         const [ex2, ey2] = arriveEntry(ex.edge, dw, dh);
+        // Stepping onto open water (a sea route / lake) needs a party Pokémon that
+        // knows Surf — gate the exit that leads to a water map.
+        const destWater = AUTH[slug(ex.to)]?.kind === "water";
         regions.push(region(`To ${ex.to}`, "#ffd94a", rx, ry, rw, rh, "zoneTransit", {
-          zoneName: ex.to, destinationSceneName: ex.to, destX: ex2, destY: ey2, announce: true
+          zoneName: ex.to, destinationSceneName: ex.to, destX: ex2, destY: ey2, announce: true,
+          requiredMove: destWater ? "surf" : ""
         }));
       }
     }

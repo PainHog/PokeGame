@@ -19,7 +19,7 @@ import { PM } from "./config.mjs";
 import { placeToken, canPlace, ensureScene } from "./placement.mjs";
 
 const FLAG = "pokemon-masters";
-const POP_VERSION = 1;
+const POP_VERSION = 2;
 
 const cache = new Map(); // actor name -> Actor
 
@@ -185,8 +185,22 @@ const ROUTEFOLK = [["Bug Catcher", "bug"], ["Youngster", "youth"], ["Fisherman",
  * or a route (has a Wild Area region); indoor venues get none. No-op if already
  * populated or if this client may not place.
  */
+/** Service NPCs (Nurse Joy, clerk, Officer Jenny, gym leader) live INSIDE their
+ *  buildings — never on the outdoor map. Remove any that leaked onto an overworld
+ *  scene (e.g. from an older version that placed them at the door). */
+async function stripOverworldServiceNpcs(scene) {
+  const isInterior = !!scene.regions?.find((r) => r.name === "Counter");
+  if (isInterior) return;
+  const strays = (scene.tokens ?? []).filter((t) => {
+    const role = t.getFlag?.(FLAG, "npcRole");
+    return role && role !== "resident";        // nurse / clerk / officer / gym
+  }).map((t) => t.id);
+  if (strays.length) await scene.deleteEmbeddedDocuments("Token", strays).catch(() => {});
+}
+
 export async function populateScene(scene) {
   if (!scene || !canPlace()) return;
+  await stripOverworldServiceNpcs(scene);      // clean strays even on already-populated scenes
   if (scene.getFlag(FLAG, "populated")) return;
   const w = scene.width, h = scene.height, cx = w / 2, cy = h / 2;
   const counter = scene.regions?.find((r) => r.name === "Counter"); // a building interior
@@ -209,8 +223,10 @@ export async function populateScene(scene) {
       const gymDoor = scene.regions?.find((r) => r.name === "Gym");
       const gymDest = gymDoor?.behaviors?.find((b) => b.type === "zoneTransit")?.system?.destinationSceneName;
       if (gymDest) await ensureScene(gymDest);
-      // Flavour residents wander the town.
-      const spots = [[w * 0.20, h * 0.28], [w * 0.80, h * 0.30], [w * 0.24, h * 0.74], [w * 0.76, h * 0.72], [w * 0.5, h * 0.82]];
+      // Flavour residents stand on the open ground near the town entrance (the
+      // bottom of the map), clear of the building rows so they never look like
+      // they're standing inside a building.
+      const spots = [[w * 0.5, h * 0.90], [w * 0.28, h * 0.88], [w * 0.72, h * 0.88], [w * 0.16, h * 0.94], [w * 0.84, h * 0.94]];
       for (let i = 0; i < TOWNSFOLK.length; i++) {
         const [name, flavor] = TOWNSFOLK[i];
         await placeNpc(scene, name, { flavor }, spots[i][0], spots[i][1]);

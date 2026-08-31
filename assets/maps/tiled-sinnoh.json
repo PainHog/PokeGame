@@ -1481,5 +1481,25 @@
    "w": 22,
    "h": 12
   }
+ },
+ "valley-windworks": {
+  "name": "Valley Windworks",
+  "kind": "venue",
+  "w": 49,
+  "h": 40,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "sinnoh-battle-tower": {
+  "name": "Sinnoh Battle Tower",
+  "kind": "venue",
+  "w": 18,
+  "h": 17,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
  }
 }

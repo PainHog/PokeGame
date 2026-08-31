@@ -87,8 +87,49 @@ const T = {
 };
 // Cave floor/wall metatile ids are sampled from a real cave map at runtime.
 let CAVE = { prim: null, sec: null, floor: [T.sand], wall: [T.rock] };
-// Building-interior floor/wall/decor sampled from a real interior for venues.
-let BLDG = { prim: null, sec: null, floor: [T.sand2], wall: [T.rock], decor: [] };
+
+/* ------------------------------------------------------------------ *
+ *  Venue interiors — real FireRed indoor maps rendered directly       *
+ * ------------------------------------------------------------------ *
+ * Sampling single "floor" tiles out of a tileset produced garbled art
+ * (it kept picking shelf/counter tiles). Instead we render a handful of
+ * genuine FireRed interior maps' blockdata verbatim — a real tiled floor,
+ * walls and furniture — and assign one to each venue by theme. Every one
+ * uses the shared "Building" primary tileset plus its own secondary. */
+const VENUE_INTERIORS = [
+  { key: "powerplant", bd: "data/layouts/PowerPlant/map.bin",                             w: 49, h: 40, sec: "gTileset_PowerPlant" },
+  { key: "lab",        bd: "data/layouts/CinnabarIsland_PokemonLab_ResearchRoom/map.bin", w: 15, h: 11, sec: "gTileset_Lab" },
+  { key: "oakslab",    bd: "data/layouts/PalletTown_ProfessorOaksLab/map.bin",            w: 13, h: 14, sec: "gTileset_Lab" },
+  { key: "hotel",      bd: "data/layouts/CeladonCity_Hotel/map.bin",                      w: 17, h: 11, sec: "gTileset_RestaurantHotel" },
+  { key: "mansion",    bd: "data/layouts/PokemonMansion_1F/map.bin",                      w: 38, h: 35, sec: "gTileset_PokemonMansion" },
+  { key: "tower",      bd: "data/layouts/TrainerTower_Lobby/map.bin",                     w: 19, h: 17, sec: "gTileset_TrainerTower" },
+  { key: "tower2",     bd: "data/layouts/TrainerTower_1F/map.bin",                        w: 18, h: 17, sec: "gTileset_TrainerTower" },
+  { key: "dojo",       bd: "data/layouts/SaffronCity_Dojo/map.bin",                       w: 13, h: 16, sec: "gTileset_PewterGym" },
+  { key: "museum",     bd: "data/layouts/PewterCity_Museum_1F/map.bin",                   w: 28, h: 11, sec: "gTileset_Museum" },
+  { key: "shop",       bd: "data/layouts/CeladonCity_DepartmentStore_2F/map.bin",         w: 13, h: 15, sec: "gTileset_DepartmentStore" },
+  { key: "resthouse",  bd: "data/layouts/SafariZone_RestHouse/map.bin",                   w: 13, h: 11, sec: "gTileset_SafariZoneBuilding" },
+  { key: "gym",        bd: "data/layouts/ViridianCity_Gym/map.bin",                       w: 20, h: 24, sec: "gTileset_ViridianGym" },
+];
+// Each of the 24 special venues → the interior whose theme fits best. Several
+// venues intentionally share one interior (like the gyms already do).
+const VENUE_ART = {
+  "Blueberry Academy": "tower",     "Battle Tree": "tower",
+  "Battle Maison": "tower2",        "Sinnoh Battle Tower": "tower2",
+  "Battle Royal Dome": "gym",
+  "Master Dojo": "dojo",            "Tower of Mastery": "dojo",
+  "Valley Windworks": "powerplant", "Kalos Power Plant": "powerplant",
+  "Team Flare Secret HQ": "powerplant", "Zero Gate": "powerplant",
+  "Zero Lab": "lab",                "Aether Paradise": "lab",
+  "Trainers' School": "oakslab",    "Weather Institute": "oakslab",
+  "Hokulani Observatory": "museum", "Altar of the Sunne": "museum",
+  "Hano Grand Resort": "hotel",     "Lost Hotel": "hotel",
+  "Parfum Palace": "mansion",       "Olivine Lighthouse": "mansion",
+  "Thrifty Megamart": "shop",
+  "Aether House": "resthouse",      "Safari Zone Gate": "resthouse",
+};
+// Loaded in main(): the shared Building primary tileset + each interior's
+// { grid (2D metatile ids), w, h, sec (secondary tileset) }.
+let VENUE = { building: null, byKey: {} };
 
 /* ------------------------------------------------------------------ *
  *  Building + tree stamps extracted from real FireRed town blockdata  *
@@ -194,18 +235,8 @@ function compose(kind, W, H, rand, stamps, hasGym) {
     for (let i = 0; i < W * H * 0.02; i++) { const x = 3 + Math.floor(rand() * (W - 6)), y = 3 + Math.floor(rand() * (H - 6)); if (floor.includes(g[y][x])) g[y][x] = pick(wall); }
     return { g, warps, grass: null };
   }
-  if (kind === "venue") {
-    // A tiled building interior: floor fill, wall border (thicker at top), scattered
-    // furniture/decor, and an entrance gap at the bottom-centre.
-    const wall = BLDG.wall, floor = BLDG.floor, decor = BLDG.decor;
-    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) g[y][x] = pick(floor);
-    for (let x = 0; x < W; x++) { g[0][x] = pick(wall); g[1][x] = pick(wall); g[H - 1][x] = pick(wall); }
-    for (let y = 0; y < H; y++) { g[y][0] = pick(wall); g[y][W - 1] = pick(wall); }
-    if (decor.length) for (let i = 0; i < W * H * 0.05; i++) { const x = 2 + Math.floor(rand() * (W - 4)), y = 3 + Math.floor(rand() * (H - 5)); g[y][x] = pick(decor); }
-    // clear a 2-wide entrance in the bottom wall
-    const ex = W >> 1; g[H - 1][ex] = pick(floor); g[H - 1][ex - 1] = pick(floor);
-    return { g, warps, grass: null };
-  }
+  // NOTE: kind === "venue" never reaches compose(); venues render a real FireRed
+  // interior map's blockdata directly in main() (see the VENUE registry).
   if (kind === "water") {
     for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) g[y][x] = (rand() < 0.5 ? T.water : T.water2);
     for (let i = 0; i < 3; i++) blob(4 + Math.floor(rand() * (W - 8)), 4 + Math.floor(rand() * (H - 8)), 2 + Math.floor(rand() * 2), T.sand, 0.9);
@@ -310,28 +341,24 @@ async function main() {
     } catch (e) { console.warn("  ! cave sample failed:", e.message); }
   }
 
-  // Sample a real building interior (floor/wall/decor) for venue rooms.
+  // Load real FireRed interior maps for venues: the shared Building primary
+  // tileset, then each interior's blockdata + its own secondary tileset. We
+  // render these verbatim (a genuine tiled floor + walls + furniture) instead
+  // of the old sampled-tile compositing that produced garbled art.
   const needVenue = targets.some((t) => t.kind === "venue");
   if (needVenue) {
-    const byId = new Map(layouts.map((l) => [l.id, l]));
-    for (const dir of ["ViridianCity_PokemonCenter_1F", "PewterCity_PokemonCenter_1F", "CeladonCity_DepartmentStore_1F"]) {
+    VENUE.building = await loadTileset("gTileset_Building", true);
+    const secCacheV = new Map();
+    for (const iv of VENUE_INTERIORS) {
       try {
-        const mj = await fetchJson(`${FR}/data/maps/${dir}/map.json`); if (!mj?.layout) continue;
-        const bl = byId.get(mj.layout); if (!bl) continue;
-        const bw = bl.width, bh = bl.height;
-        const bblock = new Uint16Array((await fetchBuf(`${FR}/${bl.blockdata_filepath}`)).buffer.slice(0));
-        const bprim = await loadTileset(bl.primary_tileset, true);
-        const bsec = bl.secondary_tileset ? await loadTileset(bl.secondary_tileset, false) : prim;
-        const freq = new Map(), bord = new Map();
-        for (let r = 0; r < bh; r++) for (let c = 0; c < bw; c++) { const id = bblock[r * bw + c] & 0x3FF; freq.set(id, (freq.get(id) || 0) + 1); if (r === 0 || c === 0 || r === bh - 1 || c === bw - 1) bord.set(id, (bord.get(id) || 0) + 1); }
-        const wall = [...bord].sort((a, b) => b[1] - a[1]).slice(0, 2).map(([id]) => id);
-        const ranked = [...freq].filter(([id]) => !wall.includes(id)).sort((a, b) => b[1] - a[1]).map(([id]) => id);
-        const floor = ranked.slice(0, 2), decor = ranked.slice(2, 7);
-        BLDG = { prim: bprim, sec: bsec, floor: floor.length ? floor : [T.sand2], wall: wall.length ? wall : [T.rock], decor };
-        console.log(`  venue tiles: ${dir} floor=${BLDG.floor} wall=${BLDG.wall} decor=${BLDG.decor}`);
-        break;
-      } catch (e) { /* try next */ }
+        if (!secCacheV.has(iv.sec)) secCacheV.set(iv.sec, await loadTileset(iv.sec, false));
+        const sec = secCacheV.get(iv.sec);
+        const bd = new Uint16Array((await fetchBuf(`${FR}/${iv.bd}`)).buffer.slice(0));
+        const grid = Array.from({ length: iv.h }, (_, y) => Array.from({ length: iv.w }, (_, x) => bd[y * iv.w + x] & 0x3FF));
+        VENUE.byKey[iv.key] = { grid, w: iv.w, h: iv.h, sec };
+      } catch (e) { console.warn(`  ! venue interior ${iv.key}: ${e.message}`); }
     }
+    console.log(`  venue interiors: ${Object.keys(VENUE.byKey).join(", ") || "(none)"}`);
   }
   // Load every secondary tileset a stamp needs, so building metatiles render.
   const secCache = new Map();
@@ -345,15 +372,23 @@ async function main() {
   const byRegion = {}; let ok = 0;
   for (const t of targets) {
     try {
-      const [W, H] = dimsFor(t.kind, t.aspect);
-      const rand = rng(t.name);
-      const { g, warps, grass } = compose(t.kind, W, H, rand, stamps, t.hasGym);
+      let W, H, g, warps, grass, usePrim, sec;
+      if (t.kind === "venue") {
+        // Render a real FireRed interior map verbatim as the venue background.
+        const iv = VENUE.byKey[VENUE_ART[t.name] || "lab"] || Object.values(VENUE.byKey)[0];
+        if (!iv) throw new Error("no venue interior loaded");
+        g = iv.grid; W = iv.w; H = iv.h; warps = []; grass = null;
+        usePrim = VENUE.building; sec = iv.sec;
+      } else {
+        [W, H] = dimsFor(t.kind, t.aspect);
+        ({ g, warps, grass } = compose(t.kind, W, H, rng(t.name), stamps, t.hasGym));
+        // caves use the real cave tilesets; towns the building-stamp secondary; else General.
+        usePrim = t.kind === "cave" && CAVE.prim ? CAVE.prim : prim;
+        sec = t.kind === "cave" && CAVE.sec ? CAVE.sec : t.kind === "town" ? (secCache.get(stamps.center?.sec) || anySec) : anySec;
+      }
       const OW = W * 16, OH = H * 16, png = new PNG({ width: OW, height: OH }); png.data.fill(0);
-      // caves use the real cave tilesets; towns use the building-stamp secondary; else General.
-      const usePrim = t.kind === "cave" && CAVE.prim ? CAVE.prim : t.kind === "venue" && BLDG.prim ? BLDG.prim : prim;
-      const sec = t.kind === "cave" && CAVE.sec ? CAVE.sec : t.kind === "venue" && BLDG.sec ? BLDG.sec : t.kind === "town" ? (secCache.get(stamps.center?.sec) || anySec) : anySec;
       for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) drawMetatile(png.data, OW, x * 16, y * 16, g[y][x], usePrim, sec);
-      reclimate(png.data, t.climate);
+      if (t.kind !== "venue") reclimate(png.data, t.climate);   // indoor rooms keep their true colours
       const b64 = PNG.sync.write(png).toString("base64");
       const url = await page.evaluate(async ({ b64, W, H, S }) => { const img = new Image(); img.src = "data:image/png;base64," + b64; await img.decode(); const c = document.createElement("canvas"); c.width = W * S; c.height = H * S; const ctx = c.getContext("2d"); ctx.imageSmoothingEnabled = false; ctx.drawImage(img, 0, 0, W * S, H * S); return c.toDataURL("image/webp", 0.9); }, { b64, W: OW, H: OH, S: SCALE });
       await fs.writeFile(path.join(OUT, `${slug(t.name)}.webp`), Buffer.from(url.split(",")[1], "base64"));

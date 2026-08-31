@@ -1095,5 +1095,95 @@
    "w": 20,
    "h": 8
   }
+ },
+ "aether-paradise": {
+  "name": "Aether Paradise",
+  "kind": "venue",
+  "w": 15,
+  "h": 11,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "battle-tree": {
+  "name": "Battle Tree",
+  "kind": "venue",
+  "w": 19,
+  "h": 17,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "hano-grand-resort": {
+  "name": "Hano Grand Resort",
+  "kind": "venue",
+  "w": 17,
+  "h": 11,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "trainers-school": {
+  "name": "Trainers' School",
+  "kind": "venue",
+  "w": 13,
+  "h": 14,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "thrifty-megamart": {
+  "name": "Thrifty Megamart",
+  "kind": "venue",
+  "w": 13,
+  "h": 15,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "aether-house": {
+  "name": "Aether House",
+  "kind": "venue",
+  "w": 13,
+  "h": 11,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "battle-royal-dome": {
+  "name": "Battle Royal Dome",
+  "kind": "venue",
+  "w": 20,
+  "h": 24,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "hokulani-observatory": {
+  "name": "Hokulani Observatory",
+  "kind": "venue",
+  "w": 28,
+  "h": 11,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "altar-of-the-sunne": {
+  "name": "Altar of the Sunne",
+  "kind": "venue",
+  "w": 28,
+  "h": 11,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
  }
 }

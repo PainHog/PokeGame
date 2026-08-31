@@ -841,5 +841,15 @@
    "w": 25,
    "h": 13
   }
+ },
+ "master-dojo": {
+  "name": "Master Dojo",
+  "kind": "venue",
+  "w": 13,
+  "h": 16,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
  }
 }

@@ -38,6 +38,7 @@ import { registerNpcApi } from "./module/npc.mjs";
 import { registerDexApi } from "./module/dex.mjs";
 import { registerItemsApi } from "./module/items.mjs";
 import { registerSystemSettings, ensurePlayerAutonomy } from "./module/permissions.mjs";
+import { registerControls } from "./module/controls.mjs";
 import { registerSpriteSystem } from "./module/sprites.mjs";
 import { registerGymApi } from "./module/gyms.mjs";
 import { registerBreedingApi } from "./module/breeding.mjs";
@@ -48,6 +49,7 @@ Hooks.once("init", () => {
   CONFIG.PM = PM;
 
   registerSystemSettings();
+  registerControls();
   registerSpriteSystem();
 
   // Small Handlebars helpers used by the sheet templates.
