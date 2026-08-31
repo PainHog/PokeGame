@@ -138,7 +138,15 @@ const CANON_ADJACENCY = [
   ["Kalos Route 10", "Geosenge Town"], ["Reflection Cave", "Shalour City"], ["Kalos Route 12", "Coumarine City"],
   ["Lumiose City", "Kalos Route 14"], ["Kalos Route 14", "Laverre City"], ["Kalos Route 17", "Anistar City"],
   ["Kalos Route 19", "Snowbelle City"], ["Snowbelle City", "Kalos Route 21"], ["Kalos Route 21", "Kalos Victory Road"],
-  ["Kalos Victory Road", "Kalos Pokémon League"], ["Lumiose City", "Kiloude City"]
+  ["Kalos Victory Road", "Kalos Pokémon League"], ["Lumiose City", "Kiloude City"],
+  // Galar — a mostly linear climb with the Wild Area hub (Bulbapedia-sourced).
+  ["Coumarine City", "Hulbury"], // cross-region ferry
+  ["Postwick", "Galar Route 1"], ["Galar Route 1", "Wedgehurst"], ["Wedgehurst", "Galar Route 2"],
+  ["Galar Route 2", "Wild Area"], ["Wild Area", "Motostoke"], ["Wild Area", "Hammerlocke"],
+  ["Galar Route 4", "Turffield"], ["Galar Route 5", "Hulbury"], ["Hammerlocke", "Galar Route 6"],
+  ["Galar Route 6", "Stow-on-Side"], ["Glimwood Tangle", "Ballonlea"], ["Galar Route 8", "Circhester"],
+  ["Route 9 Tunnel", "Spikemuth"], ["Hammerlocke", "Galar Route 10"], ["Galar Route 10", "Wyndon"],
+  ["Wyndon", "Galar Pokémon League"], ["Wedgehurst", "Isle of Armor"], ["Wyndon", "Crown Tundra"]
 ];
 
 async function verifyMaps() {

@@ -659,6 +659,26 @@ const REGION_MAPS = {
     "Team Flare Secret HQ": { kind: "venue" }, "Terminus Cave": { kind: "cave", habitat: "cave" },
     "Pokémon Village": { kind: "forest", habitat: "forest" }, "Battle Maison": { kind: "venue", island: true },
     "Kalos Victory Road": { kind: "cave", habitat: "cave" }, "Kalos Pokémon League": { kind: "town" }
+  },
+  galar: {
+    "Postwick": { kind: "town" }, "Wedgehurst": { kind: "town" },
+    "Motostoke": { kind: "town" }, "Turffield": { kind: "town" },
+    "Hulbury": { kind: "town" }, "Hammerlocke": { kind: "town" },
+    "Stow-on-Side": { kind: "town" }, "Ballonlea": { kind: "town" },
+    "Circhester": { kind: "town" }, "Spikemuth": { kind: "town" },
+    "Wyndon": { kind: "town" }, "Galar Pokémon League": { kind: "town" },
+    "Route 1": { kind: "route", habitat: "grass" }, "Route 2": { kind: "route", habitat: "grass" },
+    "Route 3": { kind: "route", habitat: "grass" }, "Route 4": { kind: "route", habitat: "grass" },
+    "Route 5": { kind: "route", habitat: "grass" }, "Route 6": { kind: "route", habitat: "sand" },
+    "Route 7": { kind: "route", habitat: "grass" }, "Route 8": { kind: "route", habitat: "mountain" },
+    "Route 9": { kind: "ocean", habitat: "water" }, "Route 10": { kind: "route", habitat: "mountain" },
+    "Wild Area": { kind: "forest", habitat: "grass" }, "Slumbering Weald": { kind: "forest", habitat: "forest" },
+    "Galar Mine": { kind: "cave", habitat: "cave" }, "Galar Mine No. 2": { kind: "cave", habitat: "cave" },
+    "Motostoke Outskirts": { kind: "route", habitat: "grass" }, "Glimwood Tangle": { kind: "forest", habitat: "forest" },
+    "Route 9 Tunnel": { kind: "cave", habitat: "cave" },
+    // Expansion Pass areas, reached by train.
+    "Isle of Armor": { kind: "forest", habitat: "grass", island: true }, "Master Dojo": { kind: "venue", island: true },
+    "Crown Tundra": { kind: "route", habitat: "mountain", island: true }, "Freezington": { kind: "town", island: true }
   }
 };
 
@@ -905,6 +925,26 @@ const REGION_CONNECTIONS = {
     ["Route 21", "north", "Kalos Victory Road"], ["Kalos Victory Road", "north", "Kalos Pokémon League"],
     ["Kalos Victory Road", "south", "Route 22"], ["Route 22", "south", "Santalune City"],
     ["Lumiose City", "ship", "Kiloude City"], ["Kiloude City", "south", "Battle Maison"]
+  ],
+  galar: [
+    ["Postwick", "north", "Route 1"], ["Route 1", "north", "Wedgehurst"],
+    ["Postwick", "west", "Slumbering Weald"], ["Wedgehurst", "north", "Route 2"],
+    ["Route 2", "north", "Wild Area"], ["Wild Area", "north", "Motostoke"],
+    ["Wild Area", "east", "Hammerlocke"], ["Motostoke", "north", "Route 3"],
+    ["Route 3", "north", "Galar Mine"], ["Galar Mine", "north", "Route 4"],
+    ["Route 4", "north", "Turffield"], ["Turffield", "east", "Route 5"],
+    ["Route 5", "east", "Hulbury"], ["Hulbury", "north", "Galar Mine No. 2"],
+    ["Galar Mine No. 2", "north", "Motostoke Outskirts"], ["Motostoke Outskirts", "west", "Motostoke"],
+    ["Hammerlocke", "north", "Route 6"], ["Route 6", "north", "Stow-on-Side"],
+    ["Stow-on-Side", "east", "Glimwood Tangle"], ["Glimwood Tangle", "east", "Ballonlea"],
+    ["Hammerlocke", "west", "Route 7"], ["Route 7", "north", "Route 8"],
+    ["Route 8", "north", "Circhester"], ["Circhester", "north", "Route 9"],
+    ["Route 9", "north", "Route 9 Tunnel"], ["Route 9 Tunnel", "north", "Spikemuth"],
+    ["Hammerlocke", "east", "Route 10"], ["Route 10", "east", "Wyndon"],
+    ["Wyndon", "north", "Galar Pokémon League"],
+    // Expansion Pass islands, reached by the Galar rail network.
+    ["Wedgehurst", "ship", "Isle of Armor"], ["Isle of Armor", "east", "Master Dojo"],
+    ["Wyndon", "ship", "Crown Tundra"], ["Crown Tundra", "north", "Freezington"]
   ]
 };
 
@@ -922,7 +962,9 @@ const INTER_REGION = [
   // Unova, far across the ocean — the international liner from Vermilion to Castelia.
   ["kanto", "Vermilion City", "ship", "unova", "Castelia City", "S.S. Ticket"],
   // Kalos across the sea — a ferry from Canalave (Sinnoh) to the port of Coumarine City.
-  ["sinnoh", "Canalave City", "ship", "kalos", "Coumarine City", "S.S. Ticket"]
+  ["sinnoh", "Canalave City", "ship", "kalos", "Coumarine City", "S.S. Ticket"],
+  // Galar across the sea — a ferry from Coumarine (Kalos) to the seaside town of Hulbury.
+  ["kalos", "Coumarine City", "ship", "galar", "Hulbury", "S.S. Ticket"]
 ];
 
 const OPPOSITE = { north: "south", south: "north", east: "west", west: "east" };
