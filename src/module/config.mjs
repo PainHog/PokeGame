@@ -339,13 +339,18 @@ PM.venueInfo = {
  * level 5. Names resolve against the Pokédex compendium.
  */
 /**
- * NPC/trainer token sprites — full-colour Gen-3 pixel art (bundled under
+ * NPC/trainer token sprites — full-colour pixel art (bundled under
  * assets/trainers/, fetched by `npm run trainers`). A Trainer actor is
  * auto-assigned one by matching keywords in its name so the world reads at a
- * glance: named gym leaders, the Elite Four, champions, villain-team members and
- * professors get their real sprites; everyone else gets a fitting trainer class.
- * These are uniform 64×64 colour sprites, matching the front-facing Pokémon
- * battle sprites. GMs can always set a custom token image instead.
+ * glance. Real character portraits are used wherever one is reachable from an
+ * open decomp: Kanto + Hoenn leaders/E4/champions (Gen-3 FRLG/RSE), Johto
+ * leaders + Will/Karen (Gen-2 pokecrystal), and professors Oak/Birch. Every
+ * later-region leader/E4/champion/professor (Sinnoh→Paldea, whose games have no
+ * reachable sprite files) gets a hand-picked, gender- and role-appropriate
+ * trainer-class sprite so nobody is mis-gendered or a duplicate of Oak. Everyone
+ * else gets a fitting class by keyword. All are uniform 64×64 colour sprites
+ * matching the front-facing Pokémon battle sprites; a GM can always override the
+ * token image.
  */
 PM.npcSpriteBase = "systems/pokemon-masters/assets/trainers/";
 PM.npcSpriteMatch = [
@@ -354,18 +359,59 @@ PM.npcSpriteMatch = [
   [/(lt\.? ?)?surge/i, "leader_lt_surge"], [/\berika\b/i, "leader_erika"],
   [/\bkoga\b/i, "leader_koga"], [/\bsabrina\b/i, "leader_sabrina"],
   [/\bblaine\b/i, "leader_blaine"], [/\bgiovanni\b/i, "leader_giovanni"],
+  // — Named Johto gym leaders (real Gen-2 portraits, vendored from pokecrystal) —
+  [/falkner/i, "leader_falkner"], [/bugsy/i, "leader_bugsy"],
+  [/whitney/i, "leader_whitney"], [/morty/i, "leader_morty"],
+  [/\bchuck\b/i, "leader_chuck"], [/jasmine/i, "leader_jasmine"],
+  [/pryce/i, "leader_pryce"], [/clair/i, "leader_clair"],
   // — Named Hoenn gym leaders —
   [/roxanne/i, "leader_roxanne"], [/brawly/i, "leader_brawly"],
   [/wattson/i, "leader_wattson"], [/flannery/i, "leader_flannery"],
   [/\bnorman\b/i, "leader_norman"], [/winona/i, "leader_winona"],
   [/tate|liza/i, "leader_tate_and_liza"], [/wallace|\bjuan\b/i, "leader_wallace"],
-  // — Elite Four & Champions —
+  // — Sinnoh gym leaders (gender/role-fitting class sprites — no real portraits reachable) —
+  [/roark/i, "hiker"], [/gardenia/i, "aroma_lady"], [/maylene/i, "battle_girl"],
+  [/crasher|\bwake\b/i, "black_belt"], [/fantina/i, "hex_maniac"], [/byron/i, "expert_m"],
+  [/candice/i, "cool_trainer_f"], [/volkner/i, "guitarist"],
+  // — Unova gym leaders —
+  [/cilan|chili|cress/i, "cook"], [/lenora/i, "pokefan_f"], [/burgh/i, "painter"],
+  [/elesa/i, "beauty"], [/\bclay\b/i, "hiker"], [/skyla/i, "pokemon_ranger_f"],
+  [/brycen/i, "cue_ball"], [/drayden/i, "dragon_tamer"],
+  // — Kalos gym leaders —
+  [/viola/i, "cool_trainer_f"], [/grant/i, "expert_m"], [/korrina/i, "battle_girl"],
+  [/ramos/i, "old_man"], [/clemont/i, "super_nerd"], [/valerie/i, "parasol_lady"],
+  [/olympia/i, "psychic_f"], [/wulfric/i, "black_belt"],
+  // — Alola trial captains / kahunas —
+  [/ilima/i, "school_kid_m"], [/\bhala\b/i, "black_belt"], [/\blana\b/i, "swimmer_f"],
+  [/kiawe/i, "kindler"], [/mallow/i, "picnicker"], [/olivia/i, "beauty"],
+  [/sophocles/i, "super_nerd"], [/acerola/i, "lass"], [/\bnanu\b/i, "expert_m"],
+  [/\bmina\b/i, "pokefan_f"], [/hapu/i, "pokemon_ranger_f"], [/kahili/i, "cool_trainer_f"],
+  // — Galar gym leaders —
+  [/\bmilo\b/i, "camper"], [/nessa/i, "swimmer_f"], [/\bkabu\b/i, "expert_m"],
+  [/\bbea\b/i, "battle_girl"], [/\bopal\b/i, "old_woman"], [/gordie/i, "hiker"],
+  [/piers/i, "rocker"], [/raihan/i, "cool_trainer_m"],
+  // — Paldea gym leaders —
+  [/katy/i, "picnicker"], [/brassius/i, "painter"], [/\biono\b/i, "cool_trainer_f"],
+  [/kofu/i, "cook"], [/\blarry\b/i, "gentleman"], [/\bryme\b/i, "hex_maniac"],
+  [/tulip/i, "beauty"], [/grusha/i, "cool_trainer_m"],
+  // — Elite Four (Kanto/Hoenn have real portraits; later regions get fitting classes) —
   [/lorelei/i, "elite_four_lorelei"], [/\bbruno\b/i, "elite_four_bruno"],
   [/agatha/i, "elite_four_agatha"], [/\blance\b/i, "elite_four_lance"],
   [/sidney/i, "elite_four_sidney"], [/phoebe/i, "elite_four_phoebe"],
   [/glacia/i, "elite_four_glacia"], [/\bdrake\b/i, "elite_four_drake"],
-  [/steven/i, "champion_steven"],
+  [/\bwill\b/i, "elite_four_will"], [/karen/i, "elite_four_karen"],
+  [/aaron/i, "bug_maniac"], [/bertha/i, "old_woman"], [/flint/i, "rocker"], [/lucian/i, "psychic_m"],
+  [/shauntal/i, "hex_maniac"], [/grimsley/i, "gentleman"], [/caitlin/i, "psychic_f"], [/marshal/i, "black_belt"],
+  [/malva/i, "beauty"], [/siebold/i, "cook"], [/wikstrom/i, "black_belt"], [/drasna/i, "expert_f"],
+  [/rika/i, "expert_f"], [/poppy/i, "little_girl"], [/hassel/i, "dragon_tamer"],
+  // — Champions —
+  [/steven/i, "champion_steven"], [/cynthia/i, "expert_f"], [/alder/i, "expert_m"],
+  [/diantha/i, "expert_f"], [/\bleon\b/i, "expert_m"], [/geeta/i, "beauty"],
   [/\brival\b|\bblue\b|\bgary\b|\bgreen\b/i, "champion_rival"],
+  // — Professors (distinct, gender-correct — no longer all Professor Oak) —
+  [/\boak\b/i, "professor_oak"], [/\belm\b/i, "scientist"], [/birch/i, "professor_birch"],
+  [/rowan/i, "gentleman"], [/juniper/i, "expert_f"], [/sycamore/i, "scientist"],
+  [/kukui/i, "black_belt"], [/magnolia/i, "old_woman"], [/\bsada\b|\bturo\b/i, "scientist"],
   // — Villain teams (boss → admin → grunt; female cues where possible) —
   [/maxie/i, "magma_leader_maxie"], [/archie/i, "aqua_leader_archie"],
   [/magma.*(admin|leader)/i, "magma_admin_m"], [/aqua.*(admin|leader)/i, "aqua_admin_m"],
@@ -376,7 +422,7 @@ PM.npcSpriteMatch = [
   [/nurse|joy/i, "nurse"], [/officer|police|jenny|cop\b/i, "policeman"],
   [/mart|clerk|cashier|shopkeep/i, "mart_clerk"],
   [/\bmom\b|mother/i, "mom"], [/reporter|interview|press/i, "reporter_m"],
-  [/\bcook\b|chef|waiter/i, "cook"], [/professor|\bprof\b|\bdr\.? /i, "professor_oak"],
+  [/\bcook\b|chef|waiter/i, "cook"], [/professor|\bprof\b|\bdr\.? /i, "scientist"],
   // — Civilian / trainer classes —
   [/bug ?catcher/i, "bug_catcher"], [/youngster/i, "youngster"], [/\blass\b/i, "lass"],
   [/black ?belt/i, "black_belt"], [/\bhiker\b/i, "hiker"], [/fisher(man)?|angler/i, "fisherman"],

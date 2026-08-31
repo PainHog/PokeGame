@@ -35,6 +35,7 @@ const TMP = path.join(ROOT, ".trainer-tmp");
 
 const FR = "https://raw.githubusercontent.com/pret/pokefirered/master";
 const EM = "https://raw.githubusercontent.com/pret/pokeemerald/master";
+const CR = "https://raw.githubusercontent.com/pret/pokecrystal/master"; // Gen-2 = Johto
 
 /** Download a URL to a file with curl; returns true on a 200 with bytes. */
 async function download(url, dest) {
@@ -88,6 +89,23 @@ const OVERWORLD = [
   { key: "cook",     url: `${EM}/graphics/object_events/pics/people/cook.png` },
   { key: "reporter_f", url: `${EM}/graphics/object_events/pics/people/reporter_f.png` },
   { key: "reporter_m", url: `${EM}/graphics/object_events/pics/people/reporter_m.png` },
+  // Professor Birch has no battle front-pic; his overworld sprite is the real
+  // Birch (Hoenn), so he no longer falls back to Professor Oak's portrait.
+  { key: "professor_birch", url: `${EM}/graphics/object_events/pics/people/prof_birch.png` },
+];
+
+// Johto's League has no Gen-3 front-pics; pret/pokecrystal ships each trainer
+// class as a full-colour (GBC 4-shade) battle sprite. These are the ONLY real
+// portraits reachable for Johto's leaders + Will/Karen, so we vendor them and
+// normalise (white background → transparent, centred in a 64×64 frame) so they
+// read beside the Gen-3 sprites instead of a generic stand-in. The `cls` is the
+// trainer-class filename in pokecrystal/gfx/trainers/.
+const POKECRYSTAL = [
+  { key: "leader_falkner",  cls: "falkner" }, { key: "leader_bugsy",  cls: "bugsy" },
+  { key: "leader_whitney",  cls: "whitney" }, { key: "leader_morty",  cls: "morty" },
+  { key: "leader_chuck",    cls: "chuck" },   { key: "leader_jasmine", cls: "jasmine" },
+  { key: "leader_pryce",    cls: "pryce" },   { key: "leader_clair",  cls: "clair" },
+  { key: "elite_four_will", cls: "will" },    { key: "elite_four_karen", cls: "karen" },
 ];
 
 /** Nearest-neighbour ×2 of the first 16×32 frame, padded into a 64×64 canvas. */
@@ -134,6 +152,60 @@ async function buildOverworld(key, url) {
   }
 }
 
+/**
+ * Gen-2 (GBC) trainer sprites are 56×56 with an opaque white background (the
+ * lightest palette shade). Foundry tokens want transparency, and the Gen-3
+ * sprites are 64×64 & transparent, so: flood-fill the white background from the
+ * border to transparent (interior white highlights, being enclosed, survive)
+ * and centre the 56×56 art in a 64×64 canvas so it reads uniformly beside them.
+ */
+function normaliseGbc(srcPng) {
+  const W = srcPng.width, H = srcPng.height, d = srcPng.data;
+  const isWhite = (i) => d[i] > 245 && d[i + 1] > 245 && d[i + 2] > 245;
+  const stack = [];
+  for (let x = 0; x < W; x++) { stack.push([x, 0], [x, H - 1]); }
+  for (let y = 0; y < H; y++) { stack.push([0, y], [W - 1, y]); }
+  const seen = new Uint8Array(W * H);
+  while (stack.length) {
+    const [x, y] = stack.pop();
+    if (x < 0 || y < 0 || x >= W || y >= H) continue;
+    const p = y * W + x;
+    if (seen[p]) continue;
+    seen[p] = 1;
+    const i = p << 2;
+    if (!isWhite(i)) continue;
+    d[i + 3] = 0;                                 // border-connected white → transparent
+    stack.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]);
+  }
+  const out = new PNG({ width: 64, height: 64, colorType: 6 });
+  out.data.fill(0);
+  const dx = (64 - W) >> 1, dy = (64 - H) >> 1;   // centre the art
+  for (let y = 0; y < H && y + dy < 64; y++) {
+    for (let x = 0; x < W && x + dx < 64; x++) {
+      const si = (W * y + x) << 2, oi = (64 * (y + dy) + (x + dx)) << 2;
+      out.data[oi] = d[si]; out.data[oi + 1] = d[si + 1];
+      out.data[oi + 2] = d[si + 2]; out.data[oi + 3] = d[si + 3];
+    }
+  }
+  return PNG.sync.write(out);
+}
+
+async function buildGbc(key, cls) {
+  const dest = path.join(OUT, `${key}.png`);
+  if (existsSync(dest)) return true;
+  const raw = path.join(TMP, `cr_${key}.png`);
+  if (!(await download(`${CR}/gfx/trainers/${cls}.png`, raw))) return false;
+  try {
+    await fs.writeFile(dest, normaliseGbc(PNG.sync.read(await fs.readFile(raw))));
+    return true;
+  } catch (e) {
+    console.warn(`  ! could not process gen-2 ${key}: ${e.message}`);
+    return false;
+  } finally {
+    await fs.rm(raw, { force: true }).catch(() => {});
+  }
+}
+
 async function main() {
   await fs.mkdir(OUT, { recursive: true });
   await fs.mkdir(TMP, { recursive: true });
@@ -163,6 +235,11 @@ async function main() {
   // Overworld-only townsfolk, normalised to 64×64.
   for (const { key, url } of OVERWORLD) {
     if (await buildOverworld(key, url)) { have.push(key); got++; } else miss++;
+  }
+
+  // Johto (Gen-2) League portraits — the only real ones reachable for them.
+  for (const { key, cls } of POKECRYSTAL) {
+    if (await buildGbc(key, cls)) { have.push(key); got++; } else miss++;
   }
 
   have.sort();
