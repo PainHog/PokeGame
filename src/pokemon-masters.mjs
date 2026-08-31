@@ -14,6 +14,7 @@ import { WildTileBehaviorType, SafeZoneBehaviorType, ZoneTransitBehaviorType, re
 import { AmbushBehaviorType, registerFactionApi } from "./module/factions.mjs";
 import { FieldMoveGateBehaviorType, registerTmApi } from "./module/tms.mjs";
 import { registerTravelApi } from "./module/travel.mjs";
+import { registerTradeApi } from "./module/trade.mjs";
 import { registerWorldHooks } from "./module/world.mjs";
 import { registerCatchHooks } from "./module/catch.mjs";
 import { registerBattleApi } from "./module/battle.mjs";
@@ -112,5 +113,6 @@ Hooks.once("ready", () => {
   registerTmApi();
   registerTravelSocket();
   registerTravelApi();
+  registerTradeApi();
   console.log("Pokémon Masters | Ready");
 });

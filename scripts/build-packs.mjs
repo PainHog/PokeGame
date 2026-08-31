@@ -366,6 +366,18 @@ function buildGear() {
       }
     });
   }
+  // Key items the games have that aren't in the competitive dataset.
+  const KEY_ITEMS = [
+    ["S.S. Ticket", "A ticket to board the S.S. Anne and sail between ports."],
+    ["Bike Voucher", "Redeem for a Bicycle."],
+    ["Bicycle", "A folding bike for faster overland travel."],
+    ["Old Rod", "A cheap fishing rod. Reels in easy Pokémon."],
+    ["Good Rod", "A decent fishing rod."],
+    ["Super Rod", "An excellent fishing rod. Reels in strong Pokémon."]
+  ];
+  for (const [name, desc] of KEY_ITEMS) {
+    docs.push({ _id: stableId("gear", name), name, type: "gear", img: "icons/svg/item-bag.svg", system: { category: "key", price: 0, quantity: 1, catchModifier: 1, description: desc } });
+  }
   return docs;
 }
 
