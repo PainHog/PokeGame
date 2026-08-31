@@ -40,16 +40,28 @@ for (const [region, data] of Object.entries(PM.gymLeaders ?? {})) {
 let SPRITE_INDEX = {};
 try { SPRITE_INDEX = JSON.parse(fsSync.readFileSync(path.join(ROOT, "assets", "sprites", "index.json"), "utf8")); } catch { /* not fetched yet */ }
 
+// Locally-bundled FORM sprites (assets/sprites/forms/<species.id>.<ext>), fetched
+// with `npm run forms`. Keyed by @pkmn species id (e.g. "raichualola"), so an
+// alternate form can override the base-number sprite it would otherwise share.
+let FORM_SPRITE_INDEX = {};
+try { FORM_SPRITE_INDEX = JSON.parse(fsSync.readFileSync(path.join(ROOT, "assets", "sprites", "forms", "index.json"), "utf8")); } catch { /* not fetched yet */ }
+
 /**
  * Sprite path for a species: always a LOCAL path — a bundled file when we have
  * one, else a bundled Foundry-core placeholder. The system is self-contained, so
  * we never emit an external URL (a missing dex number fails closed to the
  * placeholder + a build warning, rather than silently hot-linking Showdown).
+ *
+ * A form species (its `id` in the forms index) prefers its own form-specific
+ * sprite; everything else uses the base National-Dex-number sprite exactly as
+ * before.
  */
-function spriteFor(name, num) {
-  const file = SPRITE_INDEX[num];
+function spriteFor(s) {
+  const formFile = FORM_SPRITE_INDEX[s.id];
+  if (formFile) return `systems/pokemon-masters/assets/sprites/forms/${formFile}`;
+  const file = SPRITE_INDEX[s.num];
   if (file) return `systems/pokemon-masters/assets/sprites/${file}`;
-  console.warn(`Pokémon Masters | no bundled sprite for #${num} (${name}) — using placeholder. Run \`npm run sprites\`.`);
+  console.warn(`Pokémon Masters | no bundled sprite for #${s.num} (${s.name}) — using placeholder. Run \`npm run sprites\`.`);
   return "icons/svg/mystery-man.svg";
 }
 const SRC = path.join(ROOT, "src", "packs");
@@ -287,7 +299,7 @@ async function buildSpecies() {
       }
     } catch { /* some formes have no learnset */ }
 
-    const sprite = spriteFor(s.name, s.num);
+    const sprite = spriteFor(s);
     docs.push({
       _id: stableId("species", s.id),
       name: s.name,
