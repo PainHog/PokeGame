@@ -2,7 +2,7 @@
   "id": "pokemon-masters",
   "title": "Pokémon Masters",
   "description": "A trainer-driven Pokémon tabletop system for Foundry VTT. Players join a shared world as Trainers, roam tile/region-automated maps, and encounter, catch, and battle Pokémon. Pokédex, moves, abilities and items are compiled from an offline dataset (no external API required).",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "compatibility": {
     "minimum": "13",
     "verified": "14"

@@ -38,6 +38,13 @@ jobs:
       - name: Verify + smoke test
         run: npm run verify && npm run smoke
 
+      # Stamp a unique, increasing version so Foundry's "Update" detects every
+      # new build (a fixed version string is why Update did nothing before).
+      - name: Stamp release version
+        run: |
+          VERSION="1.0.${{ github.run_number }}"
+          node -e "const fs=require('fs');const s=require('./system.json');s.version='$VERSION';fs.writeFileSync('./system.json',JSON.stringify(s,null,2)+'\n');console.log('Release version:',s.version)"
+
       - name: Package the system
         run: |
           zip -rq pokemon-masters.zip \
