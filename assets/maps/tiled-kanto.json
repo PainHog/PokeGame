@@ -1,0 +1,82 @@
+{
+ "route-26": {
+  "name": "Route 26",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 7,
+   "y": 2,
+   "w": 18,
+   "h": 10
+  }
+ },
+ "tohjo-falls": {
+  "name": "Tohjo Falls",
+  "kind": "water",
+  "w": 40,
+  "h": 30,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "mt-silver": {
+  "name": "Mt. Silver",
+  "kind": "cave",
+  "w": 34,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "route-28": {
+  "name": "Route 28",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 5,
+   "y": 6,
+   "w": 36,
+   "h": 18
+  }
+ },
+ "route-27": {
+  "name": "Route 27",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 1,
+   "y": 2,
+   "w": 35,
+   "h": 18
+  }
+ },
+ "route-21": {
+  "name": "Route 21",
+  "kind": "route",
+  "w": 40,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 8,
+   "y": 1,
+   "w": 30,
+   "h": 19
+  }
+ }
+}

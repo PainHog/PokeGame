@@ -1,0 +1,966 @@
+{
+ "south-province-area-three": {
+  "name": "South Province (Area Three)",
+  "kind": "field",
+  "w": 47,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 1,
+   "y": 3,
+   "w": 17,
+   "h": 24
+  }
+ },
+ "east-paldean-sea": {
+  "name": "East Paldean Sea",
+  "kind": "water",
+  "w": 40,
+  "h": 30,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "south-province-area-one": {
+  "name": "South Province (Area One)",
+  "kind": "field",
+  "w": 47,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 17,
+   "y": 4,
+   "w": 20,
+   "h": 11
+  }
+ },
+ "area-zero": {
+  "name": "Area Zero",
+  "kind": "field",
+  "w": 34,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 2,
+   "y": 4,
+   "w": 30,
+   "h": 22
+  }
+ },
+ "north-paldean-sea": {
+  "name": "North Paldean Sea",
+  "kind": "water",
+  "w": 40,
+  "h": 30,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "south-province-area-two": {
+  "name": "South Province (Area Two)",
+  "kind": "field",
+  "w": 47,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 6,
+   "y": 3,
+   "w": 40,
+   "h": 22
+  }
+ },
+ "paldea-pok-mon-league": {
+  "name": "Paldea Pokémon League",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "asado-desert": {
+  "name": "Asado Desert",
+  "kind": "field",
+  "w": 47,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 30,
+   "y": 8,
+   "w": 12,
+   "h": 17
+  }
+ },
+ "glaseado-mountain": {
+  "name": "Glaseado Mountain",
+  "kind": "cave",
+  "w": 34,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "montenevera": {
+  "name": "Montenevera",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_GYM"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 21,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "east-province-area-one": {
+  "name": "East Province (Area One)",
+  "kind": "field",
+  "w": 47,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 23,
+   "y": 2,
+   "w": 22,
+   "h": 12
+  }
+ },
+ "levincia": {
+  "name": "Levincia",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_GYM"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 21,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "south-province-area-four": {
+  "name": "South Province (Area Four)",
+  "kind": "field",
+  "w": 47,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 15,
+   "y": 13,
+   "w": 9,
+   "h": 10
+  }
+ },
+ "cascarrafa": {
+  "name": "Cascarrafa",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_GYM"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 21,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "north-province-area-three": {
+  "name": "North Province (Area Three)",
+  "kind": "field",
+  "w": 47,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 22,
+   "y": 9,
+   "w": 20,
+   "h": 8
+  }
+ },
+ "alfornada": {
+  "name": "Alfornada",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_GYM"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 21,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "dalizapa-passage": {
+  "name": "Dalizapa Passage",
+  "kind": "route",
+  "w": 40,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 17,
+   "y": 1,
+   "w": 21,
+   "h": 24
+  }
+ },
+ "tagtree-thicket": {
+  "name": "Tagtree Thicket",
+  "kind": "forest",
+  "w": 34,
+  "h": 34,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 17,
+   "y": 3,
+   "w": 14,
+   "h": 8
+  }
+ },
+ "artazon": {
+  "name": "Artazon",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_GYM"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 21,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "north-province-area-two": {
+  "name": "North Province (Area Two)",
+  "kind": "field",
+  "w": 47,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 6,
+   "y": 4,
+   "w": 39,
+   "h": 19
+  }
+ },
+ "east-province-area-two": {
+  "name": "East Province (Area Two)",
+  "kind": "field",
+  "w": 47,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 20,
+   "y": 11,
+   "w": 21,
+   "h": 7
+  }
+ },
+ "poco-path": {
+  "name": "Poco Path",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 12,
+   "y": 8,
+   "w": 21,
+   "h": 17
+  }
+ },
+ "south-paldean-sea": {
+  "name": "South Paldean Sea",
+  "kind": "water",
+  "w": 40,
+  "h": 30,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "west-paldean-sea": {
+  "name": "West Paldean Sea",
+  "kind": "water",
+  "w": 40,
+  "h": 30,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "west-province-area-one": {
+  "name": "West Province (Area One)",
+  "kind": "field",
+  "w": 47,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 16,
+   "y": 10,
+   "w": 17,
+   "h": 17
+  }
+ },
+ "cabo-poco": {
+  "name": "Cabo Poco",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "west-province-area-three": {
+  "name": "West Province (Area Three)",
+  "kind": "field",
+  "w": 47,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 2,
+   "y": 9,
+   "w": 20,
+   "h": 14
+  }
+ },
+ "alfornada-cavern": {
+  "name": "Alfornada Cavern",
+  "kind": "cave",
+  "w": 34,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "west-province-area-two": {
+  "name": "West Province (Area Two)",
+  "kind": "field",
+  "w": 47,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 27,
+   "y": 10,
+   "w": 9,
+   "h": 14
+  }
+ },
+ "mesagoza": {
+  "name": "Mesagoza",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "medali": {
+  "name": "Medali",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_GYM"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 21,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "casseroya-lake": {
+  "name": "Casseroya Lake",
+  "kind": "water",
+  "w": 40,
+  "h": 30,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "cortondo": {
+  "name": "Cortondo",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_GYM"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 21,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "north-province-area-one": {
+  "name": "North Province (Area One)",
+  "kind": "field",
+  "w": 47,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 21,
+   "y": 1,
+   "w": 24,
+   "h": 25
+  }
+ },
+ "mossui-town": {
+  "name": "Mossui Town",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "east-province-area-three": {
+  "name": "East Province (Area Three)",
+  "kind": "field",
+  "w": 47,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 10,
+   "y": 18,
+   "w": 35,
+   "h": 7
+  }
+ },
+ "kitakami": {
+  "name": "Kitakami",
+  "kind": "field",
+  "w": 47,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 27,
+   "y": 6,
+   "w": 10,
+   "h": 7
+  }
+ },
+ "zapapico": {
+  "name": "Zapapico",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "los-platos": {
+  "name": "Los Platos",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "porto-marinada": {
+  "name": "Porto Marinada",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ }
+}

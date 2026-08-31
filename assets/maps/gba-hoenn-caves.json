@@ -1,0 +1,478 @@
+{
+ "granite-cave": {
+  "name": "Granite Cave",
+  "kind": "cave",
+  "w": 42,
+  "h": 15,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 37,
+    "y": 12,
+    "dest": "MAP_ROUTE106"
+   },
+   {
+    "x": 35,
+    "y": 3,
+    "dest": "MAP_GRANITE_CAVE_B1F"
+   },
+   {
+    "x": 17,
+    "y": 11,
+    "dest": "MAP_GRANITE_CAVE_B1F"
+   },
+   {
+    "x": 5,
+    "y": 10,
+    "dest": "MAP_GRANITE_CAVE_STEVENS_ROOM"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "meteor-falls": {
+  "name": "Meteor Falls",
+  "kind": "cave",
+  "w": 30,
+  "h": 42,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 27,
+    "y": 18,
+    "dest": "MAP_ROUTE114"
+   },
+   {
+    "x": 6,
+    "y": 39,
+    "dest": "MAP_ROUTE115"
+   },
+   {
+    "x": 10,
+    "y": 3,
+    "dest": "MAP_METEOR_FALLS_1F_2R"
+   },
+   {
+    "x": 5,
+    "y": 4,
+    "dest": "MAP_METEOR_FALLS_B1F_1R"
+   },
+   {
+    "x": 26,
+    "y": 28,
+    "dest": "MAP_METEOR_FALLS_B1F_1R"
+   },
+   {
+    "x": 4,
+    "y": 2,
+    "dest": "MAP_METEOR_FALLS_STEVENS_CAVE"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "mt-chimney": {
+  "name": "Mt. Chimney",
+  "kind": "route",
+  "w": 40,
+  "h": 47,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 17,
+    "y": 36,
+    "dest": "MAP_MT_CHIMNEY_CABLE_CAR_STATION"
+   },
+   {
+    "x": 18,
+    "y": 36,
+    "dest": "MAP_MT_CHIMNEY_CABLE_CAR_STATION"
+   },
+   {
+    "x": 20,
+    "y": 41,
+    "dest": "MAP_JAGGED_PASS"
+   },
+   {
+    "x": 21,
+    "y": 41,
+    "dest": "MAP_JAGGED_PASS"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "mt-pyre": {
+  "name": "Mt. Pyre",
+  "kind": "route",
+  "w": 38,
+  "h": 51,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 10,
+    "y": 42,
+    "dest": "MAP_MT_PYRE_1F"
+   },
+   {
+    "x": 19,
+    "y": 10,
+    "dest": "MAP_MT_PYRE_SUMMIT"
+   },
+   {
+    "x": 20,
+    "y": 10,
+    "dest": "MAP_MT_PYRE_SUMMIT"
+   }
+  ],
+  "connections": [],
+  "grass": {
+   "x": 9,
+   "y": 20,
+   "w": 19,
+   "h": 26
+  }
+ },
+ "cave-of-origin": {
+  "name": "Cave of Origin",
+  "kind": "cave",
+  "w": 19,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 9,
+    "y": 20,
+    "dest": "MAP_SOOTOPOLIS_CITY"
+   },
+   {
+    "x": 9,
+    "y": 5,
+    "dest": "MAP_CAVE_OF_ORIGIN_1F"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "seafloor-cavern": {
+  "name": "Seafloor Cavern",
+  "kind": "cave",
+  "w": 20,
+  "h": 20,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 10,
+    "y": 18,
+    "dest": "MAP_UNDERWATER_ROUTE128"
+   },
+   {
+    "x": 10,
+    "y": 1,
+    "dest": "MAP_SEAFLOOR_CAVERN_ROOM1"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "shoal-cave": {
+  "name": "Shoal Cave",
+  "kind": "cave",
+  "w": 35,
+  "h": 35,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 20,
+    "y": 30,
+    "dest": "MAP_ROUTE125"
+   },
+   {
+    "x": 19,
+    "y": 5,
+    "dest": "MAP_SHOAL_CAVE_LOW_TIDE_INNER_ROOM"
+   },
+   {
+    "x": 6,
+    "y": 2,
+    "dest": "MAP_SHOAL_CAVE_LOW_TIDE_INNER_ROOM"
+   },
+   {
+    "x": 27,
+    "y": 2,
+    "dest": "MAP_SHOAL_CAVE_LOW_TIDE_INNER_ROOM"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "sky-pillar": {
+  "name": "Sky Pillar",
+  "kind": "route",
+  "w": 28,
+  "h": 23,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 17,
+    "y": 13,
+    "dest": "MAP_SKY_PILLAR_ENTRANCE"
+   },
+   {
+    "x": 14,
+    "y": 5,
+    "dest": "MAP_SKY_PILLAR_1F"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "fiery-path": {
+  "name": "Fiery Path",
+  "kind": "cave",
+  "w": 35,
+  "h": 38,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 26,
+    "y": 36,
+    "dest": "MAP_ROUTE112"
+   },
+   {
+    "x": 26,
+    "y": 4,
+    "dest": "MAP_ROUTE112"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "jagged-pass": {
+  "name": "Jagged Pass",
+  "kind": "route",
+  "w": 30,
+  "h": 46,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 14,
+    "y": 40,
+    "dest": "MAP_ROUTE112"
+   },
+   {
+    "x": 15,
+    "y": 40,
+    "dest": "MAP_ROUTE112"
+   },
+   {
+    "x": 13,
+    "y": 5,
+    "dest": "MAP_MT_CHIMNEY"
+   },
+   {
+    "x": 14,
+    "y": 5,
+    "dest": "MAP_MT_CHIMNEY"
+   },
+   {
+    "x": 16,
+    "y": 18,
+    "dest": "MAP_MAGMA_HIDEOUT_1F"
+   }
+  ],
+  "connections": [],
+  "grass": {
+   "x": 8,
+   "y": 23,
+   "w": 15,
+   "h": 10
+  }
+ },
+ "rusturf-tunnel": {
+  "name": "Rusturf Tunnel",
+  "kind": "cave",
+  "w": 36,
+  "h": 24,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 4,
+    "y": 10,
+    "dest": "MAP_ROUTE116"
+   },
+   {
+    "x": 29,
+    "y": 16,
+    "dest": "MAP_VERDANTURF_TOWN"
+   },
+   {
+    "x": 18,
+    "y": 20,
+    "dest": "MAP_ROUTE116"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "hoenn-victory-road": {
+  "name": "Hoenn Victory Road",
+  "kind": "cave",
+  "w": 46,
+  "h": 45,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 15,
+    "y": 40,
+    "dest": "MAP_EVER_GRANDE_CITY"
+   },
+   {
+    "x": 39,
+    "y": 5,
+    "dest": "MAP_EVER_GRANDE_CITY"
+   },
+   {
+    "x": 21,
+    "y": 32,
+    "dest": "MAP_VICTORY_ROAD_B1F"
+   },
+   {
+    "x": 42,
+    "y": 38,
+    "dest": "MAP_VICTORY_ROAD_B1F"
+   },
+   {
+    "x": 9,
+    "y": 14,
+    "dest": "MAP_VICTORY_ROAD_B1F"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "hoenn-safari-zone": {
+  "name": "Hoenn Safari Zone",
+  "kind": "route",
+  "w": 40,
+  "h": 40,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 32,
+    "y": 33,
+    "dest": "MAP_ROUTE121_SAFARI_ZONE_ENTRANCE"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "up",
+    "map": "MAP_SAFARI_ZONE_NORTH",
+    "offset": 0
+   },
+   {
+    "dir": "left",
+    "map": "MAP_SAFARI_ZONE_SOUTHWEST",
+    "offset": 0
+   },
+   {
+    "dir": "right",
+    "map": "MAP_SAFARI_ZONE_SOUTHEAST",
+    "offset": 0
+   }
+  ],
+  "grass": {
+   "x": 4,
+   "y": 8,
+   "w": 34,
+   "h": 27
+  }
+ },
+ "battle-frontier": {
+  "name": "Battle Frontier",
+  "kind": "town",
+  "w": 72,
+  "h": 72,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 16,
+    "y": 14,
+    "dest": "MAP_BATTLE_FRONTIER_BATTLE_TOWER_LOBBY"
+   },
+   {
+    "x": 39,
+    "y": 29,
+    "dest": "MAP_BATTLE_FRONTIER_BATTLE_ARENA_LOBBY"
+   },
+   {
+    "x": 45,
+    "y": 56,
+    "dest": "MAP_BATTLE_FRONTIER_BATTLE_PALACE_LOBBY"
+   },
+   {
+    "x": 58,
+    "y": 14,
+    "dest": "MAP_BATTLE_FRONTIER_BATTLE_PYRAMID_LOBBY"
+   },
+   {
+    "x": 35,
+    "y": 12,
+    "dest": "MAP_BATTLE_FRONTIER_RANKING_HALL"
+   },
+   {
+    "x": 4,
+    "y": 44,
+    "dest": "MAP_BATTLE_FRONTIER_LOUNGE1"
+   },
+   {
+    "x": 10,
+    "y": 28,
+    "dest": "MAP_BATTLE_FRONTIER_EXCHANGE_SERVICE_CORNER"
+   },
+   {
+    "x": 22,
+    "y": 51,
+    "dest": "MAP_BATTLE_FRONTIER_LOUNGE5"
+   },
+   {
+    "x": 5,
+    "y": 8,
+    "dest": "MAP_BATTLE_FRONTIER_LOUNGE6"
+   },
+   {
+    "x": 65,
+    "y": 31,
+    "dest": "MAP_BATTLE_FRONTIER_LOUNGE3"
+   },
+   {
+    "x": 14,
+    "y": 51,
+    "dest": "MAP_BATTLE_FRONTIER_LOUNGE8"
+   },
+   {
+    "x": 21,
+    "y": 45,
+    "dest": "MAP_BATTLE_FRONTIER_LOUNGE9"
+   },
+   {
+    "x": 3,
+    "y": 51,
+    "dest": "MAP_BATTLE_FRONTIER_POKEMON_CENTER_1F"
+   },
+   {
+    "x": 28,
+    "y": 7,
+    "dest": "MAP_ARTISAN_CAVE_1F"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "left",
+    "map": "MAP_BATTLE_FRONTIER_OUTSIDE_WEST",
+    "offset": 0
+   }
+  ],
+  "grass": null
+ }
+}

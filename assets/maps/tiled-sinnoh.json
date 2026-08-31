@@ -1,0 +1,1485 @@
+{
+ "sinnoh-route-226": {
+  "name": "Sinnoh Route 226",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 2,
+   "y": 4,
+   "w": 38,
+   "h": 19
+  }
+ },
+ "sinnoh-route-218": {
+  "name": "Sinnoh Route 218",
+  "kind": "route",
+  "w": 40,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 3,
+   "y": 6,
+   "w": 30,
+   "h": 16
+  }
+ },
+ "sinnoh-lake-valor": {
+  "name": "Sinnoh Lake Valor",
+  "kind": "water",
+  "w": 40,
+  "h": 30,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "sinnoh-solaceon-ruins": {
+  "name": "Sinnoh Solaceon Ruins",
+  "kind": "field",
+  "w": 34,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 2,
+   "y": 9,
+   "w": 6,
+   "h": 10
+  }
+ },
+ "sinnoh-route-224": {
+  "name": "Sinnoh Route 224",
+  "kind": "route",
+  "w": 40,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 3,
+   "y": 2,
+   "w": 28,
+   "h": 7
+  }
+ },
+ "oreburgh-mine": {
+  "name": "Oreburgh Mine",
+  "kind": "cave",
+  "w": 34,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "sunyshore-city": {
+  "name": "Sunyshore City",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_GYM"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 21,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "sinnoh-route-208": {
+  "name": "Sinnoh Route 208",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 19,
+   "y": 16,
+   "w": 12,
+   "h": 8
+  }
+ },
+ "sinnoh-route-222": {
+  "name": "Sinnoh Route 222",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 2,
+   "y": 4,
+   "w": 31,
+   "h": 14
+  }
+ },
+ "sinnoh-spear-pillar": {
+  "name": "Sinnoh Spear Pillar",
+  "kind": "cave",
+  "w": 34,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "sinnoh-pok-mon-league": {
+  "name": "Sinnoh Pokémon League",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "sinnoh-route-220": {
+  "name": "Sinnoh Route 220",
+  "kind": "route",
+  "w": 40,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 3,
+   "y": 3,
+   "w": 7,
+   "h": 17
+  }
+ },
+ "survival-area": {
+  "name": "Survival Area",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "sinnoh-route-212": {
+  "name": "Sinnoh Route 212",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 10,
+   "y": 2,
+   "w": 30,
+   "h": 21
+  }
+ },
+ "sinnoh-victory-road": {
+  "name": "Sinnoh Victory Road",
+  "kind": "route",
+  "w": 40,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 8,
+   "y": 2,
+   "w": 24,
+   "h": 16
+  }
+ },
+ "sinnoh-route-204": {
+  "name": "Sinnoh Route 204",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 3,
+   "y": 2,
+   "w": 21,
+   "h": 22
+  }
+ },
+ "sinnoh-route-230": {
+  "name": "Sinnoh Route 230",
+  "kind": "route",
+  "w": 40,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 2,
+   "y": 8,
+   "w": 19,
+   "h": 15
+  }
+ },
+ "sinnoh-route-210": {
+  "name": "Sinnoh Route 210",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 2,
+   "y": 3,
+   "w": 30,
+   "h": 13
+  }
+ },
+ "sinnoh-route-206": {
+  "name": "Sinnoh Route 206",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 13,
+   "y": 3,
+   "w": 21,
+   "h": 20
+  }
+ },
+ "stark-mountain": {
+  "name": "Stark Mountain",
+  "kind": "cave",
+  "w": 34,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "sinnoh-route-216": {
+  "name": "Sinnoh Route 216",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 9,
+   "y": 5,
+   "w": 30,
+   "h": 19
+  }
+ },
+ "sinnoh-lake-verity": {
+  "name": "Sinnoh Lake Verity",
+  "kind": "water",
+  "w": 40,
+  "h": 30,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "sinnoh-route-214": {
+  "name": "Sinnoh Route 214",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 6,
+   "y": 2,
+   "w": 35,
+   "h": 22
+  }
+ },
+ "great-marsh": {
+  "name": "Great Marsh",
+  "kind": "water",
+  "w": 40,
+  "h": 30,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "old-chateau": {
+  "name": "Old Chateau",
+  "kind": "field",
+  "w": 34,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 3,
+   "y": 4,
+   "w": 30,
+   "h": 18
+  }
+ },
+ "sinnoh-route-202": {
+  "name": "Sinnoh Route 202",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 9,
+   "y": 4,
+   "w": 25,
+   "h": 7
+  }
+ },
+ "canalave-city": {
+  "name": "Canalave City",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_GYM"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 21,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "resort-area": {
+  "name": "Resort Area",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "sinnoh-route-228": {
+  "name": "Sinnoh Route 228",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 20,
+   "y": 4,
+   "w": 14,
+   "h": 7
+  }
+ },
+ "sinnoh-route-227": {
+  "name": "Sinnoh Route 227",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 15,
+   "y": 2,
+   "w": 25,
+   "h": 15
+  }
+ },
+ "snowpoint-city": {
+  "name": "Snowpoint City",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_GYM"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 21,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "sinnoh-wayward-cave": {
+  "name": "Sinnoh Wayward Cave",
+  "kind": "cave",
+  "w": 34,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "oreburgh-city": {
+  "name": "Oreburgh City",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_GYM"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 21,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "oreburgh-gate": {
+  "name": "Oreburgh Gate",
+  "kind": "field",
+  "w": 34,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 13,
+   "y": 10,
+   "w": 10,
+   "h": 9
+  }
+ },
+ "eterna-city": {
+  "name": "Eterna City",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_GYM"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 21,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "sinnoh-route-225": {
+  "name": "Sinnoh Route 225",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 3,
+   "y": 4,
+   "w": 31,
+   "h": 18
+  }
+ },
+ "sinnoh-route-219": {
+  "name": "Sinnoh Route 219",
+  "kind": "route",
+  "w": 40,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 25,
+   "y": 7,
+   "w": 10,
+   "h": 16
+  }
+ },
+ "sinnoh-route-209": {
+  "name": "Sinnoh Route 209",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 30,
+   "y": 7,
+   "w": 10,
+   "h": 9
+  }
+ },
+ "floaroma-town": {
+  "name": "Floaroma Town",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "hearthome-city": {
+  "name": "Hearthome City",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_GYM"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 21,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "sinnoh-route-223": {
+  "name": "Sinnoh Route 223",
+  "kind": "route",
+  "w": 40,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 5,
+   "y": 2,
+   "w": 33,
+   "h": 15
+  }
+ },
+ "sinnoh-lake-acuity": {
+  "name": "Sinnoh Lake Acuity",
+  "kind": "water",
+  "w": 40,
+  "h": 30,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "sinnoh-snowpoint-temple": {
+  "name": "Sinnoh Snowpoint Temple",
+  "kind": "field",
+  "w": 34,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 11,
+   "y": 6,
+   "w": 10,
+   "h": 21
+  }
+ },
+ "fight-area": {
+  "name": "Fight Area",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "sinnoh-route-221": {
+  "name": "Sinnoh Route 221",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 8,
+   "y": 9,
+   "w": 18,
+   "h": 9
+  }
+ },
+ "jubilife-city": {
+  "name": "Jubilife City",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "celestic-town": {
+  "name": "Celestic Town",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "solaceon-town": {
+  "name": "Solaceon Town",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "sinnoh-route-205": {
+  "name": "Sinnoh Route 205",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 4,
+   "y": 2,
+   "w": 22,
+   "h": 12
+  }
+ },
+ "distortion-world": {
+  "name": "Distortion World",
+  "kind": "field",
+  "w": 34,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 9,
+   "y": 3,
+   "w": 23,
+   "h": 23
+  }
+ },
+ "sinnoh-route-213": {
+  "name": "Sinnoh Route 213",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 14,
+   "y": 11,
+   "w": 18,
+   "h": 8
+  }
+ },
+ "sinnoh-route-207": {
+  "name": "Sinnoh Route 207",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 23,
+   "y": 9,
+   "w": 12,
+   "h": 13
+  }
+ },
+ "sandgem-town": {
+  "name": "Sandgem Town",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "iron-island": {
+  "name": "Iron Island",
+  "kind": "field",
+  "w": 34,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 24,
+   "y": 6,
+   "w": 5,
+   "h": 6
+  }
+ },
+ "eterna-forest": {
+  "name": "Eterna Forest",
+  "kind": "forest",
+  "w": 34,
+  "h": 34,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 4,
+   "y": 5,
+   "w": 26,
+   "h": 14
+  }
+ },
+ "sinnoh-route-211": {
+  "name": "Sinnoh Route 211",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 10,
+   "y": 2,
+   "w": 28,
+   "h": 19
+  }
+ },
+ "sinnoh-route-201": {
+  "name": "Sinnoh Route 201",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 9,
+   "y": 11,
+   "w": 26,
+   "h": 12
+  }
+ },
+ "lost-tower": {
+  "name": "Lost Tower",
+  "kind": "field",
+  "w": 34,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 7,
+   "y": 14,
+   "w": 15,
+   "h": 7
+  }
+ },
+ "ravaged-path": {
+  "name": "Ravaged Path",
+  "kind": "route",
+  "w": 40,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 7,
+   "y": 6,
+   "w": 28,
+   "h": 17
+  }
+ },
+ "twinleaf-town": {
+  "name": "Twinleaf Town",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "sinnoh-route-217": {
+  "name": "Sinnoh Route 217",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 9,
+   "y": 7,
+   "w": 12,
+   "h": 8
+  }
+ },
+ "veilstone-city": {
+  "name": "Veilstone City",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_GYM"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 21,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "sinnoh-route-203": {
+  "name": "Sinnoh Route 203",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 2,
+   "y": 4,
+   "w": 28,
+   "h": 20
+  }
+ },
+ "pastoria-city": {
+  "name": "Pastoria City",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_GYM"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 21,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "sinnoh-route-229": {
+  "name": "Sinnoh Route 229",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 8,
+   "y": 5,
+   "w": 9,
+   "h": 14
+  }
+ },
+ "pok-mon-mansion": {
+  "name": "Pokémon Mansion",
+  "kind": "field",
+  "w": 34,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 2,
+   "y": 12,
+   "w": 25,
+   "h": 9
+  }
+ },
+ "mount-coronet": {
+  "name": "Mount Coronet",
+  "kind": "cave",
+  "w": 34,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "sinnoh-route-215": {
+  "name": "Sinnoh Route 215",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 5,
+   "y": 5,
+   "w": 22,
+   "h": 12
+  }
+ }
+}

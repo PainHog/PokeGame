@@ -17,7 +17,10 @@
     "avatars": "node scripts/fetch-trainer-avatars.mjs",
     "maps": "node scripts/rasterize-maps.mjs",
     "gbamaps": "node scripts/build-gba-maps.mjs",
-    "emeraldmaps": "node scripts/build-emerald-maps.mjs"
+    "emeraldmaps": "node scripts/build-emerald-maps.mjs",
+    "tiledmaps": "node scripts/build-tiled-maps.mjs",
+    "seviimaps": "node scripts/build-sevii-maps.mjs",
+    "hoenncaves": "node scripts/build-hoenn-caves.mjs"
   },
   "devDependencies": {
     "@foundryvtt/foundryvtt-cli": "^3.0.4",

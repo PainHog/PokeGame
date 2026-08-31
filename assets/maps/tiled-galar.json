@@ -1,0 +1,845 @@
+{
+ "spikemuth": {
+  "name": "Spikemuth",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_GYM"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 21,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "galar-route-2": {
+  "name": "Galar Route 2",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 11,
+   "y": 12,
+   "w": 27,
+   "h": 11
+  }
+ },
+ "wyndon": {
+  "name": "Wyndon",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "hammerlocke": {
+  "name": "Hammerlocke",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_GYM"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 21,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "galar-mine-no-2": {
+  "name": "Galar Mine No. 2",
+  "kind": "cave",
+  "w": 34,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "route-9-tunnel": {
+  "name": "Route 9 Tunnel",
+  "kind": "cave",
+  "w": 34,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "galar-route-10": {
+  "name": "Galar Route 10",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 6,
+   "y": 13,
+   "w": 14,
+   "h": 7
+  }
+ },
+ "galar-route-8": {
+  "name": "Galar Route 8",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 9,
+   "y": 3,
+   "w": 11,
+   "h": 16
+  }
+ },
+ "crown-tundra": {
+  "name": "Crown Tundra",
+  "kind": "field",
+  "w": 47,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 5,
+   "y": 1,
+   "w": 32,
+   "h": 16
+  }
+ },
+ "slumbering-weald": {
+  "name": "Slumbering Weald",
+  "kind": "forest",
+  "w": 34,
+  "h": 34,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 13,
+   "y": 18,
+   "w": 7,
+   "h": 7
+  }
+ },
+ "motostoke": {
+  "name": "Motostoke",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_GYM"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 21,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "galar-route-5": {
+  "name": "Galar Route 5",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 2,
+   "y": 10,
+   "w": 30,
+   "h": 12
+  }
+ },
+ "hulbury": {
+  "name": "Hulbury",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_GYM"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 21,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "glimwood-tangle": {
+  "name": "Glimwood Tangle",
+  "kind": "forest",
+  "w": 34,
+  "h": 34,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 8,
+   "y": 8,
+   "w": 20,
+   "h": 17
+  }
+ },
+ "galar-route-7": {
+  "name": "Galar Route 7",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 16,
+   "y": 5,
+   "w": 22,
+   "h": 12
+  }
+ },
+ "circhester": {
+  "name": "Circhester",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_GYM"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 21,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "galar-route-1": {
+  "name": "Galar Route 1",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 21,
+   "y": 3,
+   "w": 15,
+   "h": 16
+  }
+ },
+ "motostoke-outskirts": {
+  "name": "Motostoke Outskirts",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 9,
+   "y": 7,
+   "w": 24,
+   "h": 7
+  }
+ },
+ "galar-route-3": {
+  "name": "Galar Route 3",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 3,
+   "y": 5,
+   "w": 38,
+   "h": 18
+  }
+ },
+ "freezington": {
+  "name": "Freezington",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "ballonlea": {
+  "name": "Ballonlea",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_GYM"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 21,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "wild-area": {
+  "name": "Wild Area",
+  "kind": "field",
+  "w": 34,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 21,
+   "y": 14,
+   "w": 7,
+   "h": 10
+  }
+ },
+ "galar-route-9": {
+  "name": "Galar Route 9",
+  "kind": "route",
+  "w": 40,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 6,
+   "y": 8,
+   "w": 26,
+   "h": 15
+  }
+ },
+ "galar-pok-mon-league": {
+  "name": "Galar Pokémon League",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "wedgehurst": {
+  "name": "Wedgehurst",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "isle-of-armor": {
+  "name": "Isle of Armor",
+  "kind": "field",
+  "w": 34,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 5,
+   "y": 9,
+   "w": 20,
+   "h": 9
+  }
+ },
+ "postwick": {
+  "name": "Postwick",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "turffield": {
+  "name": "Turffield",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_GYM"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 21,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "stow-on-side": {
+  "name": "Stow-on-Side",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_GYM"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 21,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "galar-route-4": {
+  "name": "Galar Route 4",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 1,
+   "y": 8,
+   "w": 18,
+   "h": 8
+  }
+ },
+ "galar-mine": {
+  "name": "Galar Mine",
+  "kind": "cave",
+  "w": 34,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "galar-route-6": {
+  "name": "Galar Route 6",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 5,
+   "y": 9,
+   "w": 25,
+   "h": 13
+  }
+ }
+}

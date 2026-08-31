@@ -1,0 +1,937 @@
+{
+ "mt-mortar": {
+  "name": "Mt. Mortar",
+  "kind": "cave",
+  "w": 34,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "johto-route-44": {
+  "name": "Johto Route 44",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 7,
+   "y": 7,
+   "w": 13,
+   "h": 7
+  }
+ },
+ "goldenrod-city": {
+  "name": "Goldenrod City",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_GYM"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 21,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "johto-route-30": {
+  "name": "Johto Route 30",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 6,
+   "y": 2,
+   "w": 35,
+   "h": 21
+  }
+ },
+ "johto-route-46": {
+  "name": "Johto Route 46",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 3,
+   "y": 3,
+   "w": 26,
+   "h": 18
+  }
+ },
+ "johto-route-32": {
+  "name": "Johto Route 32",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 33,
+   "y": 2,
+   "w": 8,
+   "h": 18
+  }
+ },
+ "johto-route-40": {
+  "name": "Johto Route 40",
+  "kind": "route",
+  "w": 40,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 4,
+   "y": 4,
+   "w": 25,
+   "h": 21
+  }
+ },
+ "new-bark-town": {
+  "name": "New Bark Town",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "johto-route-34": {
+  "name": "Johto Route 34",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 9,
+   "y": 1,
+   "w": 28,
+   "h": 20
+  }
+ },
+ "johto-route-42": {
+  "name": "Johto Route 42",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 9,
+   "y": 14,
+   "w": 19,
+   "h": 10
+  }
+ },
+ "ecruteak-city": {
+  "name": "Ecruteak City",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_GYM"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 21,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "johto-route-36": {
+  "name": "Johto Route 36",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 23,
+   "y": 5,
+   "w": 14,
+   "h": 20
+  }
+ },
+ "johto-route-39": {
+  "name": "Johto Route 39",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 9,
+   "y": 1,
+   "w": 25,
+   "h": 23
+  }
+ },
+ "dark-cave": {
+  "name": "Dark Cave",
+  "kind": "cave",
+  "w": 34,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "bell-tower": {
+  "name": "Bell Tower",
+  "kind": "field",
+  "w": 34,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 16,
+   "y": 8,
+   "w": 12,
+   "h": 16
+  }
+ },
+ "national-park": {
+  "name": "National Park",
+  "kind": "field",
+  "w": 47,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 2,
+   "y": 6,
+   "w": 43,
+   "h": 21
+  }
+ },
+ "violet-city": {
+  "name": "Violet City",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_GYM"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 21,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "cianwood-city": {
+  "name": "Cianwood City",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_GYM"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 21,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "cherrygrove-city": {
+  "name": "Cherrygrove City",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "union-cave": {
+  "name": "Union Cave",
+  "kind": "cave",
+  "w": 34,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "johto-route-31": {
+  "name": "Johto Route 31",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 16,
+   "y": 6,
+   "w": 20,
+   "h": 16
+  }
+ },
+ "johto-route-45": {
+  "name": "Johto Route 45",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 16,
+   "y": 8,
+   "w": 22,
+   "h": 14
+  }
+ },
+ "ilex-forest": {
+  "name": "Ilex Forest",
+  "kind": "forest",
+  "w": 34,
+  "h": 34,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 2,
+   "y": 1,
+   "w": 29,
+   "h": 15
+  }
+ },
+ "slowpoke-well": {
+  "name": "Slowpoke Well",
+  "kind": "field",
+  "w": 34,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 8,
+   "y": 5,
+   "w": 15,
+   "h": 14
+  }
+ },
+ "johto-route-33": {
+  "name": "Johto Route 33",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 5,
+   "y": 12,
+   "w": 27,
+   "h": 9
+  }
+ },
+ "mahogany-town": {
+  "name": "Mahogany Town",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_GYM"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 21,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "johto-route-47": {
+  "name": "Johto Route 47",
+  "kind": "route",
+  "w": 40,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 7,
+   "y": 14,
+   "w": 23,
+   "h": 9
+  }
+ },
+ "dragon-s-den": {
+  "name": "Dragon's Den",
+  "kind": "cave",
+  "w": 34,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "johto-route-35": {
+  "name": "Johto Route 35",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 18,
+   "y": 5,
+   "w": 9,
+   "h": 7
+  }
+ },
+ "whirl-islands": {
+  "name": "Whirl Islands",
+  "kind": "field",
+  "w": 34,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 4,
+   "y": 5,
+   "w": 10,
+   "h": 10
+  }
+ },
+ "johto-route-41": {
+  "name": "Johto Route 41",
+  "kind": "route",
+  "w": 40,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 25,
+   "y": 2,
+   "w": 13,
+   "h": 13
+  }
+ },
+ "blackthorn-city": {
+  "name": "Blackthorn City",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_GYM"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 21,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "olivine-city": {
+  "name": "Olivine City",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_GYM"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 21,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "johto-route-37": {
+  "name": "Johto Route 37",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 26,
+   "y": 2,
+   "w": 11,
+   "h": 12
+  }
+ },
+ "johto-route-43": {
+  "name": "Johto Route 43",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 12,
+   "y": 6,
+   "w": 24,
+   "h": 8
+  }
+ },
+ "johto-route-29": {
+  "name": "Johto Route 29",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 13,
+   "y": 3,
+   "w": 20,
+   "h": 20
+  }
+ },
+ "johto-route-38": {
+  "name": "Johto Route 38",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 10,
+   "y": 3,
+   "w": 17,
+   "h": 14
+  }
+ },
+ "sprout-tower": {
+  "name": "Sprout Tower",
+  "kind": "field",
+  "w": 34,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 3,
+   "y": 5,
+   "w": 21,
+   "h": 12
+  }
+ },
+ "azalea-town": {
+  "name": "Azalea Town",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_GYM"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 21,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "lake-of-rage": {
+  "name": "Lake of Rage",
+  "kind": "water",
+  "w": 40,
+  "h": 30,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "burned-tower": {
+  "name": "Burned Tower",
+  "kind": "field",
+  "w": 34,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 2,
+   "y": 3,
+   "w": 29,
+   "h": 21
+  }
+ },
+ "johto-route-48": {
+  "name": "Johto Route 48",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 1,
+   "y": 9,
+   "w": 21,
+   "h": 15
+  }
+ },
+ "ice-path": {
+  "name": "Ice Path",
+  "kind": "route",
+  "w": 40,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 13,
+   "y": 8,
+   "w": 8,
+   "h": 13
+  }
+ },
+ "ruins-of-alph": {
+  "name": "Ruins of Alph",
+  "kind": "field",
+  "w": 34,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 11,
+   "y": 8,
+   "w": 18,
+   "h": 7
+  }
+ }
+}

@@ -1,0 +1,1410 @@
+{
+ "unova-route-14": {
+  "name": "Unova Route 14",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 14,
+   "y": 5,
+   "w": 7,
+   "h": 19
+  }
+ },
+ "nacrene-city": {
+  "name": "Nacrene City",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_GYM"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 21,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "nimbasa-city": {
+  "name": "Nimbasa City",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_GYM"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 21,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "unova-pok-mon-league": {
+  "name": "Unova Pokémon League",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "moor-of-icirrus": {
+  "name": "Moor of Icirrus",
+  "kind": "field",
+  "w": 47,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 14,
+   "y": 1,
+   "w": 30,
+   "h": 25
+  }
+ },
+ "twist-mountain": {
+  "name": "Twist Mountain",
+  "kind": "cave",
+  "w": 34,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "unova-route-19": {
+  "name": "Unova Route 19",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 5,
+   "y": 3,
+   "w": 23,
+   "h": 21
+  }
+ },
+ "skyarrow-bridge": {
+  "name": "Skyarrow Bridge",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 8,
+   "y": 8,
+   "w": 33,
+   "h": 12
+  }
+ },
+ "unova-route-23": {
+  "name": "Unova Route 23",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 16,
+   "y": 1,
+   "w": 25,
+   "h": 15
+  }
+ },
+ "unova-route-8": {
+  "name": "Unova Route 8",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 23,
+   "y": 8,
+   "w": 15,
+   "h": 16
+  }
+ },
+ "humilau-city": {
+  "name": "Humilau City",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "lacunosa-town": {
+  "name": "Lacunosa Town",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "unova-route-21": {
+  "name": "Unova Route 21",
+  "kind": "route",
+  "w": 40,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 5,
+   "y": 2,
+   "w": 32,
+   "h": 20
+  }
+ },
+ "celestial-tower": {
+  "name": "Celestial Tower",
+  "kind": "field",
+  "w": 34,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 5,
+   "y": 12,
+   "w": 6,
+   "h": 7
+  }
+ },
+ "unova-route-6": {
+  "name": "Unova Route 6",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 2,
+   "y": 7,
+   "w": 39,
+   "h": 15
+  }
+ },
+ "striaton-city": {
+  "name": "Striaton City",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_GYM"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 21,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "unova-route-13": {
+  "name": "Unova Route 13",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 1,
+   "y": 2,
+   "w": 41,
+   "h": 22
+  }
+ },
+ "unova-route-4": {
+  "name": "Unova Route 4",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 14,
+   "y": 3,
+   "w": 28,
+   "h": 15
+  }
+ },
+ "nuvema-town": {
+  "name": "Nuvema Town",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "desert-resort": {
+  "name": "Desert Resort",
+  "kind": "field",
+  "w": 47,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 6,
+   "y": 2,
+   "w": 14,
+   "h": 21
+  }
+ },
+ "unova-route-11": {
+  "name": "Unova Route 11",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 6,
+   "y": 1,
+   "w": 10,
+   "h": 14
+  }
+ },
+ "unova-route-2": {
+  "name": "Unova Route 2",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 6,
+   "y": 1,
+   "w": 33,
+   "h": 19
+  }
+ },
+ "black-city": {
+  "name": "Black City",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "unova-route-17": {
+  "name": "Unova Route 17",
+  "kind": "route",
+  "w": 40,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 2,
+   "y": 2,
+   "w": 33,
+   "h": 20
+  }
+ },
+ "icirrus-city": {
+  "name": "Icirrus City",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_GYM"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 21,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "pinwheel-forest": {
+  "name": "Pinwheel Forest",
+  "kind": "forest",
+  "w": 34,
+  "h": 34,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 6,
+   "y": 21,
+   "w": 23,
+   "h": 7
+  }
+ },
+ "driftveil-drawbridge": {
+  "name": "Driftveil Drawbridge",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 16,
+   "y": 6,
+   "w": 16,
+   "h": 15
+  }
+ },
+ "unova-route-15": {
+  "name": "Unova Route 15",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 18,
+   "y": 5,
+   "w": 10,
+   "h": 7
+  }
+ },
+ "lostlorn-forest": {
+  "name": "Lostlorn Forest",
+  "kind": "forest",
+  "w": 34,
+  "h": 34,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 3,
+   "y": 1,
+   "w": 8,
+   "h": 7
+  }
+ },
+ "castelia-city": {
+  "name": "Castelia City",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_GYM"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 21,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "undella-town": {
+  "name": "Undella Town",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "village-bridge": {
+  "name": "Village Bridge",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 16,
+   "y": 6,
+   "w": 24,
+   "h": 13
+  }
+ },
+ "unova-route-18": {
+  "name": "Unova Route 18",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 9,
+   "y": 7,
+   "w": 27,
+   "h": 7
+  }
+ },
+ "floccesy-ranch": {
+  "name": "Floccesy Ranch",
+  "kind": "field",
+  "w": 47,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 6,
+   "y": 2,
+   "w": 36,
+   "h": 22
+  }
+ },
+ "mistralton-city": {
+  "name": "Mistralton City",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_GYM"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 21,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "opelucid-city": {
+  "name": "Opelucid City",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_GYM"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 21,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "virbank-city": {
+  "name": "Virbank City",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "unova-route-9": {
+  "name": "Unova Route 9",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 9,
+   "y": 4,
+   "w": 24,
+   "h": 21
+  }
+ },
+ "giant-chasm": {
+  "name": "Giant Chasm",
+  "kind": "cave",
+  "w": 34,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "unova-route-22": {
+  "name": "Unova Route 22",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 17,
+   "y": 18,
+   "w": 25,
+   "h": 7
+  }
+ },
+ "aspertia-city": {
+  "name": "Aspertia City",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "unova-victory-road": {
+  "name": "Unova Victory Road",
+  "kind": "route",
+  "w": 40,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 11,
+   "y": 11,
+   "w": 25,
+   "h": 9
+  }
+ },
+ "accumula-town": {
+  "name": "Accumula Town",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "unova-route-7": {
+  "name": "Unova Route 7",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 10,
+   "y": 4,
+   "w": 11,
+   "h": 15
+  }
+ },
+ "wellspring-cave": {
+  "name": "Wellspring Cave",
+  "kind": "cave",
+  "w": 34,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "tubeline-bridge": {
+  "name": "Tubeline Bridge",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 3,
+   "y": 13,
+   "w": 31,
+   "h": 11
+  }
+ },
+ "unova-route-20": {
+  "name": "Unova Route 20",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 20,
+   "y": 8,
+   "w": 20,
+   "h": 15
+  }
+ },
+ "unova-route-12": {
+  "name": "Unova Route 12",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 6,
+   "y": 5,
+   "w": 34,
+   "h": 17
+  }
+ },
+ "challenger-s-cave": {
+  "name": "Challenger's Cave",
+  "kind": "cave",
+  "w": 34,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "unova-route-5": {
+  "name": "Unova Route 5",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 21,
+   "y": 1,
+   "w": 12,
+   "h": 22
+  }
+ },
+ "floccesy-town": {
+  "name": "Floccesy Town",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "unova-route-10": {
+  "name": "Unova Route 10",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 4,
+   "y": 5,
+   "w": 36,
+   "h": 16
+  }
+ },
+ "dragonspiral-tower": {
+  "name": "Dragonspiral Tower",
+  "kind": "field",
+  "w": 34,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 11,
+   "y": 2,
+   "w": 21,
+   "h": 25
+  }
+ },
+ "unova-route-3": {
+  "name": "Unova Route 3",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 13,
+   "y": 3,
+   "w": 12,
+   "h": 16
+  }
+ },
+ "unova-route-16": {
+  "name": "Unova Route 16",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 19,
+   "y": 3,
+   "w": 17,
+   "h": 17
+  }
+ },
+ "white-forest": {
+  "name": "White Forest",
+  "kind": "forest",
+  "w": 34,
+  "h": 34,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 1,
+   "y": 6,
+   "w": 12,
+   "h": 22
+  }
+ },
+ "driftveil-city": {
+  "name": "Driftveil City",
+  "kind": "town",
+  "w": 30,
+  "h": 26,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 9,
+    "dest": "MAP_TOWN_POKEMON_CENTER"
+   },
+   {
+    "x": 14,
+    "y": 9,
+    "dest": "MAP_TOWN_MART"
+   },
+   {
+    "x": 21,
+    "y": 9,
+    "dest": "MAP_TOWN_GYM"
+   },
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 14,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 21,
+    "y": 17,
+    "dest": "MAP_TOWN_HOUSE"
+   },
+   {
+    "x": 4,
+    "y": 22,
+    "dest": "MAP_TOWN_POLICE_STATION"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "chargestone-cave": {
+  "name": "Chargestone Cave",
+  "kind": "cave",
+  "w": 34,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "unova-route-1": {
+  "name": "Unova Route 1",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 3,
+   "y": 14,
+   "w": 20,
+   "h": 9
+  }
+ },
+ "relic-castle": {
+  "name": "Relic Castle",
+  "kind": "field",
+  "w": 34,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 10,
+   "y": 5,
+   "w": 12,
+   "h": 14
+  }
+ },
+ "seaside-cave": {
+  "name": "Seaside Cave",
+  "kind": "cave",
+  "w": 34,
+  "h": 28,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": null
+ },
+ "marvelous-bridge": {
+  "name": "Marvelous Bridge",
+  "kind": "route",
+  "w": 43,
+  "h": 26,
+  "grid": 32,
+  "warps": [],
+  "connections": [],
+  "grass": {
+   "x": 9,
+   "y": 3,
+   "w": 21,
+   "h": 16
+  }
+ }
+}

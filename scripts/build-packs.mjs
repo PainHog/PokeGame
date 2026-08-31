@@ -1586,8 +1586,12 @@ async function buildScenes() {
   // When present, a scene is rendered from the real game map (native size, doors
   // at real warp tiles, wild zones over real grass) instead of the procedural art.
   const AUTH = {};
-  for (const f of ["gba-kanto.json", "gba-sevii.json", "gba-hoenn.json", "gba-johto.json"]) {
-    try { Object.assign(AUTH, JSON.parse(fsSync.readFileSync(path.join(mapsDir, f), "utf8"))); } catch { /* region not rendered */ }
+  // Load every authentic/real-tile metadata file (gba-<region>.json, gba-<region>-caves.json,
+  // tiled-<region>.json…). Any renderer can drop a file here and its maps light up.
+  let authFiles = [];
+  try { authFiles = fsSync.readdirSync(mapsDir).filter((f) => /^(gba|tiled)-.*\.json$/.test(f)); } catch { /* no maps dir */ }
+  for (const f of authFiles) {
+    try { Object.assign(AUTH, JSON.parse(fsSync.readFileSync(path.join(mapsDir, f), "utf8"))); } catch { /* skip bad file */ }
   }
   const authName = {}; for (const m of Object.values(AUTH)) authName[m.name] = m; // by scene name
   // Match a scene to its authentic art by slug only. Region renderers key their
@@ -1603,6 +1607,7 @@ async function buildScenes() {
     const d = String(dest || "").toLowerCase();
     if (/pokemon_?center|pokecenter/.test(d)) return "Pokémon Center";
     if (/mart|store|shop/.test(d)) return "Poké Mart";
+    if (/police/.test(d)) return "Police Station";
     if (/gym/.test(d)) return map.gym ? `${map.gym.leader}'s Gym` : "House";
     // Outdoor transitions (gates, cave/forest entrances, stairs, route links) are
     // handled by edge exits, not building doors — skip them.
@@ -1647,6 +1652,14 @@ async function buildScenes() {
         if (seen.has(k)) continue; seen.add(k);
         regions.push(doorTo(dest === "Pokémon Center" ? "Poké Center" : dest.endsWith("Gym") ? "Gym" : dest, "#e0554f", dx, dy, gridSize * 2, dest));
         if (dest.endsWith("Gym") && map.gym) gymInteriors.set(map.gym.leader, map.gym);
+      }
+      // A leader whose "city" is a trial site / mountain (Verdant Cavern, Glaseado
+      // Mountain…) has no gym warp on the real map — drop the gym door in the centre
+      // so the League challenge still works there.
+      if (map.gym && !regions.some((r) => (r.behaviors[0]?.system?.destinationSceneName || "").endsWith("Gym"))) {
+        const gx = Math.round((w / 2 - gridSize) / gridSize) * gridSize, gy = Math.round((h / 2) / gridSize) * gridSize;
+        regions.push(doorTo("Gym", "#7b2ff7", gx, gy, gridSize * 2, `${map.gym.leader}'s Gym`));
+        gymInteriors.set(map.gym.leader, map.gym);
       }
     } else {
       // ---- Procedural stylized map (regions not yet authored from real data) ----

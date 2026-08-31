@@ -1,0 +1,1315 @@
+{
+ "one-island": {
+  "name": "One Island",
+  "kind": "town",
+  "w": 24,
+  "h": 20,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 14,
+    "y": 5,
+    "dest": "MAP_ONE_ISLAND_POKEMON_CENTER_1F"
+   },
+   {
+    "x": 19,
+    "y": 9,
+    "dest": "MAP_ONE_ISLAND_HOUSE1"
+   },
+   {
+    "x": 8,
+    "y": 11,
+    "dest": "MAP_ONE_ISLAND_HOUSE2"
+   },
+   {
+    "x": 12,
+    "y": 18,
+    "dest": "MAP_ONE_ISLAND_HARBOR"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "down",
+    "map": "MAP_ONE_ISLAND_TREASURE_BEACH",
+    "offset": 0
+   },
+   {
+    "dir": "right",
+    "map": "MAP_ONE_ISLAND_KINDLE_ROAD",
+    "offset": -120
+   }
+  ],
+  "grass": null
+ },
+ "two-island": {
+  "name": "Two Island",
+  "kind": "town",
+  "w": 48,
+  "h": 20,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 39,
+    "y": 9,
+    "dest": "MAP_TWO_ISLAND_JOYFUL_GAME_CORNER"
+   },
+   {
+    "x": 33,
+    "y": 9,
+    "dest": "MAP_TWO_ISLAND_HOUSE"
+   },
+   {
+    "x": 21,
+    "y": 7,
+    "dest": "MAP_TWO_ISLAND_POKEMON_CENTER_1F"
+   },
+   {
+    "x": 10,
+    "y": 8,
+    "dest": "MAP_TWO_ISLAND_HARBOR"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "up",
+    "map": "MAP_TWO_ISLAND_CAPE_BRINK",
+    "offset": 24
+   }
+  ],
+  "grass": null
+ },
+ "three-island": {
+  "name": "Three Island",
+  "kind": "town",
+  "w": 24,
+  "h": 40,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 3,
+    "y": 31,
+    "dest": "MAP_THREE_ISLAND_HOUSE1"
+   },
+   {
+    "x": 14,
+    "y": 27,
+    "dest": "MAP_THREE_ISLAND_POKEMON_CENTER_1F"
+   },
+   {
+    "x": 18,
+    "y": 12,
+    "dest": "MAP_THREE_ISLAND_MART"
+   },
+   {
+    "x": 4,
+    "y": 6,
+    "dest": "MAP_THREE_ISLAND_HOUSE2"
+   },
+   {
+    "x": 12,
+    "y": 6,
+    "dest": "MAP_THREE_ISLAND_HOUSE3"
+   },
+   {
+    "x": 12,
+    "y": 12,
+    "dest": "MAP_THREE_ISLAND_HOUSE4"
+   },
+   {
+    "x": 13,
+    "y": 19,
+    "dest": "MAP_THREE_ISLAND_HOUSE5"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "down",
+    "map": "MAP_THREE_ISLAND_PORT",
+    "offset": 0
+   },
+   {
+    "dir": "left",
+    "map": "MAP_THREE_ISLAND_BOND_BRIDGE",
+    "offset": 0
+   }
+  ],
+  "grass": null
+ },
+ "four-island": {
+  "name": "Four Island",
+  "kind": "town",
+  "w": 48,
+  "h": 40,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 18,
+    "y": 20,
+    "dest": "MAP_FOUR_ISLAND_POKEMON_CENTER_1F"
+   },
+   {
+    "x": 12,
+    "y": 13,
+    "dest": "MAP_FOUR_ISLAND_POKEMON_DAY_CARE"
+   },
+   {
+    "x": 25,
+    "y": 14,
+    "dest": "MAP_FOUR_ISLAND_HOUSE1"
+   },
+   {
+    "x": 38,
+    "y": 12,
+    "dest": "MAP_FOUR_ISLAND_ICEFALL_CAVE_ENTRANCE"
+   },
+   {
+    "x": 33,
+    "y": 23,
+    "dest": "MAP_FOUR_ISLAND_LORELEIS_HOUSE"
+   },
+   {
+    "x": 25,
+    "y": 26,
+    "dest": "MAP_FOUR_ISLAND_HOUSE2"
+   },
+   {
+    "x": 10,
+    "y": 28,
+    "dest": "MAP_FOUR_ISLAND_HARBOR"
+   },
+   {
+    "x": 22,
+    "y": 26,
+    "dest": "MAP_FOUR_ISLAND_MART"
+   }
+  ],
+  "connections": [],
+  "grass": {
+   "x": 10,
+   "y": 6,
+   "w": 8,
+   "h": 5
+  }
+ },
+ "five-island": {
+  "name": "Five Island",
+  "kind": "town",
+  "w": 24,
+  "h": 20,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 12,
+    "y": 14,
+    "dest": "MAP_FIVE_ISLAND_HARBOR"
+   },
+   {
+    "x": 18,
+    "y": 6,
+    "dest": "MAP_FIVE_ISLAND_POKEMON_CENTER_1F"
+   },
+   {
+    "x": 12,
+    "y": 6,
+    "dest": "MAP_FIVE_ISLAND_HOUSE1"
+   },
+   {
+    "x": 22,
+    "y": 9,
+    "dest": "MAP_FIVE_ISLAND_HOUSE2"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "up",
+    "map": "MAP_FIVE_ISLAND_WATER_LABYRINTH",
+    "offset": -48
+   },
+   {
+    "dir": "right",
+    "map": "MAP_FIVE_ISLAND_MEADOW",
+    "offset": 0
+   }
+  ],
+  "grass": null
+ },
+ "six-island": {
+  "name": "Six Island",
+  "kind": "town",
+  "w": 24,
+  "h": 30,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 11,
+    "y": 23,
+    "dest": "MAP_SIX_ISLAND_HARBOR"
+   },
+   {
+    "x": 11,
+    "y": 11,
+    "dest": "MAP_SIX_ISLAND_POKEMON_CENTER_1F"
+   },
+   {
+    "x": 16,
+    "y": 17,
+    "dest": "MAP_SIX_ISLAND_HOUSE"
+   },
+   {
+    "x": 20,
+    "y": 11,
+    "dest": "MAP_SIX_ISLAND_MART"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "right",
+    "map": "MAP_SIX_ISLAND_WATER_PATH",
+    "offset": -40
+   }
+  ],
+  "grass": null
+ },
+ "seven-island": {
+  "name": "Seven Island",
+  "kind": "town",
+  "w": 24,
+  "h": 20,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 11,
+    "y": 9,
+    "dest": "MAP_SEVEN_ISLAND_HOUSE_ROOM1"
+   },
+   {
+    "x": 5,
+    "y": 9,
+    "dest": "MAP_SEVEN_ISLAND_MART"
+   },
+   {
+    "x": 12,
+    "y": 3,
+    "dest": "MAP_SEVEN_ISLAND_POKEMON_CENTER_1F"
+   },
+   {
+    "x": 16,
+    "y": 13,
+    "dest": "MAP_SEVEN_ISLAND_HARBOR"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "up",
+    "map": "MAP_SEVEN_ISLAND_TRAINER_TOWER",
+    "offset": -48
+   },
+   {
+    "dir": "down",
+    "map": "MAP_SEVEN_ISLAND_SEVAULT_CANYON_ENTRANCE",
+    "offset": 0
+   }
+  ],
+  "grass": null
+ },
+ "kindle-road": {
+  "name": "Kindle Road",
+  "kind": "route",
+  "w": 24,
+  "h": 140,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 11,
+    "y": 6,
+    "dest": "MAP_MT_EMBER_EXTERIOR"
+   },
+   {
+    "x": 12,
+    "y": 6,
+    "dest": "MAP_MT_EMBER_EXTERIOR"
+   },
+   {
+    "x": 15,
+    "y": 58,
+    "dest": "MAP_ONE_ISLAND_KINDLE_ROAD_EMBER_SPA"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "left",
+    "map": "MAP_ONE_ISLAND",
+    "offset": 120
+   }
+  ],
+  "grass": {
+   "x": 7,
+   "y": 82,
+   "w": 6,
+   "h": 33
+  }
+ },
+ "mt-ember": {
+  "name": "Mt. Ember",
+  "kind": "cave",
+  "w": 57,
+  "h": 54,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 28,
+    "y": 48,
+    "dest": "MAP_ONE_ISLAND_KINDLE_ROAD"
+   },
+   {
+    "x": 29,
+    "y": 48,
+    "dest": "MAP_ONE_ISLAND_KINDLE_ROAD"
+   },
+   {
+    "x": 14,
+    "y": 24,
+    "dest": "MAP_MT_EMBER_SUMMIT_PATH_1F"
+   },
+   {
+    "x": 39,
+    "y": 19,
+    "dest": "MAP_MT_EMBER_SUMMIT_PATH_3F"
+   },
+   {
+    "x": 29,
+    "y": 7,
+    "dest": "MAP_MT_EMBER_SUMMIT"
+   },
+   {
+    "x": 42,
+    "y": 39,
+    "dest": "MAP_MT_EMBER_RUBY_PATH_1F"
+   }
+  ],
+  "connections": [],
+  "grass": {
+   "x": 7,
+   "y": 25,
+   "w": 41,
+   "h": 19
+  }
+ },
+ "cape-brink": {
+  "name": "Cape Brink",
+  "kind": "route",
+  "w": 24,
+  "h": 40,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 12,
+    "y": 16,
+    "dest": "MAP_TWO_ISLAND_CAPE_BRINK_HOUSE"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "down",
+    "map": "MAP_TWO_ISLAND",
+    "offset": -24
+   }
+  ],
+  "grass": {
+   "x": 5,
+   "y": 16,
+   "w": 4,
+   "h": 16
+  }
+ },
+ "treasure-beach": {
+  "name": "Treasure Beach",
+  "kind": "route",
+  "w": 24,
+  "h": 40,
+  "grid": 32,
+  "warps": [],
+  "connections": [
+   {
+    "dir": "up",
+    "map": "MAP_ONE_ISLAND",
+    "offset": 0
+   }
+  ],
+  "grass": {
+   "x": 6,
+   "y": 24,
+   "w": 12,
+   "h": 11
+  }
+ },
+ "bond-bridge": {
+  "name": "Bond Bridge",
+  "kind": "route",
+  "w": 96,
+  "h": 20,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 12,
+    "y": 6,
+    "dest": "MAP_THREE_ISLAND_BERRY_FOREST"
+   },
+   {
+    "x": 13,
+    "y": 6,
+    "dest": "MAP_THREE_ISLAND_BERRY_FOREST"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "right",
+    "map": "MAP_THREE_ISLAND",
+    "offset": 0
+   }
+  ],
+  "grass": {
+   "x": 54,
+   "y": 5,
+   "w": 31,
+   "h": 10
+  }
+ },
+ "berry-forest": {
+  "name": "Berry Forest",
+  "kind": "forest",
+  "w": 57,
+  "h": 47,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 43,
+    "y": 41,
+    "dest": "MAP_THREE_ISLAND_BOND_BRIDGE"
+   },
+   {
+    "x": 42,
+    "y": 41,
+    "dest": "MAP_THREE_ISLAND_BOND_BRIDGE"
+   },
+   {
+    "x": 44,
+    "y": 41,
+    "dest": "MAP_THREE_ISLAND_BOND_BRIDGE"
+   }
+  ],
+  "connections": [],
+  "grass": {
+   "x": 4,
+   "y": 5,
+   "w": 44,
+   "h": 39
+  }
+ },
+ "five-isle-meadow": {
+  "name": "Five Isle Meadow",
+  "kind": "route",
+  "w": 24,
+  "h": 40,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 12,
+    "y": 21,
+    "dest": "MAP_FIVE_ISLAND_ROCKET_WAREHOUSE"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "left",
+    "map": "MAP_FIVE_ISLAND",
+    "offset": 0
+   },
+   {
+    "dir": "right",
+    "map": "MAP_FIVE_ISLAND_MEMORIAL_PILLAR",
+    "offset": 20
+   }
+  ],
+  "grass": {
+   "x": 3,
+   "y": 4,
+   "w": 18,
+   "h": 31
+  }
+ },
+ "water-path": {
+  "name": "Water Path",
+  "kind": "route",
+  "w": 24,
+  "h": 100,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 5,
+    "y": 13,
+    "dest": "MAP_SIX_ISLAND_WATER_PATH_HOUSE1"
+   },
+   {
+    "x": 11,
+    "y": 19,
+    "dest": "MAP_SIX_ISLAND_WATER_PATH_HOUSE2"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "left",
+    "map": "MAP_SIX_ISLAND_GREEN_PATH",
+    "offset": 0
+   },
+   {
+    "dir": "left",
+    "map": "MAP_SIX_ISLAND",
+    "offset": 40
+   },
+   {
+    "dir": "left",
+    "map": "MAP_SIX_ISLAND_RUIN_VALLEY",
+    "offset": 80
+   }
+  ],
+  "grass": {
+   "x": 7,
+   "y": 57,
+   "w": 11,
+   "h": 21
+  }
+ },
+ "green-path": {
+  "name": "Green Path",
+  "kind": "route",
+  "w": 72,
+  "h": 20,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 63,
+    "y": 10,
+    "dest": "MAP_SIX_ISLAND_PATTERN_BUSH"
+   },
+   {
+    "x": 64,
+    "y": 10,
+    "dest": "MAP_SIX_ISLAND_PATTERN_BUSH"
+   },
+   {
+    "x": 45,
+    "y": 10,
+    "dest": "MAP_SIX_ISLAND_PATTERN_BUSH"
+   },
+   {
+    "x": 46,
+    "y": 10,
+    "dest": "MAP_SIX_ISLAND_PATTERN_BUSH"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "up",
+    "map": "MAP_SIX_ISLAND_OUTCAST_ISLAND",
+    "offset": 0
+   },
+   {
+    "dir": "right",
+    "map": "MAP_SIX_ISLAND_WATER_PATH",
+    "offset": 0
+   }
+  ],
+  "grass": null
+ },
+ "pattern-bush": {
+  "name": "Pattern Bush",
+  "kind": "forest",
+  "w": 60,
+  "h": 32,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 54,
+    "y": 26,
+    "dest": "MAP_SIX_ISLAND_GREEN_PATH"
+   },
+   {
+    "x": 55,
+    "y": 26,
+    "dest": "MAP_SIX_ISLAND_GREEN_PATH"
+   },
+   {
+    "x": 56,
+    "y": 26,
+    "dest": "MAP_SIX_ISLAND_GREEN_PATH"
+   },
+   {
+    "x": 3,
+    "y": 26,
+    "dest": "MAP_SIX_ISLAND_GREEN_PATH"
+   },
+   {
+    "x": 4,
+    "y": 26,
+    "dest": "MAP_SIX_ISLAND_GREEN_PATH"
+   },
+   {
+    "x": 5,
+    "y": 26,
+    "dest": "MAP_SIX_ISLAND_GREEN_PATH"
+   }
+  ],
+  "connections": [],
+  "grass": {
+   "x": 6,
+   "y": 4,
+   "w": 48,
+   "h": 21
+  }
+ },
+ "ruin-valley": {
+  "name": "Ruin Valley",
+  "kind": "route",
+  "w": 48,
+  "h": 40,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 24,
+    "y": 24,
+    "dest": "MAP_SIX_ISLAND_DOTTED_HOLE_1F"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "right",
+    "map": "MAP_SIX_ISLAND_WATER_PATH",
+    "offset": -80
+   }
+  ],
+  "grass": {
+   "x": 5,
+   "y": 5,
+   "w": 40,
+   "h": 32
+  }
+ },
+ "sevault-canyon": {
+  "name": "Sevault Canyon",
+  "kind": "route",
+  "w": 24,
+  "h": 80,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 7,
+    "y": 17,
+    "dest": "MAP_SEVEN_ISLAND_SEVAULT_CANYON_TANOBY_KEY"
+   },
+   {
+    "x": 14,
+    "y": 61,
+    "dest": "MAP_SEVEN_ISLAND_SEVAULT_CANYON_HOUSE"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "down",
+    "map": "MAP_SEVEN_ISLAND_TANOBY_RUINS",
+    "offset": -48
+   },
+   {
+    "dir": "left",
+    "map": "MAP_SEVEN_ISLAND_SEVAULT_CANYON_ENTRANCE",
+    "offset": -20
+   }
+  ],
+  "grass": {
+   "x": 6,
+   "y": 4,
+   "w": 13,
+   "h": 76
+  }
+ },
+ "tanoby-ruins": {
+  "name": "Tanoby Ruins",
+  "kind": "route",
+  "w": 144,
+  "h": 20,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 120,
+    "y": 10,
+    "dest": "MAP_SEVEN_ISLAND_TANOBY_RUINS_MONEAN_CHAMBER"
+   },
+   {
+    "x": 103,
+    "y": 10,
+    "dest": "MAP_SEVEN_ISLAND_TANOBY_RUINS_LIPTOO_CHAMBER"
+   },
+   {
+    "x": 88,
+    "y": 8,
+    "dest": "MAP_SEVEN_ISLAND_TANOBY_RUINS_WEEPTH_CHAMBER"
+   },
+   {
+    "x": 44,
+    "y": 11,
+    "dest": "MAP_SEVEN_ISLAND_TANOBY_RUINS_DILFORD_CHAMBER"
+   },
+   {
+    "x": 32,
+    "y": 9,
+    "dest": "MAP_SEVEN_ISLAND_TANOBY_RUINS_SCUFIB_CHAMBER"
+   },
+   {
+    "x": 12,
+    "y": 15,
+    "dest": "MAP_SEVEN_ISLAND_TANOBY_RUINS_RIXY_CHAMBER"
+   },
+   {
+    "x": 11,
+    "y": 6,
+    "dest": "MAP_SEVEN_ISLAND_TANOBY_RUINS_VIAPOIS_CHAMBER"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "up",
+    "map": "MAP_SEVEN_ISLAND_SEVAULT_CANYON",
+    "offset": 48
+   }
+  ],
+  "grass": null
+ },
+ "trainer-tower": {
+  "name": "Trainer Tower",
+  "kind": "route",
+  "w": 120,
+  "h": 40,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 58,
+    "y": 7,
+    "dest": "MAP_TRAINER_TOWER_LOBBY"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "down",
+    "map": "MAP_SEVEN_ISLAND",
+    "offset": 48
+   }
+  ],
+  "grass": null
+ },
+ "navel-rock": {
+  "name": "Navel Rock",
+  "kind": "cave",
+  "w": 20,
+  "h": 23,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 9,
+    "y": 8,
+    "dest": "MAP_NAVEL_ROCK_1F"
+   },
+   {
+    "x": 9,
+    "y": 16,
+    "dest": "MAP_NAVEL_ROCK_HARBOR"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "birth-island": {
+  "name": "Birth Island",
+  "kind": "route",
+  "w": 30,
+  "h": 30,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 15,
+    "y": 24,
+    "dest": "MAP_BIRTH_ISLAND_HARBOR"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "lost-cave": {
+  "name": "Lost Cave",
+  "kind": "cave",
+  "w": 11,
+  "h": 11,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 5,
+    "y": 8,
+    "dest": "MAP_FIVE_ISLAND_RESORT_GORGEOUS"
+   },
+   {
+    "x": 5,
+    "y": 5,
+    "dest": "MAP_FIVE_ISLAND_LOST_CAVE_ROOM1"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "icefall-cave": {
+  "name": "Icefall Cave",
+  "kind": "cave",
+  "w": 20,
+  "h": 20,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 3,
+    "y": 17,
+    "dest": "MAP_FOUR_ISLAND_ICEFALL_CAVE_ENTRANCE"
+   },
+   {
+    "x": 2,
+    "y": 8,
+    "dest": "MAP_FOUR_ISLAND_ICEFALL_CAVE_ENTRANCE"
+   },
+   {
+    "x": 12,
+    "y": 12,
+    "dest": "MAP_FOUR_ISLAND_ICEFALL_CAVE_B1F"
+   },
+   {
+    "x": 12,
+    "y": 3,
+    "dest": "MAP_FOUR_ISLAND_ICEFALL_CAVE_B1F"
+   },
+   {
+    "x": 15,
+    "y": 16,
+    "dest": "MAP_FOUR_ISLAND_ICEFALL_CAVE_B1F"
+   },
+   {
+    "x": 3,
+    "y": 6,
+    "dest": "MAP_FOUR_ISLAND_ICEFALL_CAVE_BACK"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "altering-cave": {
+  "name": "Altering Cave",
+  "kind": "cave",
+  "w": 32,
+  "h": 24,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 18,
+    "y": 22,
+    "dest": "MAP_SIX_ISLAND_OUTCAST_ISLAND"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "resort-gorgeous": {
+  "name": "Resort Gorgeous",
+  "kind": "route",
+  "w": 72,
+  "h": 20,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 64,
+    "y": 13,
+    "dest": "MAP_FIVE_ISLAND_LOST_CAVE_ENTRANCE"
+   },
+   {
+    "x": 39,
+    "y": 8,
+    "dest": "MAP_FIVE_ISLAND_RESORT_GORGEOUS_HOUSE"
+   }
+  ],
+  "connections": [
+   {
+    "dir": "down",
+    "map": "MAP_FIVE_ISLAND_WATER_LABYRINTH",
+    "offset": -48
+   }
+  ],
+  "grass": null
+ },
+ "mt-moon": {
+  "name": "Mt. Moon",
+  "kind": "cave",
+  "w": 48,
+  "h": 40,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 5,
+    "y": 6,
+    "dest": "MAP_MT_MOON_B1F"
+   },
+   {
+    "x": 19,
+    "y": 14,
+    "dest": "MAP_MT_MOON_B1F"
+   },
+   {
+    "x": 31,
+    "y": 16,
+    "dest": "MAP_MT_MOON_B1F"
+   },
+   {
+    "x": 18,
+    "y": 37,
+    "dest": "MAP_ROUTE4"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "rock-tunnel": {
+  "name": "Rock Tunnel",
+  "kind": "cave",
+  "w": 48,
+  "h": 40,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 17,
+    "y": 2,
+    "dest": "MAP_ROUTE10"
+   },
+   {
+    "x": 45,
+    "y": 2,
+    "dest": "MAP_ROCK_TUNNEL_B1F"
+   },
+   {
+    "x": 4,
+    "y": 2,
+    "dest": "MAP_ROCK_TUNNEL_B1F"
+   },
+   {
+    "x": 20,
+    "y": 13,
+    "dest": "MAP_ROCK_TUNNEL_B1F"
+   },
+   {
+    "x": 45,
+    "y": 21,
+    "dest": "MAP_ROCK_TUNNEL_B1F"
+   },
+   {
+    "x": 18,
+    "y": 37,
+    "dest": "MAP_ROUTE10"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "cerulean-cave": {
+  "name": "Cerulean Cave",
+  "kind": "cave",
+  "w": 40,
+  "h": 23,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 33,
+    "y": 21,
+    "dest": "MAP_CERULEAN_CITY"
+   },
+   {
+    "x": 34,
+    "y": 2,
+    "dest": "MAP_CERULEAN_CAVE_2F"
+   },
+   {
+    "x": 1,
+    "y": 7,
+    "dest": "MAP_CERULEAN_CAVE_B1F"
+   },
+   {
+    "x": 10,
+    "y": 2,
+    "dest": "MAP_CERULEAN_CAVE_2F"
+   },
+   {
+    "x": 5,
+    "y": 15,
+    "dest": "MAP_CERULEAN_CAVE_2F"
+   },
+   {
+    "x": 30,
+    "y": 10,
+    "dest": "MAP_CERULEAN_CAVE_2F"
+   },
+   {
+    "x": 24,
+    "y": 11,
+    "dest": "MAP_CERULEAN_CAVE_2F"
+   },
+   {
+    "x": 2,
+    "y": 4,
+    "dest": "MAP_CERULEAN_CAVE_2F"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "seafoam-islands": {
+  "name": "Seafoam Islands",
+  "kind": "cave",
+  "w": 38,
+  "h": 24,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 10,
+    "y": 6,
+    "dest": "MAP_SEAFOAM_ISLANDS_B1F"
+   },
+   {
+    "x": 31,
+    "y": 4,
+    "dest": "MAP_SEAFOAM_ISLANDS_B1F"
+   },
+   {
+    "x": 28,
+    "y": 19,
+    "dest": "MAP_SEAFOAM_ISLANDS_B1F"
+   },
+   {
+    "x": 6,
+    "y": 21,
+    "dest": "MAP_ROUTE20"
+   },
+   {
+    "x": 32,
+    "y": 21,
+    "dest": "MAP_ROUTE20"
+   },
+   {
+    "x": 21,
+    "y": 8,
+    "dest": "MAP_SEAFOAM_ISLANDS_B1F"
+   },
+   {
+    "x": 30,
+    "y": 8,
+    "dest": "MAP_SEAFOAM_ISLANDS_B1F"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "diglett-s-cave": {
+  "name": "Diglett's Cave",
+  "kind": "cave",
+  "w": 85,
+  "h": 80,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 3,
+    "y": 3,
+    "dest": "MAP_DIGLETTS_CAVE_NORTH_ENTRANCE"
+   },
+   {
+    "x": 82,
+    "y": 71,
+    "dest": "MAP_DIGLETTS_CAVE_SOUTH_ENTRANCE"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "victory-road": {
+  "name": "Victory Road",
+  "kind": "cave",
+  "w": 48,
+  "h": 22,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 3,
+    "y": 2,
+    "dest": "MAP_VICTORY_ROAD_2F"
+   },
+   {
+    "x": 11,
+    "y": 20,
+    "dest": "MAP_ROUTE23"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "power-plant": {
+  "name": "Power Plant",
+  "kind": "cave",
+  "w": 49,
+  "h": 40,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 4,
+    "y": 39,
+    "dest": "MAP_ROUTE10"
+   },
+   {
+    "x": 5,
+    "y": 38,
+    "dest": "MAP_ROUTE10"
+   },
+   {
+    "x": 6,
+    "y": 39,
+    "dest": "MAP_ROUTE10"
+   },
+   {
+    "x": 1,
+    "y": 11,
+    "dest": "MAP_ROUTE10"
+   },
+   {
+    "x": 0,
+    "y": 13,
+    "dest": "MAP_ROUTE10"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "s-s-anne": {
+  "name": "S.S. Anne",
+  "kind": "route",
+  "w": 70,
+  "h": 32,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 31,
+    "y": 5,
+    "dest": "MAP_VERMILION_CITY"
+   },
+   {
+    "x": 32,
+    "y": 5,
+    "dest": "MAP_VERMILION_CITY"
+   },
+   {
+    "x": 32,
+    "y": 14,
+    "dest": "MAP_SSANNE_1F_CORRIDOR"
+   },
+   {
+    "x": 33,
+    "y": 15,
+    "dest": "MAP_SSANNE_1F_CORRIDOR"
+   },
+   {
+    "x": 33,
+    "y": 5,
+    "dest": "MAP_VERMILION_CITY"
+   }
+  ],
+  "connections": [],
+  "grass": null
+ },
+ "kanto-safari-zone": {
+  "name": "Kanto Safari Zone",
+  "kind": "route",
+  "w": 51,
+  "h": 36,
+  "grid": 32,
+  "warps": [
+   {
+    "x": 25,
+    "y": 30,
+    "dest": "MAP_FUCHSIA_CITY_SAFARI_ZONE_ENTRANCE"
+   },
+   {
+    "x": 26,
+    "y": 30,
+    "dest": "MAP_FUCHSIA_CITY_SAFARI_ZONE_ENTRANCE"
+   },
+   {
+    "x": 27,
+    "y": 30,
+    "dest": "MAP_FUCHSIA_CITY_SAFARI_ZONE_ENTRANCE"
+   },
+   {
+    "x": 25,
+    "y": 5,
+    "dest": "MAP_SAFARI_ZONE_NORTH"
+   },
+   {
+    "x": 26,
+    "y": 5,
+    "dest": "MAP_SAFARI_ZONE_NORTH"
+   },
+   {
+    "x": 27,
+    "y": 5,
+    "dest": "MAP_SAFARI_ZONE_NORTH"
+   },
+   {
+    "x": 8,
+    "y": 17,
+    "dest": "MAP_SAFARI_ZONE_WEST"
+   },
+   {
+    "x": 8,
+    "y": 18,
+    "dest": "MAP_SAFARI_ZONE_WEST"
+   },
+   {
+    "x": 8,
+    "y": 19,
+    "dest": "MAP_SAFARI_ZONE_WEST"
+   },
+   {
+    "x": 43,
+    "y": 15,
+    "dest": "MAP_SAFARI_ZONE_EAST"
+   },
+   {
+    "x": 43,
+    "y": 16,
+    "dest": "MAP_SAFARI_ZONE_EAST"
+   },
+   {
+    "x": 43,
+    "y": 17,
+    "dest": "MAP_SAFARI_ZONE_EAST"
+   },
+   {
+    "x": 29,
+    "y": 25,
+    "dest": "MAP_SAFARI_ZONE_CENTER_REST_HOUSE"
+   }
+  ],
+  "connections": [],
+  "grass": {
+   "x": 11,
+   "y": 7,
+   "w": 31,
+   "h": 22
+  }
+ }
+}
