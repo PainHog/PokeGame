@@ -1590,13 +1590,10 @@ async function buildScenes() {
     try { Object.assign(AUTH, JSON.parse(fsSync.readFileSync(path.join(mapsDir, f), "utf8"))); } catch { /* region not rendered */ }
   }
   const authName = {}; for (const m of Object.values(AUTH)) authName[m.name] = m; // by scene name
-  // Fallback matcher: our route/cave scenes carry a region prefix ("Hoenn Route 101")
-  // while the renderer keys them regionless ("route-101"). Normalise both sides so a
-  // scene still finds its authentic art even if the slug/prefix differs.
-  const authNorm = {};
-  const normName = (s) => slug(String(s).replace(/^(hoenn|johto|kanto|sevii|orange|sinnoh|unova|kalos|galar|paldea|alola|hisui)\s+/i, ""));
-  for (const m of Object.values(AUTH)) authNorm[normName(m.name)] = m;
-  const authFor = (m) => AUTH[m.key] ?? authNorm[normName(m.name)] ?? null;
+  // Match a scene to its authentic art by slug only. Region renderers key their
+  // entries to our scene slugs (gba-hoenn's "Hoenn Route 101" → "hoenn-route-101"),
+  // so a bare "route-9" (Kanto) never bleeds onto "Alola Route 9" and friends.
+  const authFor = (m) => AUTH[m.key] ?? null;
   const dimsOf = (name) => (authName[name] ? [authName[name].w * authName[name].grid, authName[name].h * authName[name].grid] : (DIMS[name] ?? [2400, 1600]));
   // A warp's destination map → which of our interiors it opens (or null if it's
   // actually an outdoor connection, not a building door).
