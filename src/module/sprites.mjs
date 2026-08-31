@@ -39,6 +39,12 @@ export async function setOverworldSprites(actor, sprites = {}) {
   ui.notifications?.info(`${actor.name}: overworld sprites set.`);
 }
 
+// Facing to apply after a move completes, keyed by token id. We compute the
+// direction in preUpdateToken (where the OLD position is still available) but
+// apply the texture as a SEPARATE post-move update — v14's movement pipeline can
+// drop a texture change bundled into the move operation itself.
+const pendingFacing = new Map();
+
 function onPreUpdateToken(tokenDoc, change) {
   try {
     if (!game.settings.get(FLAG_SCOPE, "overworldSprites")) return;
@@ -48,9 +54,19 @@ function onPreUpdateToken(tokenDoc, change) {
     const dx = (change.x ?? tokenDoc.x) - tokenDoc.x;
     const dy = (change.y ?? tokenDoc.y) - tokenDoc.y;
     const dir = facingFromDelta(dx, dy);
-    if (dir && sprites[dir]) {
-      foundry.utils.setProperty(change, "texture.src", sprites[dir]);
-    }
+    if (dir && sprites[dir]) pendingFacing.set(tokenDoc.id, sprites[dir]);
+  } catch (err) {
+    console.warn("Pokémon Masters | overworld sprite facing failed", err);
+  }
+}
+
+function onUpdateToken(tokenDoc, change, options, userId) {
+  try {
+    if (userId !== game.user.id) return;                 // only the mover applies it
+    const src = pendingFacing.get(tokenDoc.id);
+    if (src === undefined) return;
+    pendingFacing.delete(tokenDoc.id);
+    if (tokenDoc.texture?.src !== src && tokenDoc.isOwner) tokenDoc.update({ "texture.src": src }, { animate: false });
   } catch (err) {
     console.warn("Pokémon Masters | overworld sprite swap failed", err);
   }
@@ -67,6 +83,7 @@ export function registerSpriteSystem() {
   });
 
   Hooks.on("preUpdateToken", onPreUpdateToken);
+  Hooks.on("updateToken", onUpdateToken);
 
   game.pokemonMasters = Object.assign(game.pokemonMasters ?? {}, {
     sprites: { set: setOverworldSprites, facingFromDelta }

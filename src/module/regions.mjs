@@ -42,6 +42,9 @@ const EVENTS = {
 // which would otherwise bounce the player straight back out).
 const recentlyTeleported = new Set();
 export function guardTeleport(actorId) { if (!actorId) return; recentlyTeleported.add(actorId); setTimeout(() => recentlyTeleported.delete(actorId), 1500); }
+/** True while an actor's token has just been placed on a new scene (so region
+ *  behaviours in other modules can skip the arrival tile too). */
+export function justTeleported(actorId) { return !!actorId && recentlyTeleported.has(actorId); }
 
 /** Resolve the moving/entering actor from a region event, if it's a Trainer. */
 function trainerFromEvent(event) {

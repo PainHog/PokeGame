@@ -66,7 +66,9 @@ export async function ensurePlayerAutonomy() {
     if (!game.user?.isGM) return;
     const ROLES = CONST.USER_ROLES;
     const PLAYER = ROLES.PLAYER;
-    const NEED = ["ACTOR_CREATE", "TOKEN_CREATE", "TOKEN_CONFIGURE", "FOLDER_CREATE"];
+    // NB: folder creation is NOT a Foundry permission — never add "FOLDER_CREATE"
+    // here (an unknown key can make the whole core.permissions write invalid).
+    const NEED = ["ACTOR_CREATE", "TOKEN_CREATE", "TOKEN_CONFIGURE"];
     const rolesAtLeast = (min) => [PLAYER, ROLES.TRUSTED, ROLES.ASSISTANT, ROLES.GAMEMASTER].filter((r) => r >= min);
     const stored = game.settings.get("core", "permissions") ?? {};
     const perms = foundry.utils.deepClone(stored);

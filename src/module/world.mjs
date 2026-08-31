@@ -104,7 +104,7 @@ async function organizeActor(actor, options, userId) {
     const gm = game.users?.activeGM;
     if (gm) { if (game.user !== gm) return; }
     else if (userId && game.user.id !== userId) return;
-    if (!game.user.can("FOLDER_CREATE")) return;
+    // (folder creation is not a Foundry permission — any user may create folders)
 
     await fileActorFolders(actor);
   } catch (err) {
@@ -122,7 +122,7 @@ async function organizeActor(actor, options, userId) {
  */
 export async function organizeMyActors() {
   try {
-    if (!game.user.can("FOLDER_CREATE")) return;
+    // (folder creation is not a Foundry permission — any user may create folders)
 
     // With a GM online only the GM sweeps; GM-less, each client sweeps its own.
     const gm = game.users?.activeGM;

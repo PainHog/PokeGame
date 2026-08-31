@@ -18,6 +18,7 @@
 
 import { PM } from "./config.mjs";
 import { isResponsible } from "./permissions.mjs";
+import { justTeleported } from "./regions.mjs";
 import { worldPopulation } from "./eligibility.mjs";
 import { catchButtonHtml, resolveTrainer } from "./catch.mjs";
 
@@ -119,12 +120,17 @@ export async function startLegendaryEncounter(trainer, speciesName, { level = 50
 
 /* ---- Static shrine region behavior ------------------------- */
 
-/** String event keys (avoid the CONST global at class-eval time). */
-const TOKEN_ENTER = "tokenEnter";
+/** String event keys (avoid the CONST global at class-eval time). Use tokenMoveIn
+ *  like the other region behaviours — tokenEnter no longer fires reliably in v14
+ *  and also fires on arrival/scene-load, which would spawn the legendary at the
+ *  wrong time. */
+const TOKEN_MOVE_IN = "tokenMoveIn";
 function trainerFromEvent(event) {
   const token = event?.data?.token;
   const actor = token?.actor ?? null;
   if (!actor || actor.type !== "trainer") return { token: null, actor: null };
+  if (justTeleported(actor.id)) return { token: null, actor: null };          // not on the arrival tile
+  if (actor.getFlag?.("pokemon-masters", "isNpc")) return { token: null, actor: null };
   return { token, actor };
 }
 
@@ -142,7 +148,7 @@ export class LegendaryBehaviorType extends foundry.data.regionBehaviors.RegionBe
   }
 
   static events = {
-    [TOKEN_ENTER]: async function (event) {
+    [TOKEN_MOVE_IN]: async function (event) {
       const { token, actor } = trainerFromEvent(event);
       if (!actor || !isResponsible(token)) return;
       const name = this.species;
