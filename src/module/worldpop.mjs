@@ -329,10 +329,8 @@ export async function rebuildWorld() {
     try {
       const entry = pack.index.find((e) => e.name === s.name);
       const o = (await pack.getDocument(entry._id)).toObject();
-      await s.update({
-        backgroundColor: o.backgroundColor, tokenVision: o.tokenVision,
-        fog: o.fog, environment: o.environment, "background.src": o.background?.src,
-      });
+      await applyPackBackground(s, o);   // v14 Scene Level + v13 fallback
+      await s.update({ tokenVision: o.tokenVision, fog: o.fog, environment: o.environment });
       const have = new Set(s.regions.map((r) => r.name));
       const toAdd = o.regions.filter((r) => !have.has(r.name)).map((r) => {
         const c = foundry.utils.deepClone(r); delete c._id; delete c._key;
@@ -404,14 +402,33 @@ export function registerWorldPop() {
 }
 
 /** Install the Rebuild macro + build/populate the world on load (GM only). */
+/** The map image src a scene should have, read version-safely (v14 Scene Level
+ *  first, then the legacy top-level field for v13). */
+function currentSceneSrc(s) {
+  const lvl = s.levels?.contents?.[0] ?? s.levels?.[0];
+  if (lvl) return lvl.background?.src ?? "";
+  return s._source?.background?.src ?? "";
+}
+/** Apply a compendium scene's background to a world scene on both v14 and v13.
+ *  On v14 the map lives on the Scene's Ground level (level.background.src); on
+ *  v13 it's the top-level background.src. */
+async function applyPackBackground(s, o) {
+  const src = o.levels?.[0]?.background?.src ?? o.background?.src ?? null;
+  const color = o.levels?.[0]?.background?.color ?? o.backgroundColor ?? "#000000";
+  if (!src) return;
+  const lvl = s.levels?.contents?.[0];
+  if (lvl) await lvl.update({ "background.src": src, "background.color": color });
+  else await s.update({ "background.src": src, backgroundColor: color });
+}
+
 /**
  * Self-heal stale world scenes after a system update. A system update refreshes
  * the compendium but never rewrites scenes already imported into a world, so an
- * old scene keeps its previous (blank / pre-WebP) background and renders as a
- * white grid. On load, refresh each imported map's background art, colour,
- * lighting & vision from the compendium — touching only scenes that are actually
- * out of date — so maps just work without a manual Rebuild. Responsible-client
- * only (one writer); returns how many it fixed.
+ * old scene keeps its previous (blank / pre-WebP / v13-schema) background and
+ * renders as a white grid — especially on Foundry v14, which moved the map off
+ * Scene#background onto a Scene Level. On load, refresh each imported map's
+ * background art, colour, lighting & vision from the compendium — touching only
+ * scenes that are actually out of date. Responsible-client only; returns count.
  */
 async function healSceneBackgrounds() {
   if (!canPlace()) return 0;
@@ -422,16 +439,12 @@ async function healSceneBackgrounds() {
   for (const s of game.scenes ?? []) {
     const entry = pack.index.find((e) => e.name === s.name);
     if (!entry) continue;
-    const src = s.background?.src ?? "";
-    // Already current (a WebP background on a black ground)? Skip — no fetch.
-    if (src.endsWith(".webp") && s.backgroundColor === "#000000") continue;
+    // Already showing a WebP map? Skip (no fetch) — checks the v14 level first.
+    if (currentSceneSrc(s).endsWith(".webp")) continue;
     try {
       const o = (await pack.getDocument(entry._id)).toObject();
-      if ((o.background?.src ?? "") === src && o.backgroundColor === s.backgroundColor) continue;
-      await s.update({
-        "background.src": o.background?.src, backgroundColor: o.backgroundColor,
-        tokenVision: o.tokenVision, fog: o.fog, environment: o.environment,
-      });
+      await applyPackBackground(s, o);
+      await s.update({ tokenVision: o.tokenVision, fog: o.fog, environment: o.environment });
       fixed++;
     } catch (err) { console.warn("Pokémon Masters | could not heal scene", s?.name, err); }
   }

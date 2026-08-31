@@ -241,6 +241,10 @@ function assignSceneKeys(scene) {
       beh._key = `!scenes.regions.behaviors!${scene._id}.${region._id}.${beh._id}`;
     }
   }
+  // v14 Scene Levels are an embedded collection too — key each like a region.
+  for (const level of scene.levels ?? []) {
+    level._key = `!scenes.levels!${scene._id}.${level._id}`;
+  }
 }
 
 async function writePack(name, docs) {
@@ -1542,10 +1546,32 @@ async function buildScenes() {
     visibility: 0, locked: false
   });
 
+  // Foundry v14 moved the map image + colour off Scene#background (now
+  // deprecated) into a Scene LEVEL: level.background.src is the map image and
+  // level.background.color the ground colour. We emit that "Ground" level AND
+  // keep the legacy top-level fields (same values), so scenes render on both v13
+  // and v14. Returns the scene fields carrying the background.
+  const mapBackground = (key) => {
+    const src = `systems/pokemon-masters/assets/maps/${key}.webp`;
+    return {
+      background: { src },              // v13 (deprecated but harmless on v14)
+      backgroundColor: "#000000",       // v13
+      initialLevel: "defaultLevel0000",
+      levels: [{                        // v14
+        _id: "defaultLevel0000", name: "Ground",
+        elevation: { bottom: 0, top: 20 },
+        background: { src, color: "#000000", tint: "#ffffff", alphaThreshold: 0.75 },
+        foreground: { src: null, tint: "#ffffff", alphaThreshold: 0.75 },
+        fog: { src: null },
+        textures: { anchorX: 0.5, anchorY: 0.5, offsetX: 0, offsetY: 0, fit: "fill", scaleX: 1, scaleY: 1, rotation: 0 },
+        visibility: { levels: [] }, sort: 0, flags: {},
+      }],
+    };
+  };
+
   const sceneDoc = (name, key, w, h, regions) => ({
     _id: stableId("scene", key), name, width: w, height: h, padding: 0.25,
-    background: { src: `systems/pokemon-masters/assets/maps/${key}.webp` },
-    backgroundColor: "#000000", grid: { type: 1, size: 100 },
+    ...mapBackground(key), grid: { type: 1, size: 100 },
     tokenVision: false, fog: { exploration: false },
     environment: { globalLight: { enabled: true }, darknessLevel: 0 },
     // Interiors have no wild encounters, so no encounter-region tag.
@@ -1640,10 +1666,8 @@ async function buildScenes() {
       _id: stableId("scene", map.key),
       name: map.name,
       width: w, height: h, padding: 0.25,
-      background: { src: `systems/pokemon-masters/assets/maps/${map.key}.webp` },
-      // A neutral ground colour so a scene is never pure black even if its
-      // background is still loading.
-      backgroundColor: "#000000",
+      // v14 "Ground" level carries the map (level.background.src) + legacy fields.
+      ...mapBackground(map.key),
       grid: { type: 1, size: 100 },
       // Overworld maps are fully visible — no token-vision fog (the #1 cause of a
       // "black scene"), full global light, day-time. (globalLight lives under
