@@ -153,7 +153,15 @@ const CANON_ADJACENCY = [
   ["Mesagoza", "Cortondo"], ["South Province (Area Two)", "Artazon"], ["Mesagoza", "Paldea Pokémon League"],
   ["West Province (Area One)", "Cascarrafa"], ["Cascarrafa", "Porto Marinada"], ["West Province (Area Two)", "Medali"],
   ["East Province (Area One)", "Levincia"], ["East Province (Area Two)", "Zapapico"], ["North Province (Area One)", "Montenevera"],
-  ["Glaseado Mountain", "Zero Gate"], ["Zero Gate", "Area Zero"], ["Mesagoza", "Kitakami"], ["Mesagoza", "Blueberry Academy"]
+  ["Glaseado Mountain", "Zero Gate"], ["Zero Gate", "Area Zero"], ["Mesagoza", "Kitakami"], ["Mesagoza", "Blueberry Academy"],
+  // Sevii Islands — a Kanto archipelago reached only by the Seagallop ferries.
+  ["Vermilion City", "One Island"], ["One Island", "Two Island"], ["Two Island", "Three Island"],
+  ["Three Island", "Four Island"], ["Four Island", "Five Island"], ["Five Island", "Six Island"],
+  ["Six Island", "Seven Island"], ["One Island", "Kindle Road"], ["Kindle Road", "Mt. Ember"],
+  // Hisui — ancient Sinnoh, reached by a voyage from Canalave City.
+  ["Canalave City", "Jubilife Village"], ["Jubilife Village", "Obsidian Fieldlands"],
+  ["Jubilife Village", "Crimson Mirelands"], ["Jubilife Village", "Coronet Highlands"],
+  ["Coronet Highlands", "Alabaster Icelands"], ["Temple of Sinnoh", "Hisui Spear Pillar"]
 ];
 
 async function verifyMaps() {

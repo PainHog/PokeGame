@@ -154,13 +154,19 @@ const TYPE_HABITATS = {
  *  - methods:  water-types are surf/fishing; everyone else walks.
  */
 const SHARED_DEX = { kanto: ["kanto", "johto"], johto: ["johto", "kanto"] };
+// Hisui (ancient Sinnoh) is home to Hisuian forms plus a broad range of early
+// Pokémon, so Gen 1–4 species also appear there.
+const ANCIENT_REGIONS = new Set(["kanto", "johto", "hoenn", "sinnoh"]);
 function deriveRequirements(s, rarity, nativeReg, varReg) {
   const habitats = [...new Set((s.types || []).flatMap((t) => TYPE_HABITATS[t] || []))];
   const isWater = (s.types || []).includes("Water");
   const methods = isWater ? ["surf", "fishing"] : ["walk"];
   let regions = [];
-  if (varReg) regions = [varReg];
-  else if (nativeReg) regions = SHARED_DEX[nativeReg] ?? [nativeReg];
+  if (varReg) regions = [varReg]; // regional forms (Alolan/Galarian/Hisuian/Paldean) stay locked
+  else if (nativeReg) {
+    regions = SHARED_DEX[nativeReg] ?? [nativeReg];
+    if (ANCIENT_REGIONS.has(nativeReg)) regions = [...new Set([...regions, "hisui"])];
+  }
   return { habitats, regions, methods, times: [] };
 }
 
@@ -458,7 +464,22 @@ const REGION_MAPS = {
   // The Kanto–Johto border corridor (Routes 26–28, Tohjo Falls, Mt. Silver).
   "Route 26": { kind: "route", habitat: "grass" }, "Route 27": { kind: "route", habitat: "water" },
   "Tohjo Falls": { kind: "cave", habitat: "cave" }, "Route 28": { kind: "route", habitat: "mountain" },
-  "Mt. Silver": { kind: "cave", habitat: "cave" }
+  "Mt. Silver": { kind: "cave", habitat: "cave" },
+  // The Sevii Islands — a Kanto archipelago, reachable only by the Seagallop ferries.
+  "One Island": { kind: "town", island: true }, "Two Island": { kind: "town", island: true },
+  "Three Island": { kind: "town", island: true }, "Four Island": { kind: "town", island: true },
+  "Five Island": { kind: "town", island: true }, "Six Island": { kind: "town", island: true },
+  "Seven Island": { kind: "town", island: true },
+  "Treasure Beach": { kind: "ocean", habitat: "water" }, "Kindle Road": { kind: "route", habitat: "mountain" },
+  "Mt. Ember": { kind: "cave", habitat: "mountain" }, "Cape Brink": { kind: "route", habitat: "grass" },
+  "Bond Bridge": { kind: "route", habitat: "grass" }, "Berry Forest": { kind: "forest", habitat: "forest" },
+  "Icefall Cave": { kind: "cave", habitat: "cave" }, "Five Isle Meadow": { kind: "route", habitat: "grass" },
+  "Lost Cave": { kind: "cave", habitat: "cave" }, "Water Path": { kind: "ocean", habitat: "water" },
+  "Pattern Bush": { kind: "forest", habitat: "forest" }, "Green Path": { kind: "route", habitat: "grass" },
+  "Ruin Valley": { kind: "route", habitat: "grass" }, "Altering Cave": { kind: "cave", habitat: "cave" },
+  "Sevault Canyon": { kind: "cave", habitat: "mountain" }, "Tanoby Ruins": { kind: "cave", habitat: "cave" },
+  "Trainer Tower": { kind: "venue" }, "Navel Rock": { kind: "cave", habitat: "cave", island: true },
+  "Birth Island": { kind: "ocean", habitat: "water", island: true }
   },
   johto: {
     "New Bark Town": { kind: "town" }, "Cherrygrove City": { kind: "town" },
@@ -704,12 +725,26 @@ const REGION_MAPS = {
     // Expansion (The Hidden Treasure of Area Zero), reached by the academy field trips.
     "Kitakami": { kind: "route", habitat: "grass", island: true }, "Mossui Town": { kind: "town", island: true },
     "Blueberry Academy": { kind: "venue", island: true }
+  },
+  hisui: {
+    // Ancient Sinnoh: Jubilife Village and five open sub-regions around Mt. Coronet.
+    "Jubilife Village": { kind: "town" }, "Diamond Settlement": { kind: "town" }, "Pearl Settlement": { kind: "town" },
+    "Obsidian Fieldlands": { kind: "route", habitat: "grass" }, "Crimson Mirelands": { kind: "route", habitat: "water" },
+    "Cobalt Coastlands": { kind: "ocean", habitat: "water" }, "Coronet Highlands": { kind: "cave", habitat: "mountain" },
+    "Alabaster Icelands": { kind: "route", habitat: "mountain" }, "The Heartwood": { kind: "forest", habitat: "forest" },
+    "Ramanas Island": { kind: "ocean", habitat: "water" }, "Lake Verity": { kind: "ocean", habitat: "water" },
+    "Solaceon Ruins": { kind: "cave", habitat: "cave" }, "Lake Valor": { kind: "ocean", habitat: "water" },
+    "Firespit Island": { kind: "cave", habitat: "mountain" }, "Wayward Cave": { kind: "cave", habitat: "cave" },
+    "Ancient Quarry": { kind: "cave", habitat: "cave" }, "Temple of Sinnoh": { kind: "cave", habitat: "mountain" },
+    "Spear Pillar": { kind: "cave", habitat: "mountain" }, "Snowpoint Temple": { kind: "cave", habitat: "cave" },
+    "Lake Acuity": { kind: "ocean", habitat: "water" }, "Icepeak Cavern": { kind: "cave", habitat: "cave" }
   }
 };
 
 const REGION_LABEL = {
   kanto: "Kanto", johto: "Johto", hoenn: "Hoenn", sinnoh: "Sinnoh",
-  unova: "Unova", kalos: "Kalos", alola: "Alola", galar: "Galar", paldea: "Paldea"
+  unova: "Unova", kalos: "Kalos", alola: "Alola", galar: "Galar", paldea: "Paldea",
+  hisui: "Hisui"
 };
 
 // [from, from's edge, to] within a region — reverse (opposite edge) auto-generated.
@@ -740,7 +775,22 @@ const REGION_CONNECTIONS = {
   ["Vermilion City", "ship", "S.S. Anne", "S.S. Ticket"],
   // Border corridor east of Indigo Plateau toward Johto (Routes 26–28 + Tohjo Falls).
   ["Indigo Plateau", "east", "Route 26"], ["Route 26", "east", "Tohjo Falls"],
-  ["Tohjo Falls", "north", "Route 27"], ["Route 27", "north", "Route 28"], ["Route 28", "north", "Mt. Silver"]
+  ["Tohjo Falls", "north", "Route 27"], ["Route 27", "north", "Route 28"], ["Route 28", "north", "Mt. Silver"],
+  // Sevii Islands — Seagallop ferries from Vermilion Harbor, then island to island.
+  ["Vermilion City", "ship", "One Island"], ["One Island", "ship", "Two Island"],
+  ["Two Island", "ship", "Three Island"], ["Three Island", "ship", "Four Island"],
+  ["Four Island", "ship", "Five Island"], ["Five Island", "ship", "Six Island"],
+  ["Six Island", "ship", "Seven Island"],
+  ["One Island", "south", "Treasure Beach"], ["One Island", "north", "Kindle Road"],
+  ["Kindle Road", "north", "Mt. Ember"], ["One Island", "west", "Cape Brink"],
+  ["Three Island", "north", "Bond Bridge"], ["Bond Bridge", "north", "Berry Forest"],
+  ["Four Island", "north", "Icefall Cave"], ["Five Island", "north", "Five Isle Meadow"],
+  ["Five Isle Meadow", "north", "Lost Cave"], ["Six Island", "east", "Water Path"],
+  ["Six Island", "north", "Green Path"], ["Green Path", "north", "Pattern Bush"],
+  ["Six Island", "west", "Ruin Valley"], ["Ruin Valley", "west", "Altering Cave"],
+  ["Seven Island", "south", "Sevault Canyon"], ["Sevault Canyon", "south", "Tanoby Ruins"],
+  ["Seven Island", "north", "Trainer Tower"], ["One Island", "ship", "Navel Rock"],
+  ["Six Island", "ship", "Birth Island"]
   ],
   johto: [
     ["New Bark Town", "west", "Route 29"], ["Route 29", "west", "Cherrygrove City"],
@@ -1000,6 +1050,20 @@ const REGION_CONNECTIONS = {
     ["Glaseado Mountain", "south", "Zero Gate"], ["Zero Gate", "south", "Area Zero"], ["Area Zero", "south", "Zero Lab"],
     // Expansion field trips.
     ["Mesagoza", "ship", "Kitakami"], ["Kitakami", "north", "Mossui Town"], ["Mesagoza", "ship", "Blueberry Academy"]
+  ],
+  hisui: [
+    // Expeditions launch from Jubilife Village to each open area.
+    ["Jubilife Village", "north", "Obsidian Fieldlands"], ["Jubilife Village", "east", "Crimson Mirelands"],
+    ["Jubilife Village", "west", "Cobalt Coastlands"], ["Jubilife Village", "south", "Coronet Highlands"],
+    ["Coronet Highlands", "north", "Alabaster Icelands"],
+    ["Obsidian Fieldlands", "east", "The Heartwood"], ["Obsidian Fieldlands", "south", "Ramanas Island"],
+    ["Obsidian Fieldlands", "west", "Lake Verity"], ["Crimson Mirelands", "north", "Diamond Settlement"],
+    ["Crimson Mirelands", "east", "Solaceon Ruins"], ["Crimson Mirelands", "south", "Lake Valor"],
+    ["Cobalt Coastlands", "west", "Firespit Island"], ["Coronet Highlands", "east", "Wayward Cave"],
+    ["Coronet Highlands", "west", "Ancient Quarry"], ["Coronet Highlands", "south", "Temple of Sinnoh"],
+    ["Temple of Sinnoh", "north", "Spear Pillar"], ["Alabaster Icelands", "north", "Pearl Settlement"],
+    ["Alabaster Icelands", "east", "Snowpoint Temple"], ["Alabaster Icelands", "west", "Lake Acuity"],
+    ["Alabaster Icelands", "south", "Icepeak Cavern"]
   ]
 };
 
@@ -1021,7 +1085,9 @@ const INTER_REGION = [
   // Galar across the sea — a ferry from Coumarine (Kalos) to the seaside town of Hulbury.
   ["kalos", "Coumarine City", "ship", "galar", "Hulbury", "S.S. Ticket"],
   // Paldea (neighbouring Kalos, as Spain neighbours France) — a ferry to Porto Marinada.
-  ["kalos", "Coumarine City", "ship", "paldea", "Porto Marinada", "S.S. Ticket"]
+  ["kalos", "Coumarine City", "ship", "paldea", "Porto Marinada", "S.S. Ticket"],
+  // Hisui — the ancient past of Sinnoh, reached by a lone voyage from Canalave City.
+  ["sinnoh", "Canalave City", "ship", "hisui", "Jubilife Village", "S.S. Ticket"]
 ];
 
 const OPPOSITE = { north: "south", south: "north", east: "west", west: "east" };
