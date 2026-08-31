@@ -421,10 +421,12 @@ function buildGear() {
 /* -------------------------------------------- */
 
 /**
- * Lore-accurate Kanto. Each city, route, dungeon and island is its own Scene,
- * connected exactly as in the games (grounded in Bulbapedia). Sea routes 19–21
- * link Fuchsia ↔ Seafoam ↔ Cinnabar ↔ Pallet; the S.S. Anne docks at Vermilion.
- * Data-driven — MAP_DEFS lists the places, CONNECTIONS the edges between them.
+ * The connected Pokémon world, region by region. Each city, route, dungeon and
+ * island is its own Scene, wired exactly as in the games (grounded in
+ * Bulbapedia). Data-driven: REGION_MAPS lists each region's places,
+ * REGION_CONNECTIONS the edges within a region, and INTER_REGION the land
+ * borders and ferries between regions (e.g. Kanto's Route 27 ↔ Johto's New Bark
+ * Town via Tohjo Falls; the S.S. Anne docks at Vermilion).
  */
 const REGION_MAPS = {
   kanto: {
@@ -447,7 +449,36 @@ const REGION_MAPS = {
   "Route 18": { kind: "route", habitat: "grass" }, "Route 19": { kind: "ocean", habitat: "water" },
   "Route 20": { kind: "ocean", habitat: "water" }, "Route 21": { kind: "ocean", habitat: "water" },
   "Route 22": { kind: "route", habitat: "grass" }, "Route 23": { kind: "route", habitat: "mountain" },
-  "Route 24": { kind: "route", habitat: "grass" }, "Route 25": { kind: "route", habitat: "grass" }
+  "Route 24": { kind: "route", habitat: "grass" }, "Route 25": { kind: "route", habitat: "grass" },
+  // The Kanto–Johto border corridor (Routes 26–28, Tohjo Falls, Mt. Silver).
+  "Route 26": { kind: "route", habitat: "grass" }, "Route 27": { kind: "route", habitat: "water" },
+  "Tohjo Falls": { kind: "cave", habitat: "cave" }, "Route 28": { kind: "route", habitat: "mountain" },
+  "Mt. Silver": { kind: "cave", habitat: "cave" }
+  },
+  johto: {
+    "New Bark Town": { kind: "town" }, "Cherrygrove City": { kind: "town" },
+    "Violet City": { kind: "town" }, "Azalea Town": { kind: "town" },
+    "Goldenrod City": { kind: "town" }, "Ecruteak City": { kind: "town" },
+    "Olivine City": { kind: "town" }, "Cianwood City": { kind: "town", island: true },
+    "Mahogany Town": { kind: "town" }, "Blackthorn City": { kind: "town" },
+    "Route 29": { kind: "route", habitat: "grass" }, "Route 30": { kind: "route", habitat: "grass" },
+    "Route 31": { kind: "route", habitat: "grass" }, "Route 32": { kind: "route", habitat: "grass" },
+    "Route 33": { kind: "route", habitat: "mountain" }, "Route 34": { kind: "route", habitat: "grass" },
+    "Route 35": { kind: "route", habitat: "grass" }, "Route 36": { kind: "route", habitat: "grass" },
+    "Route 37": { kind: "route", habitat: "grass" }, "Route 38": { kind: "route", habitat: "grass" },
+    "Route 39": { kind: "route", habitat: "grass" }, "Route 40": { kind: "ocean", habitat: "water" },
+    "Route 41": { kind: "ocean", habitat: "water" }, "Route 42": { kind: "route", habitat: "mountain" },
+    "Route 43": { kind: "route", habitat: "grass" }, "Route 44": { kind: "route", habitat: "grass" },
+    "Route 45": { kind: "route", habitat: "mountain" }, "Route 46": { kind: "route", habitat: "mountain" },
+    "Route 47": { kind: "ocean", habitat: "water" }, "Route 48": { kind: "route", habitat: "grass" },
+    "Sprout Tower": { kind: "venue" }, "Ruins of Alph": { kind: "cave", habitat: "cave" },
+    "Union Cave": { kind: "cave", habitat: "cave" }, "Slowpoke Well": { kind: "cave", habitat: "cave" },
+    "Ilex Forest": { kind: "forest", habitat: "forest" }, "National Park": { kind: "route", habitat: "grass" },
+    "Burned Tower": { kind: "venue" }, "Bell Tower": { kind: "venue" }, "Olivine Lighthouse": { kind: "venue" },
+    "Whirl Islands": { kind: "cave", habitat: "cave", island: true }, "Mt. Mortar": { kind: "cave", habitat: "cave" },
+    "Lake of Rage": { kind: "ocean", habitat: "water" }, "Ice Path": { kind: "cave", habitat: "cave" },
+    "Dragon's Den": { kind: "cave", habitat: "cave" }, "Dark Cave": { kind: "cave", habitat: "cave" },
+    "Safari Zone Gate": { kind: "venue" }
   }
 };
 
@@ -481,12 +512,45 @@ const REGION_CONNECTIONS = {
   ["Route 19", "south", "Seafoam Islands"], ["Seafoam Islands", "west", "Route 20"],
   ["Route 20", "west", "Cinnabar Island"], ["Cinnabar Island", "north", "Route 21"],
   ["Route 21", "north", "Pallet Town"],
-  ["Vermilion City", "ship", "S.S. Anne", "S.S. Ticket"]
+  ["Vermilion City", "ship", "S.S. Anne", "S.S. Ticket"],
+  // Border corridor east of Indigo Plateau toward Johto (Routes 26–28 + Tohjo Falls).
+  ["Indigo Plateau", "east", "Route 26"], ["Route 26", "east", "Tohjo Falls"],
+  ["Tohjo Falls", "north", "Route 27"], ["Route 27", "north", "Route 28"], ["Route 28", "north", "Mt. Silver"]
+  ],
+  johto: [
+    ["New Bark Town", "west", "Route 29"], ["Route 29", "west", "Cherrygrove City"],
+    ["Cherrygrove City", "north", "Route 30"], ["Route 30", "north", "Route 31"],
+    ["Route 31", "west", "Violet City"], ["Route 31", "south", "Dark Cave"],
+    ["Violet City", "north", "Sprout Tower"], ["Violet City", "south", "Route 32"],
+    ["Route 32", "east", "Ruins of Alph"], ["Route 32", "south", "Union Cave"],
+    ["Union Cave", "south", "Route 33"], ["Route 33", "west", "Azalea Town"],
+    ["Azalea Town", "south", "Slowpoke Well"], ["Azalea Town", "west", "Ilex Forest"],
+    ["Ilex Forest", "west", "Route 34"], ["Route 34", "north", "Goldenrod City"],
+    ["Goldenrod City", "north", "Route 35"], ["Route 35", "north", "National Park"],
+    ["National Park", "north", "Route 36"], ["Route 36", "east", "Route 37"],
+    ["Route 37", "north", "Ecruteak City"], ["Ecruteak City", "north", "Burned Tower"],
+    ["Ecruteak City", "south", "Bell Tower"], ["Ecruteak City", "west", "Route 38"],
+    ["Route 38", "west", "Route 39"], ["Route 39", "south", "Olivine City"],
+    ["Olivine City", "north", "Olivine Lighthouse"], ["Olivine City", "west", "Route 40"],
+    ["Route 40", "west", "Route 41"], ["Route 41", "west", "Cianwood City"],
+    ["Route 41", "south", "Whirl Islands"], ["Ecruteak City", "east", "Route 42"],
+    ["Route 42", "east", "Mt. Mortar"], ["Mt. Mortar", "east", "Mahogany Town"],
+    ["Mahogany Town", "north", "Route 43"], ["Route 43", "north", "Lake of Rage"],
+    ["Mahogany Town", "east", "Route 44"], ["Route 44", "east", "Ice Path"],
+    ["Ice Path", "east", "Blackthorn City"], ["Blackthorn City", "north", "Dragon's Den"],
+    ["Blackthorn City", "south", "Route 45"], ["Route 45", "south", "Route 46"],
+    ["Route 46", "south", "Route 29"], ["Dark Cave", "north", "Route 46"],
+    ["Cianwood City", "west", "Route 47"], ["Route 47", "north", "Safari Zone Gate"],
+    ["Safari Zone Gate", "north", "Route 48"], ["Route 48", "east", "Route 42"]
   ]
 };
 
-// Cross-region links (ferries/flights): [regionA, placeA, regionB, placeB, ticket?].
-const INTER_REGION = [];
+// Cross-region links: [regionA, placeA, edge, regionB, placeB, ticket?].
+// A compass edge is a land border; "ship" is a ticketed ferry/flight.
+const INTER_REGION = [
+  // Johto joins Kanto by land: New Bark Town ↔ Kanto's Route 27 (via Tohjo Falls).
+  ["johto", "New Bark Town", "east", "kanto", "Route 27"]
+];
 
 const OPPOSITE = { north: "south", south: "north", east: "west", west: "east" };
 const KIND_DIMS = { town: [2600, 1800], route: [3400, 1900], forest: [3400, 3400], cave: [2600, 2600], ocean: [4200, 3000], venue: [2400, 1600] };
@@ -516,11 +580,13 @@ function exitsByMap() {
       else { add(A, { edge, to: B }); add(B, { edge: OPPOSITE[edge], to: A }); }
     }
   }
-  // Cross-region ferries/flights are always ticketed "ship" edges.
-  for (const [ra, a, rb, b, ticket] of INTER_REGION) {
+  // Cross-region links: [regionA, placeA, edge, regionB, placeB, ticket?].
+  // edge === "ship" is a ticketed ferry/flight; a compass edge is a land border.
+  for (const [ra, a, edge, rb, b, ticket] of INTER_REGION) {
     const A = qualifyName(ra, a);
     const B = qualifyName(rb, b);
-    add(A, { ship: true, to: B, ticket }); add(B, { ship: true, to: A, ticket });
+    if (edge === "ship") { add(A, { ship: true, to: B, ticket }); add(B, { ship: true, to: A, ticket }); }
+    else { add(A, { edge, to: B, ticket }); add(B, { edge: OPPOSITE[edge], to: A, ticket }); }
   }
   return out;
 }

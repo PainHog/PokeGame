@@ -81,7 +81,19 @@ const CANON_ADJACENCY = [
   ["Route 8", "Lavender Town"], ["Route 18", "Fuchsia City"],
   ["Fuchsia City", "Route 19"], ["Route 19", "Seafoam Islands"], ["Seafoam Islands", "Route 20"],
   ["Route 20", "Cinnabar Island"], ["Cinnabar Island", "Route 21"], ["Route 21", "Pallet Town"],
-  ["Victory Road", "Indigo Plateau"], ["Vermilion City", "S.S. Anne"]
+  ["Victory Road", "Indigo Plateau"], ["Vermilion City", "S.S. Anne"],
+  // Kanto–Johto border corridor + Johto backbone (Bulbapedia-sourced).
+  ["Indigo Plateau", "Route 26"], ["Route 26", "Tohjo Falls"], ["Tohjo Falls", "Route 27"],
+  ["Route 27", "New Bark Town"], ["New Bark Town", "Route 29"], ["Route 29", "Cherrygrove City"],
+  ["Cherrygrove City", "Route 30"], ["Route 30", "Route 31"], ["Route 31", "Violet City"],
+  ["Violet City", "Route 32"], ["Route 32", "Union Cave"], ["Union Cave", "Route 33"],
+  ["Route 33", "Azalea Town"], ["Azalea Town", "Ilex Forest"], ["Ilex Forest", "Route 34"],
+  ["Route 34", "Goldenrod City"], ["Goldenrod City", "Route 35"], ["Route 35", "National Park"],
+  ["National Park", "Route 36"], ["Route 36", "Route 37"], ["Route 37", "Ecruteak City"],
+  ["Ecruteak City", "Route 38"], ["Route 38", "Route 39"], ["Route 39", "Olivine City"],
+  ["Olivine City", "Route 40"], ["Route 40", "Route 41"], ["Route 41", "Cianwood City"],
+  ["Ecruteak City", "Route 42"], ["Route 42", "Mt. Mortar"], ["Mt. Mortar", "Mahogany Town"],
+  ["Mahogany Town", "Route 44"], ["Route 44", "Ice Path"], ["Ice Path", "Blackthorn City"]
 ];
 
 async function verifyMaps() {
