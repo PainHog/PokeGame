@@ -1212,33 +1212,106 @@ const edgeLabelPos = (e, w, h) => ({ north: [w / 2, 150], south: [w / 2, h - 150
 const dockRect = (w, h, i = 0) => [w - 360 - i * 340, h - 360, 300, 300];
 const dockEntry = (w, h) => [w - 560, h - 560];
 
+/** Escape text for embedding in SVG (a stray "&" in a name breaks the XML). */
+const xml = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+/** Deterministic RNG so a given map always renders identically. */
+function seededRng(str) {
+  let s = 2166136261 >>> 0;
+  for (let i = 0; i < str.length; i++) { s ^= str.charCodeAt(i); s = Math.imul(s, 16777619) >>> 0; }
+  return () => { s ^= s << 13; s ^= s >>> 17; s ^= s << 5; s >>>= 0; return s / 4294967296; };
+}
+/** Road palette per terrain (a path that contrasts with the ground). */
+const ROAD = { town: "#c8c2b0", route: "#cbb37a", forest: "#b79b62", cave: "#7d7686", ocean: null, venue: "#d8c7a6" };
+
+/** A door + a highlighted "step here" entrance mat at the front-centre of a building. */
+function buildingWithDoor(x, y, bw, bh, wall, roof, label, roadCol) {
+  const cx = x + bw / 2;
+  const door = 46;
+  return `<rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="10" fill="${wall}" stroke="#8a8a8a" stroke-width="4"/>`
+    + `<rect x="${x}" y="${y}" width="${bw}" height="60" fill="${roof}"/>`
+    // path from below up to the door + a bright entrance mat on the door tile
+    + (roadCol ? `<rect x="${cx - 26}" y="${y + bh}" width="52" height="90" fill="${roadCol}"/>` : "")
+    + `<rect x="${cx - door / 2}" y="${y + bh - door - 6}" width="${door}" height="${door + 6}" rx="6" fill="#3a2f2a"/>`
+    + `<rect x="${cx - 40}" y="${y + bh + 4}" width="80" height="26" rx="6" fill="#ffd94a" stroke="#b28a00" stroke-width="3"/>`
+    + `<text x="${cx}" y="${y + bh - 74}" font-family="Arial" font-size="22" fill="#333" text-anchor="middle">${xml(label)}</text>`;
+}
+
+/** A clear exit gate (arrow + destination) at an edge, aligned to its warp tile. */
+function exitGate(edge, w, h, to) {
+  const [x, y, gw, gh] = edgeRect(edge, w, h);
+  const arrow = { north: "▲", south: "▼", east: "▶", west: "◀" }[edge] ?? "▲";
+  const cx = x + gw / 2, cy = y + gh / 2;
+  const lx = edge === "east" ? cx - 120 : edge === "west" ? cx + 120 : cx;
+  const ly = edge === "north" ? y + gh + 34 : edge === "south" ? y - 16 : cy + 8;
+  return `<rect x="${x}" y="${y}" width="${gw}" height="${gh}" rx="8" fill="#ffd94a" stroke="#1c3c5c" stroke-width="6"/>`
+    + `<text x="${cx}" y="${cy + 18}" font-family="Arial" font-size="52" fill="#1c3c5c" text-anchor="middle">${arrow}</text>`
+    + `<text x="${lx}" y="${ly}" font-family="Arial" font-size="28" font-weight="bold" fill="#12324f" text-anchor="middle">${xml(to)}</text>`;
+}
+
 function mapSvg(map) {
   const w = map.w ?? 2400;
   const h = map.h ?? 1600;
-  const fill = KIND_FILL[map.kind] ?? "#8ec98e";
+  const kind = map.kind;
+  const fill = KIND_FILL[kind] ?? "#8ec98e";
+  const rng = seededRng(map.key);
+  const road = ROAD[kind] ?? null;
+  const cx = w / 2, cy = h / 2;
+  // Town roads/NPCs meet on the street just below the building row; elsewhere the
+  // paths meet at the map centre.
+  const hubY = kind === "town" ? cy + 140 : cy;
   const p = [`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">`, `<rect width="${w}" height="${h}" fill="${fill}"/>`];
-  if (map.kind === "town") {
-    const cx = w / 2;
-    const cy = h / 2;
-    p.push(`<rect x="${cx - 500}" y="${cy - 120}" width="200" height="200" rx="10" fill="#f0f0f0" stroke="#ccc" stroke-width="4"/><rect x="${cx - 500}" y="${cy - 120}" width="200" height="64" fill="#e0554f"/><text x="${cx - 400}" y="${cy + 140}" font-family="Arial" font-size="26" fill="#444" text-anchor="middle">Center</text>`);
-    p.push(`<rect x="${cx - 100}" y="${cy - 120}" width="200" height="200" rx="10" fill="#f0f0f0" stroke="#ccc" stroke-width="4"/><rect x="${cx - 100}" y="${cy - 120}" width="200" height="64" fill="#4f7fd0"/><text x="${cx}" y="${cy + 140}" font-family="Arial" font-size="26" fill="#444" text-anchor="middle">Mart</text>`);
-    p.push(`<rect x="${cx + 220}" y="${cy - 120}" width="200" height="200" rx="10" fill="#eef2f7" stroke="#ccc" stroke-width="4"/><rect x="${cx + 220}" y="${cy - 120}" width="200" height="64" fill="#2f5aa8"/><text x="${cx + 320}" y="${cy - 78}" font-family="Arial" font-size="34" fill="#fff" text-anchor="middle">🚓</text><text x="${cx + 320}" y="${cy + 140}" font-family="Arial" font-size="26" fill="#444" text-anchor="middle">Police</text>`);
-    if (map.gym) {
-      p.push(`<rect x="${cx + 520}" y="${cy - 120}" width="200" height="200" rx="10" fill="#efe6ff" stroke="#7b2ff7" stroke-width="6"/><rect x="${cx + 520}" y="${cy - 120}" width="200" height="64" fill="#7b2ff7"/><text x="${cx + 620}" y="${cy - 78}" font-family="Arial" font-size="30" fill="#ffd94a" text-anchor="middle">★</text><text x="${cx + 620}" y="${cy + 140}" font-family="Arial" font-size="24" fill="#444" text-anchor="middle">${map.gym.leader}'s Gym</text>`);
-    }
-  } else {
-    p.push(`<rect x="${w * 0.12}" y="${h * 0.12}" width="${w * 0.76}" height="${h * 0.76}" rx="24" fill="rgba(0,0,0,0.08)"/>`);
+
+  // ---- Terrain texture (scattered features, kept clear of the centre hub) ----
+  const nearCenter = (fx, fy) => Math.abs(fx - cx) < w * 0.16 && Math.abs(fy - cy) < h * 0.16;
+  const scatter = (n, draw) => { for (let i = 0; i < n; i++) { const fx = 120 + rng() * (w - 240), fy = 160 + rng() * (h - 320); if (!nearCenter(fx, fy)) p.push(draw(fx, fy)); } };
+  if (kind === "route") {
+    p.push(`<rect x="0" y="0" width="${w}" height="${h}" fill="#7dbf7d" opacity="0.0"/>`);
+    scatter(70, (x, y) => `<circle cx="${x}" cy="${y}" r="${18 + rng() * 16}" fill="#5fa85f" opacity="0.7"/>`); // tall-grass tufts
+    scatter(18, (x, y) => `<circle cx="${x}" cy="${y}" r="${34 + rng() * 18}" fill="#2f7d32"/><rect x="${x - 6}" y="${y}" width="12" height="34" fill="#6b4a2a"/>`); // trees
+  } else if (kind === "forest") {
+    scatter(120, (x, y) => `<circle cx="${x}" cy="${y}" r="${30 + rng() * 26}" fill="#2c5f2c"/><circle cx="${x}" cy="${y - 8}" r="${18 + rng() * 14}" fill="#367a36"/>`);
+  } else if (kind === "cave") {
+    scatter(60, (x, y) => `<polygon points="${x},${y - 40} ${x + 34},${y + 26} ${x - 34},${y + 26}" fill="#6b6674"/>`); // rocks
+  } else if (kind === "ocean") {
+    for (let i = 0; i < 60; i++) { const yy = 160 + rng() * (h - 320), xx = 60 + rng() * (w - 200); p.push(`<path d="M${xx} ${yy} q 30 -18 60 0 t 60 0" stroke="#6fa8dd" stroke-width="6" fill="none" opacity="0.7"/>`); }
+  } else if (kind === "venue") {
+    p.push(`<rect x="${w * 0.08}" y="${h * 0.08}" width="${w * 0.84}" height="${h * 0.84}" rx="20" fill="#c9a875" stroke="#8a6a3a" stroke-width="8"/>`);
+    for (let gx = w * 0.12; gx < w * 0.88; gx += 220) p.push(`<line x1="${gx}" y1="${h * 0.08}" x2="${gx}" y2="${h * 0.92}" stroke="#b8975f" stroke-width="2"/>`);
   }
+
+  // ---- Road network: a hub with a path to every land exit ----
+  if (road) {
+    for (const ex of map.exits) {
+      if (ex.ship) continue;
+      const [ex2, ey2] = arriveEntry(ex.edge, w, h);
+      p.push(`<line x1="${cx}" y1="${hubY}" x2="${ex2}" y2="${ey2}" stroke="${road}" stroke-width="70" stroke-linecap="round"/>`);
+    }
+    p.push(`<circle cx="${cx}" cy="${hubY}" r="60" fill="${road}"/>`);
+  }
+
+  // ---- Town: a main street + the service buildings (aligned with their region
+  //      tiles at cy-120), each with a door and a bright entrance mat. ----
+  if (kind === "town") {
+    p.push(`<rect x="${cx - 560}" y="${cy + 84}" width="1320" height="120" rx="20" fill="${road}"/>`); // main street below the buildings
+    p.push(buildingWithDoor(cx - 500, cy - 120, 200, 200, "#f3efe6", "#e0554f", "Pokémon Center", road));
+    p.push(buildingWithDoor(cx - 100, cy - 120, 200, 200, "#f3efe6", "#4f7fd0", "Poké Mart", road));
+    p.push(buildingWithDoor(cx + 220, cy - 120, 200, 200, "#eef2f7", "#2f5aa8", "Police 🚓", road));
+    if (map.gym) p.push(buildingWithDoor(cx + 520, cy - 120, 200, 200, "#efe6ff", "#7b2ff7", `${map.gym.leader}'s Gym ★`, road));
+  }
+
+  // ---- Ship docks (ferry/flight exits) ----
   map.exits.filter((e) => e.ship).forEach((ex, i) => {
     const [dx, dy, dw, dh] = dockRect(w, h, i);
-    p.push(`<rect x="${dx}" y="${dy}" width="${dw}" height="${dh}" fill="#8a6d3b"/><text x="${dx + dw / 2}" y="${dy + dh / 2 + 8}" font-family="Arial" font-size="24" fill="#fff" text-anchor="middle">⚓ ${ex.to}</text>`);
+    p.push(`<rect x="${dx}" y="${dy}" width="${dw}" height="${dh}" rx="8" fill="#8a6d3b" stroke="#5c4522" stroke-width="6"/>`
+      + `<text x="${dx + dw / 2}" y="${dy + dh / 2 + 8}" font-family="Arial" font-size="26" fill="#fff" text-anchor="middle">⚓ ${xml(ex.to)}</text>`);
   });
-  p.push(`<text x="${w / 2}" y="72" font-family="Arial" font-size="52" font-weight="bold" fill="#333" text-anchor="middle">${map.name}${map.island ? " (Island)" : ""}</text>`);
-  for (const ex of map.exits) {
-    if (ex.ship) continue;
-    const [lx, ly] = edgeLabelPos(ex.edge, w, h);
-    p.push(`<text x="${lx}" y="${ly}" font-family="Arial" font-size="30" font-weight="bold" fill="#1c3c5c" text-anchor="middle">▲ ${ex.to}</text>`);
-  }
+
+  // ---- Land exit gates (clearly marked, aligned to the warp tiles) ----
+  for (const ex of map.exits) { if (!ex.ship) p.push(exitGate(ex.edge, w, h, ex.to)); }
+
+  // ---- Title banner ----
+  p.push(`<rect x="${cx - 320}" y="24" width="640" height="60" rx="12" fill="#ffffff" opacity="0.72"/>`);
+  p.push(`<text x="${cx}" y="68" font-family="Arial" font-size="46" font-weight="bold" fill="#222" text-anchor="middle">${xml(map.name)}${map.island ? " (Island)" : ""}</text>`);
   p.push("</svg>");
   return p.join("\n");
 }
@@ -1305,7 +1378,7 @@ async function buildScenes() {
       _id: stableId("scene", map.key),
       name: map.name,
       width: w, height: h, padding: 0.25,
-      background: { src: `systems/pokemon-masters/assets/maps/${map.key}.svg` },
+      background: { src: `systems/pokemon-masters/assets/maps/${map.key}.webp` },
       // A neutral ground colour so a scene is never pure black even if its
       // background is still loading.
       backgroundColor: "#000000",

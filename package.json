@@ -12,13 +12,15 @@
     "check": "node scripts/build-packs.mjs && node scripts/verify.mjs && node scripts/smoke.mjs",
     "build:limit": "node scripts/build-packs.mjs --limit=60",
     "clean": "node -e \"import('node:fs').then(fs=>{for(const d of ['packs','src/packs']){fs.rmSync(d,{recursive:true,force:true})}})\"",
-    "trainers": "node scripts/fetch-trainers.mjs"
+    "trainers": "node scripts/fetch-trainers.mjs",
+    "maps": "node scripts/rasterize-maps.mjs"
   },
   "devDependencies": {
     "@foundryvtt/foundryvtt-cli": "^3.0.4",
     "@pkmn/data": "^0.10.11",
     "@pkmn/dex": "^0.10.11",
     "@pkmn/img": "^0.3.4",
+    "playwright-core": "^1.62.1",
     "pngjs": "^7.0.0"
   }
 }

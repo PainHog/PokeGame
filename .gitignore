@@ -6,8 +6,7 @@ node_modules/
 src/packs/
 packs/
 # Generated map images (rebuilt by `npm run build` from our own code)
-assets/maps/
-
+assets/maps/*.svg
 # OS / editor
 .DS_Store
 *.log
