@@ -141,7 +141,7 @@ function drawMetatile(out, ow, ox, oy, mtId, prim, sec) {
 const key = (name) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
 /** Locate the vendored Chromium playwright-core downloaded under /opt/pw-browsers. */
-function findChrome() { const base = "/opt/pw-browsers"; for (const d of readdirSync(base)) { if (d.startsWith("chromium-")) { const p = path.join(base, d, "chrome-linux", "chrome"); if (existsSync(p)) return p; } } return null; }
+function findChrome() { if (process.env.PM_CHROME && existsSync(process.env.PM_CHROME)) return process.env.PM_CHROME; for (const p of ["/usr/bin/google-chrome-stable", "/usr/bin/google-chrome", "/usr/bin/chromium-browser", "/usr/bin/chromium"]) if (existsSync(p)) return p; const base = "/opt/pw-browsers"; try { for (const d of readdirSync(base)) if (d.startsWith("chromium-")) { const q = path.join(base, d, "chrome-linux", "chrome"); if (existsSync(q)) return q; } } catch { /* */ } return null; }
 
 async function main() {
   await fs.mkdir(OUT, { recursive: true });

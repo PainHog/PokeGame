@@ -24,16 +24,7 @@ const MAX_DIM = 2000;      // longest side; Foundry scales flat colour maps fine
 const QUALITY = 0.82;
 
 /** Locate the bundled Chromium binary (version dir is not fixed). */
-function findChrome() {
-  const base = process.env.PLAYWRIGHT_BROWSERS_PATH || "/opt/pw-browsers";
-  if (!existsSync(base)) return null;
-  for (const d of readdirSync(base)) {
-    if (!d.startsWith("chromium-")) continue;
-    const p = path.join(base, d, "chrome-linux", "chrome");
-    if (existsSync(p)) return p;
-  }
-  return null;
-}
+function findChrome() { if (process.env.PM_CHROME && existsSync(process.env.PM_CHROME)) return process.env.PM_CHROME; for (const p of ["/usr/bin/google-chrome-stable", "/usr/bin/google-chrome", "/usr/bin/chromium-browser", "/usr/bin/chromium"]) if (existsSync(p)) return p; const base = "/opt/pw-browsers"; try { for (const d of readdirSync(base)) if (d.startsWith("chromium-")) { const q = path.join(base, d, "chrome-linux", "chrome"); if (existsSync(q)) return q; } } catch { /* */ } return null; }
 
 async function main() {
   if (!existsSync(MAPS)) { console.error("No assets/maps — run `npm run build` first."); process.exitCode = 1; return; }
