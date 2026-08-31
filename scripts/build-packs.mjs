@@ -404,7 +404,9 @@ function buildGear() {
     ["Sun Stone", "item", 3000, 1], ["Shiny Stone", "item", 3000, 1], ["Dusk Stone", "item", 3000, 1], ["Dawn Stone", "item", 3000, 1], ["Ice Stone", "item", 3000, 1],
     ["S.S. Ticket", "key", 0, 1], ["Bike Voucher", "key", 0, 1], ["Bicycle", "key", 0, 1], ["Old Rod", "key", 0, 1], ["Good Rod", "key", 0, 1], ["Super Rod", "key", 0, 1],
     // Battle-gimmick triggers (held): a Tera Orb terastallizes; a Z-Crystal powers one Z-Move.
-    ["Tera Orb", "item", 0, 1], ["Z-Crystal", "item", 0, 1]
+    ["Tera Orb", "item", 0, 1], ["Z-Crystal", "item", 0, 1],
+    // Field utilities: Repels suppress wild encounters for a number of steps.
+    ["Repel", "item", 350, 1], ["Super Repel", "item", 500, 1], ["Max Repel", "item", 700, 1]
   ];
   for (const [name, category, price, catchMod] of CUSTOM) {
     if (have.has(name.toLowerCase())) continue;

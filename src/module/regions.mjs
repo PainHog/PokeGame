@@ -146,6 +146,15 @@ export class WildTileBehaviorType extends foundry.data.regionBehaviors.RegionBeh
     if (!actor) return;
     if (!isResponsible(token)) return;
 
+    // Repel burns a step and suppresses wild Pokémon (items/trainers still occur).
+    let repelActive = false;
+    const repel = actor.getFlag("pokemon-masters", "repelSteps") ?? 0;
+    if (repel > 0) {
+      repelActive = true;
+      await actor.setFlag("pokemon-masters", "repelSteps", repel - 1);
+      if (repel - 1 <= 0) await ChatMessage.create({ speaker: { alias: actor.name }, content: "<p>The effect of the Repel wore off.</p>" });
+    }
+
     // Gate: does anything happen on this step at all?
     if (randInt(1, 100) > this.chance) return;
 

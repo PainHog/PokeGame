@@ -40,9 +40,10 @@ export function knows(pokemon, moveName) {
  * Teach a move to a Pokémon (TM/tutor/HM). Validates the learnset and enforces
  * the four-move limit, prompting which move to forget when full.
  */
-export async function teachMove(pokemon, moveName, { replaceId = null } = {}) {
+export async function teachMove(pokemon, moveName, { replaceId = null, force = false } = {}) {
   if (pokemon?.type !== "pokemon") return;
-  if (!canLearn(pokemon, moveName)) return ui.notifications?.warn(`${pokemon.name} can't learn ${moveName}.`);
+  // Move Tutors teach moves outside the normal learnset, so they pass force.
+  if (!force && !canLearn(pokemon, moveName)) return ui.notifications?.warn(`${pokemon.name} can't learn ${moveName}.`);
   if (knows(pokemon, moveName)) return ui.notifications?.info(`${pokemon.name} already knows ${moveName}.`);
 
   const moveDoc = await findMove(moveName);

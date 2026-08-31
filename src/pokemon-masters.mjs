@@ -13,6 +13,7 @@ import { TrainerSheet, PokemonSheet, PMItemSheet } from "./module/sheets.mjs";
 import { WildTileBehaviorType, SafeZoneBehaviorType, ZoneTransitBehaviorType, VenueBehaviorType, registerTravelSocket } from "./module/regions.mjs";
 import { registerEventsApi } from "./module/events.mjs";
 import { LegendaryBehaviorType, registerLegendaryApi } from "./module/legendaries.mjs";
+import { registerServicesApi } from "./module/services.mjs";
 import { AmbushBehaviorType, registerFactionApi } from "./module/factions.mjs";
 import { FieldMoveGateBehaviorType, registerTmApi } from "./module/tms.mjs";
 import { registerTravelApi } from "./module/travel.mjs";
@@ -124,5 +125,6 @@ Hooks.once("ready", () => {
   registerShopApi();
   registerEventsApi();
   registerLegendaryApi();
+  registerServicesApi();
   console.log("Pokémon Masters | Ready");
 });
