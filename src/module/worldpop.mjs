@@ -16,7 +16,7 @@
  */
 
 import { PM } from "./config.mjs";
-import { placeToken, canPlace } from "./placement.mjs";
+import { placeToken, canPlace, ensureScene } from "./placement.mjs";
 
 const FLAG = "pokemon-masters";
 const POP_VERSION = 1;
@@ -211,24 +211,33 @@ export async function repopulateWorld() {
  * then (re)places every world NPC. Existing tokens are kept.
  */
 export async function rebuildWorld() {
-  if (!canPlace()) return ui.notifications?.warn("Only the GM can rebuild the world.");
+  if (!canPlace()) return ui.notifications?.warn("Only the GM can build the world.");
   const DialogV2 = foundry.applications?.api?.DialogV2;
   const pack = game.packs.get("pokemon-masters.scenes");
   if (!pack) return ui.notifications?.warn("Pokémon Masters scene compendium not found.");
   await pack.getIndex();
-  const names = new Set(pack.index.map((e) => e.name));
-  const worldScenes = (game.scenes ?? []).filter((s) => names.has(s.name));
+  const present = new Set((game.scenes ?? []).map((s) => s.name));
+  const toImport = pack.index.filter((e) => !present.has(e.name));
 
   if (DialogV2) {
     const ok = await DialogV2.confirm({
-      window: { title: "Rebuild Pokémon World" },
-      content: `<p>Refresh <strong>${worldScenes.length}</strong> imported map(s) from the compendium — updated map art &amp; lighting, plus any new buildings (Gym, Police) &amp; regions — then (re)place all world NPCs.</p><p>Your existing tokens are kept. Continue?</p>`,
+      window: { title: "Build Pokémon World" },
+      content: `<p>This imports the whole world — <strong>${toImport.length}</strong> new map(s) (${present.size} already here) — refreshes existing map art, lighting &amp; buildings, places every NPC, and drops you on the starting town.</p><p>Your existing tokens are kept. It can take a minute the first time. Continue?</p>`,
     }).catch(() => false);
     if (!ok) return;
   }
+  ui.notifications?.info(`Pokémon Masters: building the world (${toImport.length} maps to import)…`);
 
+  // 1) Import every map that isn't in the world yet (createScene auto-populates).
+  let imported = 0;
+  for (const e of toImport) {
+    try { await game.scenes.importFromCompendium(pack, e._id, {}, { keepId: false }); imported++; }
+    catch (err) { console.warn("Pokémon Masters | could not import", e.name, err); }
+  }
+
+  // 2) Refresh already-present maps (art/lighting + any new regions).
   let refreshed = 0, regionsAdded = 0;
-  for (const s of worldScenes) {
+  for (const s of (game.scenes ?? []).filter((s) => pack.index.some((e) => e.name === s.name))) {
     try {
       const entry = pack.index.find((e) => e.name === s.name);
       const o = (await pack.getDocument(entry._id)).toObject();
@@ -249,12 +258,26 @@ export async function rebuildWorld() {
     }
   }
 
+  // 3) (Re)populate NPCs on every scene.
   await game.settings.set(FLAG, "worldPopVersion", 0).catch(() => {});
   for (const scene of game.scenes ?? []) {
     await scene.unsetFlag(FLAG, "populated").catch(() => {});
     await populateScene(scene);
   }
-  ui.notifications?.info(`Pokémon Masters: refreshed ${refreshed} map(s), added ${regionsAdded} new region(s), repopulated NPCs.`);
+  await game.settings.set(FLAG, "worldPopVersion", POP_VERSION).catch(() => {});
+
+  // 4) Drop the GM onto the starting town.
+  await activateStartTown();
+  ui.notifications?.info(`Pokémon Masters: world ready — imported ${imported}, refreshed ${refreshed} map(s).`);
+}
+
+/** Import (if needed), populate and activate the default starting town. */
+async function activateStartTown() {
+  try {
+    if (game.scenes?.active) return;
+    const start = await ensureScene(PM.startTowns?.kanto ?? "Pallet Town");
+    if (start) { await populateScene(start); await start.activate(); }
+  } catch (err) { console.warn("Pokémon Masters | could not activate start town", err); }
 }
 
 /** Ensure a clickable "Rebuild Pokémon World" macro exists on the GM's hotbar. */
@@ -292,15 +315,21 @@ export function registerWorldPop() {
   void initWorldPop();
 }
 
-/** Install the Rebuild macro + run the one-time population migration (GM only). */
+/** Install the Rebuild macro + build/populate the world on load (GM only). */
 async function initWorldPop() {
   if (!canPlace()) return;
   await ensureRebuildMacro();
   try {
-    if ((game.settings.get(FLAG, "worldPopVersion") ?? 0) >= POP_VERSION) return;
-    for (const scene of game.scenes ?? []) await populateScene(scene);
-    await game.settings.set(FLAG, "worldPopVersion", POP_VERSION);
+    // Populate any already-imported scenes once per version.
+    if ((game.settings.get(FLAG, "worldPopVersion") ?? 0) < POP_VERSION) {
+      for (const scene of game.scenes ?? []) await populateScene(scene);
+      await game.settings.set(FLAG, "worldPopVersion", POP_VERSION);
+    }
+    // Fresh world with nothing active? Drop the GM onto a populated starting
+    // town so the world is "already out" — no dragging maps from the compendium.
+    // (The rest of the world imports as you travel, or all at once via Rebuild.)
+    await activateStartTown();
   } catch (err) {
-    console.warn("Pokémon Masters | world population migration failed", err);
+    console.warn("Pokémon Masters | world init failed", err);
   }
 }
