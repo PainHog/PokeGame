@@ -476,10 +476,10 @@ const REGION_MAPS = {
     "Route 43": { kind: "route", habitat: "grass" }, "Route 44": { kind: "route", habitat: "grass" },
     "Route 45": { kind: "route", habitat: "mountain" }, "Route 46": { kind: "route", habitat: "mountain" },
     "Route 47": { kind: "ocean", habitat: "water" }, "Route 48": { kind: "route", habitat: "grass" },
-    "Sprout Tower": { kind: "venue" }, "Ruins of Alph": { kind: "cave", habitat: "cave" },
+    "Sprout Tower": { kind: "venue", habitat: "night" }, "Ruins of Alph": { kind: "cave", habitat: "cave" },
     "Union Cave": { kind: "cave", habitat: "cave" }, "Slowpoke Well": { kind: "cave", habitat: "cave" },
     "Ilex Forest": { kind: "forest", habitat: "forest" }, "National Park": { kind: "route", habitat: "grass" },
-    "Burned Tower": { kind: "venue" }, "Bell Tower": { kind: "venue" }, "Olivine Lighthouse": { kind: "venue" },
+    "Burned Tower": { kind: "venue", habitat: "night" }, "Bell Tower": { kind: "venue", habitat: "night" }, "Olivine Lighthouse": { kind: "venue" },
     "Whirl Islands": { kind: "cave", habitat: "cave", island: true }, "Mt. Mortar": { kind: "cave", habitat: "cave" },
     "Lake of Rage": { kind: "ocean", habitat: "water" }, "Ice Path": { kind: "cave", habitat: "cave" },
     "Dragon's Den": { kind: "cave", habitat: "cave" }, "Dark Cave": { kind: "cave", habitat: "cave" },
@@ -555,7 +555,7 @@ const REGION_MAPS = {
     "Rusturf Tunnel": { kind: "cave", habitat: "cave" }, "Fiery Path": { kind: "cave", habitat: "mountain" },
     "Jagged Pass": { kind: "cave", habitat: "mountain" }, "Mt. Chimney": { kind: "cave", habitat: "mountain" },
     "Meteor Falls": { kind: "cave", habitat: "cave" }, "Weather Institute": { kind: "venue" },
-    "Hoenn Safari Zone": { kind: "venue" }, "Mt. Pyre": { kind: "cave", habitat: "cave" },
+    "Hoenn Safari Zone": { kind: "venue", habitat: "grass" }, "Mt. Pyre": { kind: "cave", habitat: "cave" },
     "Shoal Cave": { kind: "cave", habitat: "cave" }, "Seafloor Cavern": { kind: "cave", habitat: "cave" },
     "Cave of Origin": { kind: "cave", habitat: "cave" }, "Sky Pillar": { kind: "cave", habitat: "cave" },
     "Battle Frontier": { kind: "venue", island: true },
@@ -589,10 +589,10 @@ const REGION_MAPS = {
     "Lake Verity": { kind: "ocean", habitat: "water" }, "Oreburgh Gate": { kind: "cave", habitat: "cave" },
     "Oreburgh Mine": { kind: "cave", habitat: "cave" }, "Ravaged Path": { kind: "cave", habitat: "cave" },
     "Valley Windworks": { kind: "venue" }, "Eterna Forest": { kind: "forest", habitat: "forest" },
-    "Old Chateau": { kind: "venue" }, "Wayward Cave": { kind: "cave", habitat: "cave" },
+    "Old Chateau": { kind: "venue", habitat: "night" }, "Wayward Cave": { kind: "cave", habitat: "cave" },
     "Mount Coronet": { kind: "cave", habitat: "mountain" }, "Spear Pillar": { kind: "cave", habitat: "mountain" },
-    "Lost Tower": { kind: "venue" }, "Solaceon Ruins": { kind: "cave", habitat: "cave" },
-    "Great Marsh": { kind: "venue" }, "Pokémon Mansion": { kind: "venue" },
+    "Lost Tower": { kind: "venue", habitat: "night" }, "Solaceon Ruins": { kind: "cave", habitat: "cave" },
+    "Great Marsh": { kind: "venue", habitat: "water" }, "Pokémon Mansion": { kind: "venue", habitat: "grass" },
     "Iron Island": { kind: "cave", habitat: "cave", island: true }, "Lake Valor": { kind: "ocean", habitat: "water" },
     "Lake Acuity": { kind: "ocean", habitat: "water" }, "Snowpoint Temple": { kind: "cave", habitat: "cave" },
     "Stark Mountain": { kind: "cave", habitat: "mountain" }, "Sinnoh Battle Tower": { kind: "venue", island: true },
@@ -1025,7 +1025,15 @@ const INTER_REGION = [
 ];
 
 const OPPOSITE = { north: "south", south: "north", east: "west", west: "east" };
-const KIND_DIMS = { town: [2600, 1800], route: [3400, 1900], forest: [3400, 3400], cave: [2600, 2600], ocean: [4200, 3000], venue: [2400, 1600] };
+// Map dimensions per kind (grid = 100px). Sized to feel expansive: routes are
+// long corridors, oceans and forests are broad open spaces.
+const KIND_DIMS = { town: [3200, 2400], route: [5200, 2800], forest: [4600, 4600], cave: [3800, 3800], ocean: [6600, 4400], venue: [2800, 2200] };
+
+// Wild-encounter level band per habitat (rougher terrain trends higher-level).
+const HABITAT_LEVELS = {
+  grass: [2, 12], forest: [3, 14], water: [5, 20], fishing: [5, 25], urban: [3, 12],
+  cave: [6, 22], mountain: [8, 26], sand: [7, 22], night: [5, 18]
+};
 const slug = (name) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
 const KIND_FILL = { town: "#cdbd8f", route: "#8ec98e", forest: "#3f7a3f", cave: "#5a5560", ocean: "#4a86c5", venue: "#b08a5a" };
@@ -1140,10 +1148,17 @@ async function buildScenes() {
       regions.push(region("Town", KIND_FILL.town, 120, 120, w - 240, h - 240, "safeZone", { kind: "town", announce: false }));
       regions.push(region("Poké Center", "#e0554f", w / 2 - 500, h / 2 - 120, 200, 200, "safeZone", { kind: "center", healOnEnter: true }));
       regions.push(region("Poké Mart", "#4f7fd0", w / 2 - 100, h / 2 - 120, 200, 200, "safeZone", { kind: "mart" }));
-    } else {
-      regions.push(region("Wild Area", "rgba(0,0,0,0.1)", w * 0.12, h * 0.12, w * 0.76, h * 0.76, "wildTile", {
-        category: map.habitat ?? "grass", chance: 25, poolSource: "requirements", announceOnly: true, minLevel: 2, maxLevel: 10
+    } else if (map.habitat) {
+      // A wild zone: its encounter category is the map's real habitat, never a
+      // blanket default. Level band scales a little with the habitat's danger.
+      const band = HABITAT_LEVELS[map.habitat] ?? [2, 12];
+      regions.push(region("Wild Area", "rgba(0,0,0,0.1)", w * 0.10, h * 0.10, w * 0.80, h * 0.80, "wildTile", {
+        category: map.habitat, chance: 25, poolSource: "requirements", announceOnly: true, minLevel: band[0], maxLevel: band[1]
       }));
+    } else {
+      // A venue with no habitat (lab, gate, resort, ship, academy…) is a safe
+      // indoor area — it must NOT spawn wild grass Pokémon.
+      regions.push(region("Indoors", KIND_FILL.venue, 120, 120, w - 240, h - 240, "safeZone", { kind: "indoor", announce: false }));
     }
     let shipIdx = 0;
     for (const ex of map.exits) {
