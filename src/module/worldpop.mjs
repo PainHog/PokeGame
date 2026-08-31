@@ -329,7 +329,7 @@ export async function rebuildWorld() {
     try {
       const entry = pack.index.find((e) => e.name === s.name);
       const o = (await pack.getDocument(entry._id)).toObject();
-      await applyPackBackground(s, o);   // v14 Scene Level + v13 fallback
+      await healSceneBackground(s);   // map onto the v14 Ground level (via mapSrc flag)
       await s.update({ tokenVision: o.tokenVision, fog: o.fog, environment: o.environment });
       const have = new Set(s.regions.map((r) => r.name));
       const toAdd = o.regions.filter((r) => !have.has(r.name)).map((r) => {
@@ -392,7 +392,7 @@ export function registerWorldPop() {
   });
 
   // Populate a scene the moment it's imported into the world.
-  Hooks.on("createScene", (scene) => { if (canPlace()) populateScene(scene); });
+  Hooks.on("createScene", (scene) => { if (canPlace()) { healSceneBackground(scene); populateScene(scene); } });
 
   // registerWorldPop() is itself called during the "ready" hook, so a nested
   // Hooks.once("ready") would never fire (it's not in the running snapshot).
@@ -404,52 +404,39 @@ export function registerWorldPop() {
 /** Install the Rebuild macro + build/populate the world on load (GM only). */
 /** The map image src a scene should have, read version-safely (v14 Scene Level
  *  first, then the legacy top-level field for v13). */
+/** The map image src currently shown by a scene (v14 Ground level, else v13). */
 function currentSceneSrc(s) {
   const lvl = s.levels?.contents?.[0] ?? s.levels?.[0];
   if (lvl) return lvl.background?.src ?? "";
   return s._source?.background?.src ?? "";
 }
-/** Apply a compendium scene's background to a world scene on both v14 and v13.
- *  On v14 the map lives on the Scene's Ground level (level.background.src); on
- *  v13 it's the top-level background.src. */
-async function applyPackBackground(s, o) {
-  const src = o.levels?.[0]?.background?.src ?? o.background?.src ?? null;
-  const color = o.levels?.[0]?.background?.color ?? o.backgroundColor ?? "#000000";
-  if (!src) return;
-  const lvl = s.levels?.contents?.[0];
-  if (lvl) await lvl.update({ "background.src": src, "background.color": color });
-  else await s.update({ "background.src": src, backgroundColor: color });
-}
 
 /**
- * Self-heal stale world scenes after a system update. A system update refreshes
- * the compendium but never rewrites scenes already imported into a world, so an
- * old scene keeps its previous (blank / pre-WebP / v13-schema) background and
- * renders as a white grid — especially on Foundry v14, which moved the map off
- * Scene#background onto a Scene Level. On load, refresh each imported map's
- * background art, colour, lighting & vision from the compendium — touching only
- * scenes that are actually out of date. Responsible-client only; returns count.
+ * Put a scene's map onto its background — version-proof. Foundry v14 moved the
+ * map off Scene#background onto a Scene LEVEL and DROPS the top-level field on
+ * import, so we can't read it back; instead every compendium scene carries a
+ * `mapSrc` flag (flags always survive). This copies that flag onto the scene's
+ * Ground level (v14) or the top-level background (v13), only when out of date.
+ * Runtime-only — no `levels` are baked into the pack (that crashes v14 launch).
  */
+async function healSceneBackground(s) {
+  const want = s.getFlag(FLAG, "mapSrc");
+  if (!want || currentSceneSrc(s) === want) return false;
+  try {
+    const lvl = s.levels?.contents?.[0];
+    if (lvl) await lvl.update({ "background.src": want, "background.color": "#000000" });
+    else await s.update({ "background.src": want, backgroundColor: "#000000" });
+    return true;
+  } catch (err) { console.warn("Pokémon Masters | could not heal scene", s?.name, err); return false; }
+}
+
+/** Heal every imported scene's map background on load (responsible client only). */
 async function healSceneBackgrounds() {
   if (!canPlace()) return 0;
-  const pack = game.packs.get("pokemon-masters.scenes");
-  if (!pack) return 0;
-  await pack.getIndex();
   let fixed = 0;
-  for (const s of game.scenes ?? []) {
-    const entry = pack.index.find((e) => e.name === s.name);
-    if (!entry) continue;
-    // Already showing a WebP map? Skip (no fetch) — checks the v14 level first.
-    if (currentSceneSrc(s).endsWith(".webp")) continue;
-    try {
-      const o = (await pack.getDocument(entry._id)).toObject();
-      await applyPackBackground(s, o);
-      await s.update({ tokenVision: o.tokenVision, fog: o.fog, environment: o.environment });
-      fixed++;
-    } catch (err) { console.warn("Pokémon Masters | could not heal scene", s?.name, err); }
-  }
+  for (const s of game.scenes ?? []) if (await healSceneBackground(s)) fixed++;
   if (fixed) {
-    ui.notifications?.info(`Pokémon Masters: refreshed ${fixed} stale map background(s).`);
+    ui.notifications?.info(`Pokémon Masters: refreshed ${fixed} map background(s).`);
     try { if (canvas?.ready) await canvas.draw(); } catch (err) { /* redraw is best-effort */ }
   }
   return fixed;

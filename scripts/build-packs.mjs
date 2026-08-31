@@ -241,10 +241,6 @@ function assignSceneKeys(scene) {
       beh._key = `!scenes.regions.behaviors!${scene._id}.${region._id}.${beh._id}`;
     }
   }
-  // v14 Scene Levels are an embedded collection too — key each like a region.
-  for (const level of scene.levels ?? []) {
-    level._key = `!scenes.levels!${scene._id}.${level._id}`;
-  }
 }
 
 async function writePack(name, docs) {
@@ -1546,36 +1542,24 @@ async function buildScenes() {
     visibility: 0, locked: false
   });
 
-  // Foundry v14 moved the map image + colour off Scene#background (now
-  // deprecated) into a Scene LEVEL: level.background.src is the map image and
-  // level.background.color the ground colour. We emit that "Ground" level AND
-  // keep the legacy top-level fields (same values), so scenes render on both v13
-  // and v14. Returns the scene fields carrying the background.
-  const mapBackground = (key) => {
-    const src = `systems/pokemon-masters/assets/maps/${key}.webp`;
-    return {
-      background: { src },              // v13 (deprecated but harmless on v14)
-      backgroundColor: "#000000",       // v13
-      initialLevel: "defaultLevel0000",
-      levels: [{                        // v14
-        _id: "defaultLevel0000", name: "Ground",
-        elevation: { bottom: 0, top: 20 },
-        background: { src, color: "#000000", tint: "#ffffff", alphaThreshold: 0.75 },
-        foreground: { src: null, tint: "#ffffff", alphaThreshold: 0.75 },
-        fog: { src: null },
-        textures: { anchorX: 0.5, anchorY: 0.5, offsetX: 0, offsetY: 0, fit: "fill", scaleX: 1, scaleY: 1, rotation: 0 },
-        visibility: { levels: [] }, sort: 0, flags: {},
-      }],
-    };
-  };
+  // The map image + colour. We store the legacy top-level background (renders on
+  // v13) AND stash the same path in a `mapSrc` flag. On v14 the top-level
+  // background is dropped on import and the map lives on a Scene LEVEL, so the
+  // system copies mapSrc onto the scene's Ground level at RUNTIME
+  // (worldpop.healSceneBackgrounds). We do NOT bake a `levels` embedded
+  // collection into the pack — that crashes v14's world-launch. Flags survive
+  // every version, so mapSrc is the reliable source of truth.
+  const mapSrc = (key) => `systems/pokemon-masters/assets/maps/${key}.webp`;
+  const mapBackground = (key) => ({ background: { src: mapSrc(key) }, backgroundColor: "#000000" });
 
   const sceneDoc = (name, key, w, h, regions) => ({
     _id: stableId("scene", key), name, width: w, height: h, padding: 0.25,
     ...mapBackground(key), grid: { type: 1, size: 100 },
     tokenVision: false, fog: { exploration: false },
     environment: { globalLight: { enabled: true }, darknessLevel: 0 },
-    // Interiors have no wild encounters, so no encounter-region tag.
-    flags: { "pokemon-masters": { region: "" } },
+    // Interiors have no wild encounters, so no encounter-region tag. mapSrc is
+    // the version-proof source for the runtime background heal (v14).
+    flags: { "pokemon-masters": { region: "", mapSrc: mapSrc(key) } },
     regions
   });
 
@@ -1675,7 +1659,7 @@ async function buildScenes() {
       tokenVision: false,
       fog: { exploration: false },
       environment: { globalLight: { enabled: true }, darknessLevel: 0 },
-      flags: { "pokemon-masters": { region: map.region } },
+      flags: { "pokemon-masters": { region: map.region, mapSrc: mapSrc(map.key) } },
       regions
     });
   }
