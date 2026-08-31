@@ -17,6 +17,7 @@ import { registerServicesApi } from "./module/services.mjs";
 import { registerLeagueApi } from "./module/leagues.mjs";
 import { registerPokedexApi } from "./module/pokedex.mjs";
 import { registerQuestApi } from "./module/quests.mjs";
+import { registerTrainerChallenges } from "./module/trainers.mjs";
 import { AmbushBehaviorType, registerFactionApi } from "./module/factions.mjs";
 import { FieldMoveGateBehaviorType, registerTmApi } from "./module/tms.mjs";
 import { registerTravelApi } from "./module/travel.mjs";
@@ -132,5 +133,6 @@ Hooks.once("ready", () => {
   registerLeagueApi();
   registerPokedexApi();
   registerQuestApi();
+  registerTrainerChallenges();
   console.log("Pokémon Masters | Ready");
 });

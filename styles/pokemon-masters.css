@@ -431,3 +431,9 @@
 .pm-dex-detail .pm-typerow { justify-content: center; }
 .pm-dex-detail .pm-stats { margin: 8px 0; font-size: .74rem; }
 .pm-dex-open { cursor: pointer; border: none; }
+
+/* Overworld trainer challenge */
+.pm-challenge-card { border-color: #d4a017; background: rgba(212,160,23,.08); }
+.pm-challenge-btn { margin-top: 4px; cursor: pointer; font-weight: 700; font-size: .78rem; padding: 4px 14px; border: none; border-radius: 999px; color: #fff; background: linear-gradient(135deg, #d4a017, #e3350d); }
+.pm-challenge-btn:hover { filter: brightness(1.08); }
+.pm-challenge-btn:disabled { opacity: .5; cursor: default; }
