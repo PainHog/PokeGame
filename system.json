@@ -19,13 +19,14 @@
     { "name": "species", "label": "Pokédex", "path": "packs/species", "type": "Actor", "system": "pokemon-masters" },
     { "name": "moves", "label": "Moves", "path": "packs/moves", "type": "Item", "system": "pokemon-masters" },
     { "name": "abilities", "label": "Abilities", "path": "packs/abilities", "type": "Item", "system": "pokemon-masters" },
-    { "name": "gear", "label": "Items & Poké Balls", "path": "packs/gear", "type": "Item", "system": "pokemon-masters" }
+    { "name": "gear", "label": "Items & Poké Balls", "path": "packs/gear", "type": "Item", "system": "pokemon-masters" },
+    { "name": "scenes", "label": "Maps", "path": "packs/scenes", "type": "Scene" }
   ],
   "packFolders": [
     {
       "name": "Pokémon Masters",
       "sorting": "m",
-      "packs": ["species", "moves", "abilities", "gear"]
+      "packs": ["species", "moves", "abilities", "gear", "scenes"]
     }
   ],
   "documentTypes": {

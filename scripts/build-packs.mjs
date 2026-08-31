@@ -370,6 +370,42 @@ function buildGear() {
 }
 
 /* -------------------------------------------- */
+/*  Scenes  ->  a ready-to-play test map         */
+/* -------------------------------------------- */
+
+function buildScene() {
+  const bg = "systems/pokemon-masters/assets/maps/test-route.svg";
+  const region = (name, color, x, y, w, h, type, sys) => ({
+    _id: stableId("region", name),
+    name,
+    color,
+    shapes: [{ type: "rectangle", x, y, width: w, height: h, rotation: 0, hole: false }],
+    behaviors: [{ _id: stableId("beh", name), name, type: `pokemon-masters.${type}`, system: sys, disabled: false }],
+    visibility: 0,
+    locked: false
+  });
+  const scene = {
+    _id: stableId("scene", "test-route"),
+    name: "Test Route (Pokémon Masters)",
+    width: 2400,
+    height: 1600,
+    padding: 0.25,
+    background: { src: bg },
+    grid: { type: 1, size: 100 },
+    flags: { "pokemon-masters": { region: "kanto" } },
+    regions: [
+      region("Tall Grass", "#3f7a3f", 200, 200, 700, 500, "wildTile", { category: "grass", chance: 30, poolSource: "requirements", announceOnly: true, minLevel: 2, maxLevel: 6 }),
+      region("Pond", "#3f77b8", 1500, 200, 700, 400, "wildTile", { category: "water", chance: 25, poolSource: "requirements", announceOnly: true, minLevel: 5, maxLevel: 10 }),
+      region("Cave", "#5a5560", 1600, 1000, 600, 450, "wildTile", { category: "cave", chance: 30, poolSource: "requirements", announceOnly: true, minLevel: 6, maxLevel: 12 }),
+      region("Town", "#cdbd8f", 800, 900, 700, 500, "safeZone", { kind: "town", announce: false }),
+      region("Poké Center", "#e0554f", 900, 1000, 200, 200, "safeZone", { kind: "center", healOnEnter: true }),
+      region("Poké Mart", "#4f7fd0", 1200, 1000, 200, 200, "safeZone", { kind: "mart" })
+    ]
+  };
+  return [scene];
+}
+
+/* -------------------------------------------- */
 /*  Run                                          */
 /* -------------------------------------------- */
 
@@ -381,6 +417,7 @@ async function main() {
   await writePack("moves", buildMoves());
   await writePack("abilities", buildAbilities());
   await writePack("gear", buildGear());
+  await writePack("scenes", buildScene());
   console.log("Done.");
 }
 
