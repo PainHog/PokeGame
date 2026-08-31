@@ -78,6 +78,7 @@
             <img src="{{mon.img}}" alt="{{mon.name}}">
             <span class="pm-party-name">{{mon.name}}</span>
             <span class="pm-badge">Lv {{mon.system.level}}</span>
+            <button type="button" class="pm-usemove" data-action="daycareWithdraw" data-uuid="{{mon.uuid}}">Withdraw</button>
           </li>
         {{/each}}
       </ul>

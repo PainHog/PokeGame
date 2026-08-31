@@ -37,6 +37,7 @@ export class TrainerSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       withdraw(event, target) { return game.pokemonMasters?.storage?.withdraw(this.actor, target.dataset.uuid); },
       deposit(event, target) { return game.pokemonMasters?.storage?.deposit(this.actor, target.dataset.uuid); },
       collectEgg() { return game.pokemonMasters?.breeding?.collectEgg(this.actor); },
+      daycareWithdraw(event, target) { return game.pokemonMasters?.breeding?.withdraw(this.actor, target.dataset.uuid); },
       fly() { return game.pokemonMasters?.travel?.fly(this.actor); },
       tradeService() { return game.pokemonMasters?.trade?.serviceDialog(this.actor); },
       shop() { return game.pokemonMasters?.shop?.open(this.actor); },

@@ -96,7 +96,7 @@ export async function breed(trainer, momActor, dadActor) {
   return baby;
 }
 
-/** Leave a Pokémon at the daycare (max 2). */
+/** Leave a Pokémon at the daycare (max 2), and stand it in the pen on the map. */
 export async function depositToDaycare(trainer, uuid) {
   const daycare = [...(trainer.system.daycare ?? [])];
   if (daycare.includes(uuid)) return;
@@ -104,6 +104,34 @@ export async function depositToDaycare(trainer, uuid) {
   daycare.push(uuid);
   const party = (trainer.system.party ?? []).filter((u) => u !== uuid);
   await trainer.update({ "system.daycare": daycare, "system.party": party });
+  // Show the deposited Pokémon in the pen (on the current map, beside the trainer).
+  try {
+    const { placeToken, canPlace } = await import("./placement.mjs");
+    const mon = await fromUuid(uuid);
+    const scene = canvas?.scene;
+    if (mon && scene && canPlace()) {
+      const gs = scene.grid?.size || 100;
+      const tt = scene.tokens.find((t) => t.actorId === trainer.id);
+      const bx = tt ? tt.x : scene.width / 2;
+      const by = tt ? tt.y : scene.height / 2;
+      await mon.setFlag("pokemon-masters", "inDaycare", true);
+      await placeToken(scene, mon, { x: bx + (daycare.length) * gs, y: by - gs });
+    }
+  } catch (err) { /* pen display is best-effort */ }
+}
+
+/** Take a Pokémon back from the daycare (returns to party, leaves the pen). */
+export async function withdrawFromDaycare(trainer, uuid) {
+  const daycare = (trainer.system.daycare ?? []).filter((u) => u !== uuid);
+  const party = trainer.system.party ?? [];
+  const update = { "system.daycare": daycare };
+  if (party.length < 6 && !party.includes(uuid)) update["system.party"] = [...party, uuid];
+  await trainer.update(update);
+  try {
+    const { removeToken, canPlace } = await import("./placement.mjs");
+    const mon = await fromUuid(uuid);
+    if (mon) { await mon.unsetFlag("pokemon-masters", "inDaycare"); if (canvas?.scene && canPlace()) await removeToken(canvas.scene, mon); }
+  } catch (err) { /* best-effort */ }
 }
 
 /** Collect an egg if the two daycare Pokémon are compatible. */
@@ -117,6 +145,6 @@ export async function collectEgg(trainer) {
 
 export function registerBreedingApi() {
   game.pokemonMasters = Object.assign(game.pokemonMasters ?? {}, {
-    breeding: { breed, checkCompatibility, deposit: depositToDaycare, collectEgg }
+    breeding: { breed, checkCompatibility, deposit: depositToDaycare, withdraw: withdrawFromDaycare, collectEgg }
   });
 }
