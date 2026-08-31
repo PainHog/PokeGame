@@ -231,10 +231,12 @@ export async function activateGimmick(actor, kind) {
   }
 
   if (kind === "dynamax") {
-    // Set the flag; prepareDerivedData doubles max HP while active. Then fill
-    // the freshly-doubled bar so the current HP swells too.
+    // Dynamax doubles CURRENT and max HP (not a free full heal). Capture the
+    // current value before the flag doubles the max in prepareDerivedData.
+    const prevValue = actor.system.hp?.value ?? 1;
     await actor.update({ "system.activeGimmick": "dynamax" });
-    await actor.update({ "system.hp.value": actor.system.hp?.max ?? 1 });
+    const newMax = actor.system.hp?.max ?? prevValue * 2;
+    await actor.update({ "system.hp.value": Math.min(newMax, Math.round(prevValue * 2)) });
     await actor.setFlag("pokemon-masters", "gimmick", { used: true, form: "dynamax" });
     return say(`${actor.name} Dynamaxed! Its HP swelled enormously.`);
   }

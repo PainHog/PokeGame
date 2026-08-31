@@ -65,6 +65,9 @@ async function ensureNpc(name, opts = {}) {
     const img = PM.npcSpriteFor(name);
     actor = await Actor.create({
       name, type: "trainer", img, folder: folder.id,
+      // Observer (not Owner) so every player can see & double-click the NPC to
+      // interact — but NPCs are never mistaken for a player's own trainer.
+      ownership: { default: CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER },
       prototypeToken: {
         name, texture: { src: img }, actorLink: false,
         disposition: opts.role ? 1 : 0, displayName: 20, width: 1, height: 1, lockRotation: true,
@@ -230,7 +233,7 @@ export async function rebuildWorld() {
       const entry = pack.index.find((e) => e.name === s.name);
       const o = (await pack.getDocument(entry._id)).toObject();
       await s.update({
-        backgroundColor: o.backgroundColor, tokenVision: o.tokenVision, globalLight: o.globalLight,
+        backgroundColor: o.backgroundColor, tokenVision: o.tokenVision,
         fog: o.fog, environment: o.environment, "background.src": o.background?.src,
       });
       const have = new Set(s.regions.map((r) => r.name));
@@ -274,17 +277,22 @@ export function registerWorldPop() {
   // Populate a scene the moment it's imported into the world.
   Hooks.on("createScene", (scene) => { if (canPlace()) populateScene(scene); });
 
-  // One-time migration for already-imported scenes + install the click handler.
-  Hooks.once("ready", async () => {
-    installNpcClick();
-    if (!canPlace()) return;
-    await ensureRebuildMacro();
-    try {
-      if ((game.settings.get(FLAG, "worldPopVersion") ?? 0) >= POP_VERSION) return;
-      for (const scene of game.scenes ?? []) await populateScene(scene);
-      await game.settings.set(FLAG, "worldPopVersion", POP_VERSION);
-    } catch (err) {
-      console.warn("Pokémon Masters | world population migration failed", err);
-    }
-  });
+  // registerWorldPop() is itself called during the "ready" hook, so a nested
+  // Hooks.once("ready") would never fire (it's not in the running snapshot).
+  // Run the click handler + one-time migration directly instead.
+  installNpcClick();
+  void initWorldPop();
+}
+
+/** Install the Rebuild macro + run the one-time population migration (GM only). */
+async function initWorldPop() {
+  if (!canPlace()) return;
+  await ensureRebuildMacro();
+  try {
+    if ((game.settings.get(FLAG, "worldPopVersion") ?? 0) >= POP_VERSION) return;
+    for (const scene of game.scenes ?? []) await populateScene(scene);
+    await game.settings.set(FLAG, "worldPopVersion", POP_VERSION);
+  } catch (err) {
+    console.warn("Pokémon Masters | world population migration failed", err);
+  }
 }

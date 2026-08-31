@@ -19,6 +19,22 @@ export function canPlace() {
   return game.user.isGM || game.user.can("TOKEN_CREATE");
 }
 
+/** Ask the privileged client (active GM) to perform a placement this client can't. */
+function requestGmPlacement(payload) {
+  try { game.socket.emit("system.pokemon-masters", { action: "pmPlace", ...payload }); } catch (err) { /* no socket */ }
+}
+
+/** Pull a trainer's active owner(s) to a scene (and the GM if they're playing it). */
+function viewForOwners(trainer, scene) {
+  const ownerIds = (game.users?.contents ?? [])
+    .filter((u) => !u.isGM && u.active && trainer.testUserPermission(u, "OWNER"))
+    .map((u) => u.id);
+  if (ownerIds.length) game.socket.emit("system.pokemon-masters", { action: "viewScene", sceneId: scene.id, userIds: ownerIds });
+  if (game.user.character?.id === trainer.id || (!ownerIds.length && game.user.isGM)) {
+    try { scene.view(); } catch (err) { /* view is best-effort */ }
+  }
+}
+
 /** Find a world Scene by name, importing it from the compendium if needed. */
 export async function ensureScene(name) {
   let scene = game.scenes?.getName(name);
@@ -74,14 +90,16 @@ export async function removeToken(scene, actor) {
  * allowed to place; a player choosing a starter has the GM client do it.
  */
 export async function spawnTrainerAt(trainer, region) {
-  if (!trainer || !canPlace()) return;
+  if (!trainer) return;
+  // A player who chose a starter can't create scenes/tokens — ask the GM to.
+  if (!canPlace()) { requestGmPlacement({ kind: "spawn", uuid: trainer.uuid, region }); return; }
   const townName = PM.startTowns?.[region] ?? "Pallet Town";
   const scene = await ensureScene(townName);
   if (!scene) return;
   await placeToken(scene, trainer, { linked: true });
   await trainer.setFlag(FLAG, "spawned", true);
-  // Show the scene to whoever is at the keyboard.
-  try { scene.view(); } catch (err) { /* view is best-effort */ }
+  // Pull the trainer's owner(s) to their new home town.
+  viewForOwners(trainer, scene);
   await ChatMessage.create({
     speaker: { alias: "World" },
     content: `<div class="pm-encounter-card"><p>🧭 <strong>${trainer.name}</strong> arrived in ${townName}. Your adventure begins!</p></div>`
@@ -92,11 +110,15 @@ export async function spawnTrainerAt(trainer, region) {
  * Send a Pokémon out onto the current scene (next to its trainer's token), or
  * recall it if it's already out. Returns "sent" | "recalled" | null.
  */
-export async function sendOut(pokemon) {
+export async function sendOut(pokemon, { sceneId = null } = {}) {
   if (pokemon?.type !== "pokemon") return null;
-  const scene = canvas?.scene;
+  const scene = sceneId ? game.scenes?.get(sceneId) : canvas?.scene;
   if (!scene) return null;
-  if (!canPlace()) { ui.notifications?.info(`${pokemon.name} will be sent out by the GM.`); return null; }
+  if (!canPlace()) {
+    requestGmPlacement({ kind: "sendOut", uuid: pokemon.uuid, sceneId: scene.id });
+    ui.notifications?.info(`Sending out ${pokemon.name}…`);
+    return null;
+  }
   if (tokenOnScene(scene, pokemon)) { await removeToken(scene, pokemon); return "recalled"; }
   const trainer = pokemon.system.trainer ? await fromUuid(pokemon.system.trainer) : null;
   const tt = trainer ? scene.tokens.find((t) => t.actorId === trainer.id) : null;
@@ -109,6 +131,17 @@ export async function sendOut(pokemon) {
 export function registerPlacementApi() {
   game.pokemonMasters = Object.assign(game.pokemonMasters ?? {}, {
     placement: { ensureScene, placeToken, removeToken, spawnTrainerAt, sendOut, canPlace }
+  });
+  // The active GM performs placements requested by players (who can't create
+  // scenes/tokens themselves). Every client hears the socket; only the GM acts.
+  game.socket.on("system.pokemon-masters", async (data) => {
+    if (data?.action !== "pmPlace" || !canPlace()) return;
+    try {
+      const doc = await fromUuid(data.uuid);
+      if (!doc) return;
+      if (data.kind === "spawn") await spawnTrainerAt(doc, data.region);
+      else if (data.kind === "sendOut") await sendOut(doc, { sceneId: data.sceneId });
+    } catch (err) { console.warn("Pokémon Masters | GM placement request failed", err); }
   });
   // When a trainer receives their starter, the GM client spawns them on the map.
   Hooks.on("pmStarterChosen", ({ trainer, region }) => {

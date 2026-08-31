@@ -136,8 +136,13 @@ for (const pack of manifest.packs) {
     try {
       rmSync(out, { recursive: true, force: true });
       await extractPack(dir, out, { log: false });
-      const nCompiled = readdirSync(out).filter((f) => f.endsWith(".json")).length;
-      if (nCompiled !== nJson) fail(`compiled pack '${pack.name}' holds ${nCompiled} docs but source has ${nJson} — rebuild (a missing _key silently drops docs)`);
+      const compiledFiles = readdirSync(out).filter((f) => f.endsWith(".json"));
+      if (compiledFiles.length !== nJson) fail(`compiled pack '${pack.name}' holds ${compiledFiles.length} docs but source has ${nJson} — rebuild (a missing _key silently drops docs)`);
+      // Self-contained guard: no shipped document may point at an external host.
+      for (const jf of compiledFiles) {
+        const m = readFileSync(path.join(out, jf), "utf8").match(/"(?:img|src)"\s*:\s*"(https?:\/\/[^"]+)"/);
+        if (m) { fail(`pack '${pack.name}' ships an EXTERNAL url (${m[1]}) in ${jf} — the system must be fully self-contained`); break; }
+      }
     } catch (e) {
       fail(`could not read compiled pack '${pack.name}': ${String(e.message || e).split("\n")[0]}`);
     }

@@ -116,12 +116,18 @@ export async function eliteFourChallenge(player, region) {
   const four = PM.gymLeaders?.[region]?.eliteFour ?? [];
   const champ = PM.gymLeaders?.[region]?.champion;
   if (!four.length) return ui.notifications?.warn(`${PM.regions?.[region] ?? region} has no Elite Four.`);
-  const need = (PM.gymLeaders?.[region]?.leaders ?? []).length || 8;
-  if ((player.system.badges ?? []).length < need) {
-    return ui.notifications?.warn(`You need all ${need} ${PM.regions?.[region] ?? region} badges before challenging the Elite Four.`);
+  // Count only THIS region's badges (system.badges is a flat, region-agnostic
+  // list — 8 Kanto badges must not unlock the Johto Elite Four).
+  const regionLeaders = PM.gymLeaders?.[region]?.leaders ?? [];
+  const need = regionLeaders.length || 8;
+  const regionBadges = new Set(regionLeaders.map((l) => `${l.badge} Badge`));
+  const have = (player.system.badges ?? []).filter((b) => regionBadges.has(b)).length;
+  if (have < need) {
+    return ui.notifications?.warn(`You need all ${need} ${PM.regions?.[region] ?? region} badges before challenging the Elite Four (you have ${have}).`);
   }
 
   let myTeam = await teamOf(player);
+  if (!myTeam.length) return ui.notifications?.warn("You need a Pokémon in your party.");
   const baseLevel = Math.min(100, Math.max(...myTeam.map((m) => m.level ?? 5)) + 5);
   const bouts = [...four.map((m, i) => ({ ...m, level: baseLevel + i })), ...(champ ? [{ name: champ, type: "Champion", team: four.flatMap((m) => m.team).slice(0, 6), level: baseLevel + 5 }] : [])];
   const log = [];

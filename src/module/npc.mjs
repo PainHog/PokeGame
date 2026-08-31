@@ -72,8 +72,10 @@ function prep(c) {
     heldItem: (c.heldItem ?? "").toLowerCase(),
     megaData: c.megaData ?? [],
     teraType: c.teraType || (c.types ?? [])[0] || "Normal",
-    // Gimmick state: one-shot flags + Dynamax countdown.
-    megaUsed: false, teraUsed: false, zUsed: false,
+    // Gimmick state: one-shot flags + Dynamax countdown. Preserve any flag the
+    // caller set (a gauntlet survivor already Mega-Evolved, or a live actor that
+    // is persistently transformed) so the boost is never re-applied/compounded.
+    megaUsed: c.megaUsed ?? false, teraUsed: c.teraUsed ?? false, zUsed: c.zUsed ?? false,
     dynamaxTurns: dynamax ? 3 : 0,
     boosts: { atk: 0, def: 0, spa: 0, spd: 0, spe: 0 },
     flinch: false, sashUsed: false, berryUsed: false, confusion: 0, turnsSeen: 0,
@@ -587,7 +589,11 @@ export function combatantFromActor(actor) {
     heldItem: s.heldItem ?? "",
     megaData: s.megaData ?? [],
     teraType: s.teraType || s.types?.[0] || "Normal",
-    dynamax: false,
+    // If the live actor is already transformed, its stats already include the
+    // boost — don't let the sim apply it a second time.
+    megaUsed: s.activeGimmick === "mega",
+    teraUsed: s.activeGimmick === "tera",
+    dynamax: s.activeGimmick === "dynamax",
     toxicCounter: s.toxicCounter ?? 0,
     hp: { value: s.hp?.value ?? s.stats?.hp, max: s.hp?.max ?? s.stats?.hp },
     moves: actor.items.filter((i) => i.type === "move").map((m) => ({

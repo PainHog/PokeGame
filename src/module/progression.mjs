@@ -287,10 +287,13 @@ export function registerProgressionHooks() {
     }
   });
   // Backfill any pre-existing moveless Pokémon once, so older worlds catch up.
+  // Only ONE client does it: the active GM if present (they own every actor),
+  // otherwise each owner handles their own — never both, or moves double up.
+  const activeGM = game.users?.activeGM;
   for (const actor of game.actors ?? []) {
-    if (actor.type === "pokemon" && actor.isOwner && !actor.items.some((i) => i.type === "move")) {
-      seedMoves(actor).catch(() => {});
-    }
+    if (actor.type !== "pokemon" || actor.items.some((i) => i.type === "move")) continue;
+    const responsible = activeGM ? (game.user === activeGM) : actor.isOwner;
+    if (responsible) seedMoves(actor).catch(() => {});
   }
   game.pokemonMasters = Object.assign(game.pokemonMasters ?? {}, {
     progression: { awardXp, awardEvs, evolve, maybeEvolve, evolveWithItem, evolveByTrade, seedMoves, xpToNext, xpFromDefeat }

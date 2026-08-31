@@ -76,11 +76,13 @@ async function findSpeciesByName(name) {
   return entry ? pack.getDocument(entry._id) : null;
 }
 
-/** The acting trainer: the user's assigned character, else their first owned Trainer. */
+/** The acting trainer: the user's assigned character, else their first owned Trainer.
+ *  Never resolves a world NPC (Nurse Joy, a gym leader, …) — the GM owns those too. */
 export function resolveTrainer() {
+  const isNpc = (a) => a.getFlag("pokemon-masters", "isNpc");
   const char = game.user.character;
-  if (char?.type === "trainer") return char;
-  return game.actors.find((a) => a.type === "trainer" && a.isOwner) ?? null;
+  if (char?.type === "trainer" && !isNpc(char)) return char;
+  return game.actors.find((a) => a.type === "trainer" && a.isOwner && !isNpc(a)) ?? null;
 }
 
 /** HTML for a "Throw Poké Ball" button embedded in an encounter chat card. */
@@ -297,6 +299,19 @@ export async function stealPokemon(thief, target = null, { confirmed = false } =
     }).catch(() => false) : false;
     if (!ok) return ui.notifications?.info("You thought better of it and left the Pokémon alone.");
   }
+
+  // Remove it from the previous owner's roster so it isn't owned by two trainers.
+  try {
+    const prev = await fromUuid(owner);
+    if (prev) {
+      const upd = {};
+      for (const key of ["party", "storage", "daycare"]) {
+        const arr = prev.system?.[key] ?? [];
+        if (arr.includes(actor.uuid)) upd[`system.${key}`] = arr.filter((u) => u !== actor.uuid);
+      }
+      if (Object.keys(upd).length) await prev.update(upd);
+    }
+  } catch (err) { /* previous owner may no longer exist */ }
 
   await actor.update({ "system.trainer": thief.uuid });
   await actor.setFlag("pokemon-masters", "stolen", true);

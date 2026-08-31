@@ -19,7 +19,6 @@ import fsSync from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { Dex } from "@pkmn/dex";
-import { Sprites } from "@pkmn/img";
 import { compilePack } from "@foundryvtt/foundryvtt-cli";
 import { PM } from "../src/module/config.mjs";
 
@@ -42,14 +41,16 @@ let SPRITE_INDEX = {};
 try { SPRITE_INDEX = JSON.parse(fsSync.readFileSync(path.join(ROOT, "assets", "sprites", "index.json"), "utf8")); } catch { /* not fetched yet */ }
 
 /**
- * Sprite path for a species: a locally-bundled file when available (no external
- * host needed), otherwise the animated Showdown URL as a graceful fallback.
+ * Sprite path for a species: always a LOCAL path — a bundled file when we have
+ * one, else a bundled Foundry-core placeholder. The system is self-contained, so
+ * we never emit an external URL (a missing dex number fails closed to the
+ * placeholder + a build warning, rather than silently hot-linking Showdown).
  */
 function spriteFor(name, num) {
   const file = SPRITE_INDEX[num];
   if (file) return `systems/pokemon-masters/assets/sprites/${file}`;
-  try { return Sprites.getPokemon(name, { gen: "ani" }).url; }
-  catch { return "icons/svg/mystery-man.svg"; }
+  console.warn(`Pokémon Masters | no bundled sprite for #${num} (${name}) — using placeholder. Run \`npm run sprites\`.`);
+  return "icons/svg/mystery-man.svg";
 }
 const SRC = path.join(ROOT, "src", "packs");
 const OUT = path.join(ROOT, "packs");
@@ -1310,14 +1311,20 @@ async function buildScenes() {
       backgroundColor: "#000000",
       grid: { type: 1, size: 100 },
       // Overworld maps are fully visible — no token-vision fog (the #1 cause of a
-      // "black scene"), full global light, day-time.
+      // "black scene"), full global light, day-time. (globalLight lives under
+      // environment since v12; the old top-level boolean is dropped.)
       tokenVision: false,
-      globalLight: true,
       fog: { exploration: false },
       environment: { globalLight: { enabled: true }, darknessLevel: 0 },
       flags: { "pokemon-masters": { region: map.region } },
       regions
     });
+  }
+  // Surface any gym whose city isn't a town map (e.g. Alola trial sites) — those
+  // leaders get no gym building placed, so the mismatch is visible, not silent.
+  const townNames = new Set(scenes.filter((s) => s.regions?.some((r) => r.name === "Poké Center")).map((s) => s.name));
+  for (const [city, gym] of GYM_BY_CITY) {
+    if (!townNames.has(city)) console.warn(`Pokémon Masters | ${gym.leader}'s city "${city}" is not a town map — no gym placed.`);
   }
   return scenes;
 }
