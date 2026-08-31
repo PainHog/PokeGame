@@ -679,6 +679,31 @@ const REGION_MAPS = {
     // Expansion Pass areas, reached by train.
     "Isle of Armor": { kind: "forest", habitat: "grass", island: true }, "Master Dojo": { kind: "venue", island: true },
     "Crown Tundra": { kind: "route", habitat: "mountain", island: true }, "Freezington": { kind: "town", island: true }
+  },
+  paldea: {
+    // Twelve cities & towns across the four provinces.
+    "Mesagoza": { kind: "town" }, "Cabo Poco": { kind: "town" }, "Los Platos": { kind: "town" },
+    "Cortondo": { kind: "town" }, "Artazon": { kind: "town" }, "Alfornada": { kind: "town" },
+    "Cascarrafa": { kind: "town" }, "Porto Marinada": { kind: "town" }, "Medali": { kind: "town" },
+    "Levincia": { kind: "town" }, "Zapapico": { kind: "town" }, "Montenevera": { kind: "town" },
+    "Paldea Pokémon League": { kind: "town" },
+    // Open-world provinces & areas (Paldea has no numbered routes).
+    "South Province (Area One)": { kind: "route", habitat: "grass" }, "South Province (Area Two)": { kind: "route", habitat: "grass" },
+    "South Province (Area Three)": { kind: "route", habitat: "grass" }, "South Province (Area Four)": { kind: "route", habitat: "grass" },
+    "West Province (Area One)": { kind: "route", habitat: "grass" }, "West Province (Area Two)": { kind: "route", habitat: "grass" },
+    "West Province (Area Three)": { kind: "route", habitat: "mountain" }, "East Province (Area One)": { kind: "route", habitat: "grass" },
+    "East Province (Area Two)": { kind: "route", habitat: "grass" }, "East Province (Area Three)": { kind: "route", habitat: "mountain" },
+    "North Province (Area One)": { kind: "route", habitat: "mountain" }, "North Province (Area Two)": { kind: "route", habitat: "grass" },
+    "North Province (Area Three)": { kind: "route", habitat: "grass" }, "Poco Path": { kind: "route", habitat: "grass" },
+    "Asado Desert": { kind: "route", habitat: "sand" }, "Tagtree Thicket": { kind: "forest", habitat: "forest" },
+    "Casseroya Lake": { kind: "ocean", habitat: "water" }, "Glaseado Mountain": { kind: "cave", habitat: "mountain" },
+    "Dalizapa Passage": { kind: "cave", habitat: "cave" }, "Alfornada Cavern": { kind: "cave", habitat: "cave" },
+    "South Paldean Sea": { kind: "ocean", habitat: "water" }, "West Paldean Sea": { kind: "ocean", habitat: "water" },
+    "East Paldean Sea": { kind: "ocean", habitat: "water" }, "North Paldean Sea": { kind: "ocean", habitat: "water" },
+    "Zero Gate": { kind: "venue" }, "Area Zero": { kind: "cave", habitat: "cave" }, "Zero Lab": { kind: "venue" },
+    // Expansion (The Hidden Treasure of Area Zero), reached by the academy field trips.
+    "Kitakami": { kind: "route", habitat: "grass", island: true }, "Mossui Town": { kind: "town", island: true },
+    "Blueberry Academy": { kind: "venue", island: true }
   }
 };
 
@@ -945,6 +970,36 @@ const REGION_CONNECTIONS = {
     // Expansion Pass islands, reached by the Galar rail network.
     ["Wedgehurst", "ship", "Isle of Armor"], ["Isle of Armor", "east", "Master Dojo"],
     ["Wyndon", "ship", "Crown Tundra"], ["Crown Tundra", "north", "Freezington"]
+  ],
+  paldea: [
+    // Southern start: the coast up to Mesagoza.
+    ["Cabo Poco", "north", "Poco Path"], ["Poco Path", "north", "Los Platos"],
+    ["Los Platos", "north", "South Province (Area One)"], ["South Province (Area One)", "north", "Mesagoza"],
+    ["Cabo Poco", "south", "South Paldean Sea"], ["Mesagoza", "west", "Cortondo"],
+    ["Mesagoza", "east", "South Province (Area Two)"], ["South Province (Area Two)", "east", "Artazon"],
+    ["Mesagoza", "north", "South Province (Area Three)"], ["Mesagoza", "south", "Paldea Pokémon League"],
+    ["Cortondo", "south", "South Province (Area Four)"], ["South Province (Area Four)", "south", "Alfornada Cavern"],
+    ["Alfornada Cavern", "south", "Alfornada"],
+    // West Province.
+    ["Cortondo", "west", "West Province (Area One)"], ["West Province (Area One)", "west", "Cascarrafa"],
+    ["Cascarrafa", "west", "Asado Desert"], ["Asado Desert", "north", "West Province (Area Two)"],
+    ["West Province (Area Two)", "north", "Medali"], ["Cascarrafa", "south", "Porto Marinada"],
+    ["Porto Marinada", "west", "West Paldean Sea"], ["Medali", "north", "West Province (Area Three)"],
+    ["West Province (Area Three)", "north", "Glaseado Mountain"],
+    // East Province.
+    ["Artazon", "east", "East Province (Area One)"], ["East Province (Area One)", "east", "Levincia"],
+    ["Levincia", "east", "East Paldean Sea"], ["Levincia", "north", "East Province (Area Two)"],
+    ["East Province (Area Two)", "north", "Zapapico"], ["Zapapico", "east", "Tagtree Thicket"],
+    ["Tagtree Thicket", "north", "East Province (Area Three)"], ["Zapapico", "north", "Dalizapa Passage"],
+    // North Province & Glaseado Mountain.
+    ["Dalizapa Passage", "north", "North Province (Area One)"], ["North Province (Area One)", "west", "Montenevera"],
+    ["Montenevera", "north", "Glaseado Mountain"], ["Glaseado Mountain", "east", "North Province (Area Two)"],
+    ["North Province (Area Two)", "east", "North Province (Area Three)"], ["North Province (Area Three)", "west", "Casseroya Lake"],
+    ["North Province (Area Three)", "north", "North Paldean Sea"],
+    // The Great Crater — Area Zero.
+    ["Glaseado Mountain", "south", "Zero Gate"], ["Zero Gate", "south", "Area Zero"], ["Area Zero", "south", "Zero Lab"],
+    // Expansion field trips.
+    ["Mesagoza", "ship", "Kitakami"], ["Kitakami", "north", "Mossui Town"], ["Mesagoza", "ship", "Blueberry Academy"]
   ]
 };
 
@@ -964,7 +1019,9 @@ const INTER_REGION = [
   // Kalos across the sea — a ferry from Canalave (Sinnoh) to the port of Coumarine City.
   ["sinnoh", "Canalave City", "ship", "kalos", "Coumarine City", "S.S. Ticket"],
   // Galar across the sea — a ferry from Coumarine (Kalos) to the seaside town of Hulbury.
-  ["kalos", "Coumarine City", "ship", "galar", "Hulbury", "S.S. Ticket"]
+  ["kalos", "Coumarine City", "ship", "galar", "Hulbury", "S.S. Ticket"],
+  // Paldea (neighbouring Kalos, as Spain neighbours France) — a ferry to Porto Marinada.
+  ["kalos", "Coumarine City", "ship", "paldea", "Porto Marinada", "S.S. Ticket"]
 ];
 
 const OPPOSITE = { north: "south", south: "north", east: "west", west: "east" };

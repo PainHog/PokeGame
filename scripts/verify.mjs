@@ -146,7 +146,14 @@ const CANON_ADJACENCY = [
   ["Galar Route 4", "Turffield"], ["Galar Route 5", "Hulbury"], ["Hammerlocke", "Galar Route 6"],
   ["Galar Route 6", "Stow-on-Side"], ["Glimwood Tangle", "Ballonlea"], ["Galar Route 8", "Circhester"],
   ["Route 9 Tunnel", "Spikemuth"], ["Hammerlocke", "Galar Route 10"], ["Galar Route 10", "Wyndon"],
-  ["Wyndon", "Galar Pokémon League"], ["Wedgehurst", "Isle of Armor"], ["Wyndon", "Crown Tundra"]
+  ["Wyndon", "Galar Pokémon League"], ["Wedgehurst", "Isle of Armor"], ["Wyndon", "Crown Tundra"],
+  // Paldea — open-world provinces around the Great Crater (Bulbapedia-sourced).
+  ["Coumarine City", "Porto Marinada"], // cross-region ferry
+  ["Cabo Poco", "Poco Path"], ["Poco Path", "Los Platos"], ["South Province (Area One)", "Mesagoza"],
+  ["Mesagoza", "Cortondo"], ["South Province (Area Two)", "Artazon"], ["Mesagoza", "Paldea Pokémon League"],
+  ["West Province (Area One)", "Cascarrafa"], ["Cascarrafa", "Porto Marinada"], ["West Province (Area Two)", "Medali"],
+  ["East Province (Area One)", "Levincia"], ["East Province (Area Two)", "Zapapico"], ["North Province (Area One)", "Montenevera"],
+  ["Glaseado Mountain", "Zero Gate"], ["Zero Gate", "Area Zero"], ["Mesagoza", "Kitakami"], ["Mesagoza", "Blueberry Academy"]
 ];
 
 async function verifyMaps() {
