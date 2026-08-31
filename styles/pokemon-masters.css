@@ -368,6 +368,13 @@
 }
 .pm-venue-btn:hover { filter: brightness(1.08); }
 
+/* Legendary encounter card — a rarer, golden shimmer. */
+.pm-legendary-card {
+  border-color: #d4af37;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.12), rgba(241, 7, 163, 0.06));
+}
+.pm-legendary-card h3 { color: #b8860b; }
+
 .pm-vocation-blurb { font-size: .82rem; color: var(--muted, #6d6560); font-style: italic; margin: 4px 0 0; }
 .pm-dex-line { display: flex; align-items: center; gap: 8px; margin-top: 6px; font-size: .78rem; }
 .pm-dex-line small { color: var(--muted, #6d6560); white-space: nowrap; }

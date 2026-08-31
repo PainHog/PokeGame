@@ -12,6 +12,7 @@ import { PokemonMastersActor, PokemonMastersItem } from "./module/documents.mjs"
 import { TrainerSheet, PokemonSheet, PMItemSheet } from "./module/sheets.mjs";
 import { WildTileBehaviorType, SafeZoneBehaviorType, ZoneTransitBehaviorType, VenueBehaviorType, registerTravelSocket } from "./module/regions.mjs";
 import { registerEventsApi } from "./module/events.mjs";
+import { LegendaryBehaviorType, registerLegendaryApi } from "./module/legendaries.mjs";
 import { AmbushBehaviorType, registerFactionApi } from "./module/factions.mjs";
 import { FieldMoveGateBehaviorType, registerTmApi } from "./module/tms.mjs";
 import { registerTravelApi } from "./module/travel.mjs";
@@ -65,6 +66,7 @@ Hooks.once("init", () => {
     "pokemon-masters.safeZone": SafeZoneBehaviorType,
     "pokemon-masters.zoneTransit": ZoneTransitBehaviorType,
     "pokemon-masters.venue": VenueBehaviorType,
+    "pokemon-masters.legendary": LegendaryBehaviorType,
     "pokemon-masters.ambush": AmbushBehaviorType,
     "pokemon-masters.fieldGate": FieldMoveGateBehaviorType
   });
@@ -73,6 +75,7 @@ Hooks.once("init", () => {
     "pokemon-masters.safeZone": "fa-solid fa-house-medical",
     "pokemon-masters.zoneTransit": "fa-solid fa-door-open",
     "pokemon-masters.venue": "fa-solid fa-ticket",
+    "pokemon-masters.legendary": "fa-solid fa-star",
     "pokemon-masters.ambush": "fa-solid fa-user-ninja",
     "pokemon-masters.fieldGate": "fa-solid fa-water"
   });
@@ -120,5 +123,6 @@ Hooks.once("ready", () => {
   registerTradeApi();
   registerShopApi();
   registerEventsApi();
+  registerLegendaryApi();
   console.log("Pokémon Masters | Ready");
 });
