@@ -75,7 +75,8 @@ async function verifyMoves() {
 
 // A canonical subset that MUST hold — especially the sea/island links.
 const CANON_ADJACENCY = [
-  ["Pallet Town", "Route 1"], ["Route 1", "Viridian City"], ["Viridian Forest", "Pewter City"],
+  ["Pallet Town", "Route 1"], ["Route 1", "Viridian City"],
+  ["Viridian Forest", "Route 2"], ["Route 2", "Pewter City"],
   ["Pewter City", "Route 3"], ["Route 4", "Cerulean City"], ["Cerulean City", "Route 5"],
   ["Saffron City", "Route 6"], ["Route 6", "Vermilion City"], ["Celadon City", "Route 7"],
   ["Route 8", "Lavender Town"], ["Route 18", "Fuchsia City"],

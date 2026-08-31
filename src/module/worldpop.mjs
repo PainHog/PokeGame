@@ -23,17 +23,97 @@ const POP_VERSION = 1;
 
 const cache = new Map(); // actor name -> Actor
 
-/** A short line each flavour NPC says when spoken to. */
+/**
+ * What each flavour NPC can say when spoken to — several lines per persona (many
+ * lifted straight from the games) so the world doesn't feel like it has one line.
+ * A random line is chosen each time an NPC is spoken to.
+ */
 const FLAVOR = {
-  oldman: "Back in my day, we'd weaken a wild Pokémon first, then throw the ball. Patience catches them all!",
-  youth: "I like shorts! They're comfy and easy to wear! …Wanna see my Pokémon sometime?",
-  lass: "Hi! Are you filling out your Pokédex too? Good luck out there!",
-  bug: "I caught this one in the tall grass. Bug Pokémon are underrated, you know!",
-  beauty: "A great trainer always keeps their Pokémon healthy and happy.",
-  gentleman: "A fine day for a stroll. Do mind the tall grass, young trainer.",
-  fisher: "Shh… they're biting today. Grab a rod and try your luck by the water.",
-  hiker: "I've hiked every route 'round here. Rock Pokémon love the mountains!",
+  oldman: [
+    "Back in my day, we'd weaken a wild Pokémon first, then throw the ball. Patience catches them all!",
+    "When I was young, I could walk for days without a single Pokémon fainting!",
+    "Ho ho! Slow down, youngster. Even a Slowpoke gets there in the end.",
+  ],
+  youth: [
+    "I like shorts! They're comfy and easy to wear!",
+    "I've got a REALLY strong Pokémon. Wanna see it? …Maybe later.",
+    "When I'm a big trainer, I'll have a Pokémon for every type!",
+  ],
+  lass: [
+    "Hi! Are you filling out your Pokédex too? Good luck out there!",
+    "I want a cute Pokémon. Do you think Clefairy would like me?",
+    "Eeek! A wild Pokémon! …Oh. False alarm. Phew.",
+  ],
+  bug: [
+    "I caught this one in the tall grass. Bug Pokémon are underrated, you know!",
+    "A true Bug Catcher is never without a net!",
+    "Weedle, Caterpie, Wurmple — I love them all!",
+  ],
+  beauty: [
+    "A great trainer always keeps their Pokémon healthy and happy.",
+    "Beauty and strength — my Pokémon have both.",
+    "Do you like my Pokémon? I raised them with the greatest care.",
+  ],
+  gentleman: [
+    "A fine day for a stroll. Do mind the tall grass, young trainer.",
+    "Splendid weather for a Pokémon battle, wouldn't you say?",
+    "In my day, we dressed properly to challenge a Gym!",
+  ],
+  fisher: [
+    "Shh… they're biting today. Grab a rod and try your luck by the water.",
+    "I've been fishing this spot for years. Magikarp, mostly. Ha!",
+    "A patient angler always reels in a big one… eventually.",
+  ],
+  hiker: [
+    "I've hiked every route 'round here. Rock Pokémon love the mountains!",
+    "My legs are my strongest Pokémon! HA!",
+    "Mind the ledges — you can hop down, but you can't climb back up.",
+  ],
+  resident: [
+    "Welcome! Make yourself at home.",
+    "There's no place like home… except maybe a Pokémon Center!",
+    "You can heal your whole team for free at the Center. Wonderful, isn't it?",
+    "My family's all out training. Off adventuring again, I see!",
+  ],
+  schoolkid: [
+    "Type match-ups are everything! Water douses Fire, remember?",
+    "I studied all night for the Trainer exam!",
+    "A super-effective hit does double damage. Write that down!",
+  ],
 };
+/** A random line from a persona (accepts an old single-string persona too). */
+function pickLine(persona) {
+  const v = FLAVOR[persona];
+  if (Array.isArray(v)) return v[Math.floor(Math.random() * v.length)];
+  return v ?? "Hello there, trainer! Off on an adventure?";
+}
+/** Signature lines for named Gym Leaders (from the games) — shown on challenge. */
+const LEADER_QUOTES = {
+  Brock: "I'm Brock! Pewter City's Gym Leader! My rock-hard willpower is evident even in my Pokémon.",
+  Misty: "My policy is an all-out offensive with Water-type Pokémon! Come on!",
+  "Lt. Surge": "Hey, kid! You won't last long in a real battle with me — I'm a lightning American!",
+  Erika: "Hello… Lovely weather, isn't it? …Oh my! I dozed off. Very well, let us battle.",
+  Koga: "Fwahaha! A mere child dares to challenge me? Feel the fear of poison!",
+  Sabrina: "I had a vision of your arrival. I've had the power of prophecy since I was a child.",
+  Blaine: "Hah! I'm Blaine! My Pokémon are red hot! If you can't take the heat, get out!",
+  Giovanni: "I must say, I'm impressed you got here. But this is as far as you go.",
+  Falkner: "I'm Falkner! I'll show you the real power of the magnificent bird Pokémon!",
+  Bugsy: "I'm Bugsy! I never lose when it comes to bug Pokémon!",
+  Whitney: "Hi! I'm Whitney! Everyone was into Pokémon, so I got into it too. Isn't it great?",
+  Morty: "I'm the Gym Leader, Morty. I can see what others cannot… including your defeat.",
+  Chuck: "WATAAH! I am Chuck, and I trained on this mountain! Prepare yourself!",
+  Jasmine: "…Um… I'm Jasmine. Thank you for the Lighthouse. Now… let's battle.",
+  Pryce: "I am Pryce, the winter trainer. There is much to learn from Ice-type Pokémon.",
+  Clair: "I am Clair. The world's best dragon master! You dare challenge me?",
+  Cynthia: "I'm Cynthia. My Pokémon and I share a bond nothing can break. Let's begin!",
+  Steven: "I'm interested in rare stones… and in strong trainers. Show me your resolve.",
+  Leon: "My time as Champion is going to continue for a long time! Let's have a battle to remember!",
+  Nessa: "I'm the strongest there is with Water types. Sorry, but I won't be holding back!",
+  Raihan: "I'm Raihan — the Dragon-type Leader, and the greatest Gym Leader in Galar!",
+  Iono: "Heya, everyone! It's your favorite streamer, Iono! Are you my next challenger?",
+  Larry: "…Name's Larry. Just an ordinary company man. My specialty? Normal types, naturally.",
+};
+const GENERIC_LEADER = "As a Gym Leader, I'll test your skill! Show me what you and your Pokémon can do!";
 
 /* -------------------------------------------- */
 /*  NPC actors                                   */
@@ -121,6 +201,7 @@ export async function populateScene(scene) {
       else if (sys.kind === "mart") await placeNpc(scene, "Mart Clerk", { role: "clerk" }, nx, ny);
       else if (sys.kind === "police") await placeNpc(scene, "Officer Jenny", { role: "officer" }, nx, ny);
       else if (sys.kind === "gym" && sys.leader) await placeNpc(scene, sys.leader, { role: "gym", gymRegion: sys.gymRegion, gymIndex: sys.gymIndex }, nx, ny);
+      else if (sys.kind === "house") await placeNpc(scene, "Resident", { flavor: "resident" }, nx, 420);
     } else if (isTown) {
       // The service NPCs & the gym leader now live INSIDE their buildings, so make
       // sure those interiors are imported (the door tiles warp the player in).
@@ -173,9 +254,12 @@ export async function interactNpc(doc) {
     if (!t) return ui.notifications?.warn("Assign your Trainer to challenge the Gym.");
     const region = doc.getFlag(FLAG, "npcGymRegion") || undefined;
     const idx = doc.getFlag(FLAG, "npcGymIndex");
+    // The Leader says their piece, then the challenge begins.
+    const quote = LEADER_QUOTES[doc?.name] ?? GENERIC_LEADER;
+    await ChatMessage.create({ speaker: { alias: doc?.name ?? "Gym Leader" }, content: `<div class="pm-encounter-card"><p><em>${quote}</em></p></div>` });
     return pm.league?.gymChallenge?.(t, region, idx ?? undefined);
   }
-  const line = FLAVOR[doc?.getFlag?.(FLAG, "npcFlavor")] ?? "Hello there, trainer!";
+  const line = pickLine(doc?.getFlag?.(FLAG, "npcFlavor"));
   return ChatMessage.create({ speaker: { alias: doc?.name ?? "NPC" }, content: `<div class="pm-encounter-card"><p>${line}</p></div>` });
 }
 

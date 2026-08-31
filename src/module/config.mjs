@@ -696,7 +696,7 @@ PM.gymLeaders = {
   alola: {
     professor: "Professor Kukui", champion: "Professor Kukui",
     leaders: [
-      { name: "Ilima", city: "Hau'oli City", type: "Normal", badge: "Normalium", team: ["Yungoos", "Gumshoos", "Smeargle"] },
+      { name: "Ilima", city: "Verdant Cavern", type: "Normal", badge: "Normalium", team: ["Yungoos", "Gumshoos", "Smeargle"] },
       { name: "Hala", city: "Iki Town", type: "Fighting", badge: "Melemele", team: ["Makuhita", "Crabrawler", "Poliwrath"] },
       { name: "Lana", city: "Brooklet Hill", type: "Water", badge: "Waterium", team: ["Wishiwashi", "Araquanid"] },
       { name: "Kiawe", city: "Wela Volcano Park", type: "Fire", badge: "Firium", team: ["Marowak", "Salazzle", "Turtonator"] },
@@ -706,7 +706,7 @@ PM.gymLeaders = {
       { name: "Acerola", city: "Thrifty Megamart", type: "Ghost", badge: "Ghostium", team: ["Sableye", "Mimikyu", "Palossand"] },
       { name: "Nanu", city: "Malie City", type: "Dark", badge: "Ula'ula", team: ["Sableye", "Krokorok", "Persian"] },
       { name: "Mina", city: "Seafolk Village", type: "Fairy", badge: "Fairium", team: ["Ribombee", "Klefki", "Wigglytuff"] },
-      { name: "Hapu", city: "Poni Island", type: "Ground", badge: "Poni", team: ["Mudsdale", "Flygon", "Golurk", "Gastrodon"] }
+      { name: "Hapu", city: "Ancient Poni Path", type: "Ground", badge: "Poni", team: ["Mudsdale", "Flygon", "Golurk", "Gastrodon"] }
     ],
     eliteFour: [
       { name: "Hala", type: "Fighting", team: ["Hariyama", "Primeape", "Bewear", "Poliwrath", "Crabominable"] },

@@ -507,6 +507,10 @@ const REGION_MAPS = {
   "Mt. Moon": { kind: "cave", habitat: "cave" }, "Rock Tunnel": { kind: "cave", habitat: "cave" },
   "Seafoam Islands": { kind: "cave", habitat: "cave", island: true }, "Victory Road": { kind: "cave", habitat: "cave" },
   "Diglett's Cave": { kind: "cave", habitat: "cave" }, "S.S. Anne": { kind: "venue" },
+  // Iconic Kanto spots the world was missing (Route 2 links Viridian↔Pewter and
+  // Diglett's Cave; the Power Plant, Cerulean Cave and Fuchsia Safari Zone).
+  "Route 2": { kind: "route", habitat: "grass" }, "Power Plant": { kind: "venue", habitat: "urban" },
+  "Cerulean Cave": { kind: "cave", habitat: "cave" }, "Kanto Safari Zone": { kind: "venue", habitat: "grass" },
   "Route 1": { kind: "route", habitat: "grass" }, "Route 3": { kind: "route", habitat: "mountain" },
   "Route 4": { kind: "route", habitat: "mountain" }, "Route 5": { kind: "route", habitat: "grass" },
   "Route 6": { kind: "route", habitat: "grass" }, "Route 7": { kind: "route", habitat: "urban" },
@@ -675,6 +679,8 @@ const REGION_MAPS = {
     "Iron Island": { kind: "cave", habitat: "cave", island: true }, "Lake Valor": { kind: "ocean", habitat: "water" },
     "Lake Acuity": { kind: "ocean", habitat: "water" }, "Snowpoint Temple": { kind: "cave", habitat: "cave" },
     "Stark Mountain": { kind: "cave", habitat: "mountain" }, "Sinnoh Battle Tower": { kind: "venue", island: true },
+    // Giratina's realm — the memorable Platinum set-piece, entered from Spear Pillar.
+    "Distortion World": { kind: "cave", habitat: "cave" },
     "Sinnoh Victory Road": { kind: "cave", habitat: "cave" }, "Sinnoh Pokémon League": { kind: "town" }
   },
   unova: {
@@ -708,6 +714,9 @@ const REGION_MAPS = {
     "Giant Chasm": { kind: "cave", habitat: "cave" }, "Marvelous Bridge": { kind: "route", habitat: "urban" },
     "Lostlorn Forest": { kind: "forest", habitat: "forest" }, "Floccesy Ranch": { kind: "route", habitat: "grass" },
     "Seaside Cave": { kind: "cave", habitat: "cave" },
+    // Two landmark towers that were missing (Reshiram/Zekrom's Dragonspiral, and
+    // the memorial Celestial Tower on Route 7).
+    "Dragonspiral Tower": { kind: "venue", habitat: "night" }, "Celestial Tower": { kind: "venue", habitat: "night" },
     "Unova Victory Road": { kind: "cave", habitat: "cave" }, "Unova Pokémon League": { kind: "town" }
   },
   kalos: {
@@ -809,7 +818,7 @@ const REGION_LABEL = {
 const REGION_CONNECTIONS = {
   kanto: [
   ["Pallet Town", "north", "Route 1"], ["Route 1", "north", "Viridian City"],
-  ["Viridian City", "north", "Viridian Forest"], ["Viridian Forest", "north", "Pewter City"],
+  ["Viridian City", "north", "Viridian Forest"], ["Viridian Forest", "north", "Route 2"], ["Route 2", "north", "Pewter City"],
   ["Viridian City", "west", "Route 22"], ["Route 22", "west", "Route 23"],
   ["Route 23", "north", "Victory Road"], ["Victory Road", "north", "Indigo Plateau"],
   ["Pewter City", "east", "Route 3"], ["Route 3", "east", "Mt. Moon"],
@@ -822,6 +831,11 @@ const REGION_CONNECTIONS = {
   ["Saffron City", "west", "Route 7"], ["Route 7", "west", "Celadon City"],
   ["Saffron City", "east", "Route 8"], ["Route 8", "east", "Lavender Town"],
   ["Vermilion City", "east", "Route 11"], ["Route 11", "east", "Diglett's Cave"],
+  // Diglett's Cave runs through to Route 2 (its Pewter-side mouth); the Power
+  // Plant sits off Route 10; Cerulean Cave beside Cerulean; the Safari Zone north
+  // of Fuchsia.
+  ["Diglett's Cave", "east", "Route 2"], ["Route 10", "north", "Power Plant"],
+  ["Cerulean City", "west", "Cerulean Cave"], ["Fuchsia City", "north", "Kanto Safari Zone"],
   ["Celadon City", "south", "Route 16"], ["Route 16", "south", "Route 17"],
   ["Route 17", "south", "Route 18"], ["Route 18", "east", "Fuchsia City"],
   ["Lavender Town", "south", "Route 12"], ["Route 12", "south", "Route 13"],
@@ -920,7 +934,7 @@ const REGION_CONNECTIONS = {
   hoenn: [
     ["Littleroot Town", "north", "Route 101"], ["Route 101", "north", "Oldale Town"],
     ["Oldale Town", "west", "Route 102"], ["Route 102", "west", "Petalburg City"],
-    ["Oldale Town", "north", "Route 103"], ["Route 103", "east", "Route 110"],
+    ["Oldale Town", "north", "Route 103"], // Route 103 is a dead-end spur north of Oldale (no link to Route 110)
     ["Petalburg City", "north", "Route 104"], ["Route 104", "west", "Petalburg Woods"],
     ["Route 104", "north", "Rustboro City"], ["Route 104", "south", "Route 105"],
     ["Route 105", "south", "Route 106"], ["Route 106", "south", "Dewford Town"],
@@ -968,7 +982,8 @@ const REGION_CONNECTIONS = {
     ["Route 207", "north", "Route 206"], ["Route 206", "north", "Eterna City"],
     ["Route 206", "east", "Wayward Cave"], ["Eterna City", "east", "Route 211"],
     ["Route 211", "east", "Mount Coronet"], ["Mount Coronet", "east", "Celestic Town"],
-    ["Mount Coronet", "north", "Spear Pillar"], ["Hearthome City", "north", "Route 208"],
+    ["Mount Coronet", "north", "Spear Pillar"], ["Spear Pillar", "north", "Distortion World"],
+    ["Hearthome City", "north", "Route 208"],
     ["Route 208", "north", "Mount Coronet"], ["Hearthome City", "east", "Route 209"],
     ["Route 209", "east", "Lost Tower"], ["Route 209", "north", "Solaceon Town"],
     ["Solaceon Town", "east", "Solaceon Ruins"], ["Solaceon Town", "south", "Route 210"],
@@ -997,7 +1012,6 @@ const REGION_CONNECTIONS = {
   ],
   unova: [
     ["Nuvema Town", "north", "Route 1"], ["Route 1", "north", "Accumula Town"],
-    ["Route 1", "east", "Route 17"], ["Route 17", "south", "Route 18"],
     ["Accumula Town", "north", "Route 2"], ["Route 2", "north", "Striaton City"],
     ["Striaton City", "north", "Route 3"], ["Route 3", "west", "Wellspring Cave"],
     ["Route 3", "west", "Nacrene City"], ["Nacrene City", "west", "Pinwheel Forest"],
@@ -1027,6 +1041,10 @@ const REGION_CONNECTIONS = {
     ["Route 20", "east", "Virbank City"], ["Virbank City", "ship", "Castelia City"],
     ["Humilau City", "north", "Route 21"], ["Route 21", "north", "Seaside Cave"],
     ["Humilau City", "west", "Route 22"], ["Route 22", "west", "Giant Chasm"],
+    // Route 17/18 are the far-southwest water routes off Humilau (not off Route 1).
+    ["Humilau City", "east", "Route 17"], ["Route 17", "south", "Route 18"],
+    // Landmark towers: Dragonspiral north of Icirrus, Celestial off Route 7.
+    ["Icirrus City", "north", "Dragonspiral Tower"], ["Route 7", "west", "Celestial Tower"],
     ["Giant Chasm", "west", "Route 23"], ["Route 23", "west", "Unova Victory Road"]
   ],
   kalos: [
@@ -1056,7 +1074,7 @@ const REGION_CONNECTIONS = {
     ["Route 19", "south", "Snowbelle City"], ["Snowbelle City", "west", "Route 20"],
     ["Route 20", "west", "Pokémon Village"], ["Snowbelle City", "north", "Route 21"],
     ["Route 21", "north", "Kalos Victory Road"], ["Kalos Victory Road", "north", "Kalos Pokémon League"],
-    ["Kalos Victory Road", "south", "Route 22"], ["Route 22", "south", "Santalune City"],
+    ["Kalos Victory Road", "south", "Route 22"], // Route 22 is a dead-end spur by the League (it does NOT reach Santalune)
     ["Lumiose City", "ship", "Kiloude City"], ["Kiloude City", "south", "Battle Maison"]
   ],
   galar: [
@@ -1260,16 +1278,146 @@ function exitGate(edge, w, h, to) {
     + `<text x="${lx}" y="${ly}" font-family="Arial" font-size="28" font-weight="bold" fill="#12324f" text-anchor="middle">${xml(to)}</text>`;
 }
 
+/** Lighten (pct>0) or darken (pct<0) a #rrggbb colour by a fraction. */
+function shade(hex, pct) {
+  const n = parseInt(String(hex).slice(1), 16);
+  const cl = (v) => Math.max(0, Math.min(255, Math.round(v)));
+  let r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+  const t = pct < 0 ? 0 : 255, k = Math.abs(pct);
+  r = cl(r + (t - r) * k); g = cl(g + (t - g) * k); b = cl(b + (t - b) * k);
+  return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, "0")}`;
+}
+
+/** A smaller enterable house (door + mat), used to fill out a town. */
+function houseBuilding(x, y, wall, roof, label, roadCol) {
+  const bw = 160, bh = 160, cx = x + bw / 2, door = 40;
+  return `<rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="8" fill="${wall}" stroke="#8a8a8a" stroke-width="4"/>`
+    + `<polygon points="${x - 8},${y} ${x + bw + 8},${y} ${cx},${y - 46}" fill="${roof}"/>`
+    + (roadCol ? `<rect x="${cx - 22}" y="${y + bh}" width="44" height="80" fill="${roadCol}"/>` : "")
+    + `<rect x="${cx - door / 2}" y="${y + bh - door - 6}" width="${door}" height="${door + 6}" rx="5" fill="#3a2f2a"/>`
+    + `<rect x="${cx - 34}" y="${y + bh + 2}" width="68" height="22" rx="5" fill="#ffd94a" stroke="#b28a00" stroke-width="3"/>`
+    + `<text x="${cx}" y="${y + bh - 66}" font-family="Arial" font-size="18" fill="#333" text-anchor="middle">${xml(label)}</text>`;
+}
+
+// Where a town's houses (two, flanking the service row) and the gym building sit.
+const HOUSE_DOORS = (map) => [[map.w / 2 - 900, map.h / 2 - 100], [map.w / 2 + 780, map.h / 2 - 100]];
+// The gym building: in the service row for a town, or a central plaza on a
+// non-town gym site (Grusha's Glaseado Mountain, Alola's trial sites).
+const GYM_DOOR = (map) => map.kind === "town" ? [map.w / 2 + 520, map.h / 2 - 120] : [map.w / 2 - 100, Math.round(map.h * 0.44)];
+
+// ---- Landmark "hero" art: each place gets a recognisable structure so no two
+//      locations read as the same flat rectangle. ----
+function lmVolcano(x, y, s) {
+  return `<polygon points="${x - s},${y + s * 0.7} ${x - s * 0.28},${y - s * 0.6} ${x + s * 0.28},${y - s * 0.6} ${x + s},${y + s * 0.7}" fill="#6b4a34" stroke="#3f2a1c" stroke-width="6"/>`
+    + `<polygon points="${x - s * 0.28},${y - s * 0.6} ${x + s * 0.28},${y - s * 0.6} ${x + s * 0.15},${y - s * 0.44} ${x - s * 0.15},${y - s * 0.44}" fill="#e0552f"/>`
+    + `<path d="M${x - s * 0.14} ${y - s * 0.5} q ${s * 0.16} ${s * 0.5} ${-s * 0.02} ${s * 0.95}" stroke="#ff7a3c" stroke-width="9" fill="none"/>`
+    + `<circle cx="${x}" cy="${y - s * 0.82}" r="${s * 0.17}" fill="#cfc8c0" opacity="0.7"/><circle cx="${x + s * 0.22}" cy="${y - s * 0.98}" r="${s * 0.12}" fill="#cfc8c0" opacity="0.6"/>`;
+}
+function lmTower(x, y, s) {
+  let o = "";
+  for (let i = 0; i < 4; i++) {
+    const tw = s * (1 - i * 0.16), th = s * 0.34, ty = y + s * 0.7 - (i + 1) * th;
+    o += `<rect x="${x - tw / 2}" y="${ty}" width="${tw}" height="${th}" fill="${i % 2 ? "#c9a05e" : "#d9ba79"}" stroke="#6f4f2a" stroke-width="4"/>`
+      + `<polygon points="${x - tw / 2 - 8},${ty} ${x + tw / 2 + 8},${ty} ${x},${ty - th * 0.5}" fill="#a5471f"/>`;
+  }
+  return o;
+}
+function lmLighthouse(x, y, s) {
+  return `<polygon points="${x - s * 0.26},${y + s * 0.8} ${x - s * 0.13},${y - s * 0.7} ${x + s * 0.13},${y - s * 0.7} ${x + s * 0.26},${y + s * 0.8}" fill="#f4f1ea" stroke="#888" stroke-width="4"/>`
+    + `<rect x="${x - s * 0.2}" y="${y - s * 0.2}" width="${s * 0.4}" height="${s * 0.16}" fill="#d33"/>`
+    + `<rect x="${x - s * 0.24}" y="${y + s * 0.24}" width="${s * 0.48}" height="${s * 0.15}" fill="#d33"/>`
+    + `<rect x="${x - s * 0.15}" y="${y - s * 0.86}" width="${s * 0.3}" height="${s * 0.18}" fill="#ffe680" stroke="#8a6a00" stroke-width="3"/>`
+    + `<polygon points="${x - s * 0.17},${y - s * 0.86} ${x + s * 0.17},${y - s * 0.86} ${x},${y - s * 1.02}" fill="#a5471f"/>`;
+}
+function lmLake(x, y, s) {
+  return `<ellipse cx="${x}" cy="${y}" rx="${s * 1.15}" ry="${s * 0.72}" fill="#3f86c9" stroke="#2c6aa5" stroke-width="6"/>`
+    + `<ellipse cx="${x}" cy="${y}" rx="${s * 0.82}" ry="${s * 0.48}" fill="#57a0dd" opacity="0.7"/>`
+    + `<path d="M${x - s * 0.5} ${y} q 22 -12 44 0 t 44 0" stroke="#bfe0f5" stroke-width="5" fill="none"/>`;
+}
+function lmStadium(x, y, s) {
+  return `<ellipse cx="${x}" cy="${y}" rx="${s * 1.2}" ry="${s * 0.82}" fill="#d9d2c4" stroke="#7a7264" stroke-width="8"/>`
+    + `<ellipse cx="${x}" cy="${y}" rx="${s * 0.82}" ry="${s * 0.52}" fill="#4a9a4a" stroke="#fff" stroke-width="4"/>`
+    + `<line x1="${x}" y1="${y - s * 0.52}" x2="${x}" y2="${y + s * 0.52}" stroke="#fff" stroke-width="3"/>`
+    + `<circle cx="${x}" cy="${y}" r="${s * 0.14}" fill="none" stroke="#fff" stroke-width="3"/>`;
+}
+function lmPower(x, y, s) {
+  return `<rect x="${x - s * 0.7}" y="${y - s * 0.2}" width="${s * 1.4}" height="${s * 0.9}" fill="#8a8f96" stroke="#4c5158" stroke-width="6"/>`
+    + `<rect x="${x - s * 0.5}" y="${y - s * 0.7}" width="${s * 0.22}" height="${s * 0.5}" fill="#6d7278"/><rect x="${x + s * 0.28}" y="${y - s * 0.7}" width="${s * 0.22}" height="${s * 0.5}" fill="#6d7278"/>`
+    + `<polygon points="${x - s * 0.06},${y} ${x + s * 0.16},${y} ${x + s * 0.02},${y + s * 0.34} ${x + s * 0.2},${y + s * 0.34} ${x - s * 0.12},${y + s * 0.78} ${x},${y + s * 0.38} ${x - s * 0.16},${y + s * 0.38}" fill="#ffd21e" stroke="#b28a00" stroke-width="2"/>`;
+}
+function lmGate(x, y, s) {
+  return `<rect x="${x - s * 0.8}" y="${y - s * 0.4}" width="${s * 1.6}" height="${s * 0.9}" rx="8" fill="#cdbf9c" stroke="#8a7a4a" stroke-width="6"/>`
+    + `<rect x="${x - s * 0.6}" y="${y - s * 0.5}" width="${s * 1.2}" height="${s * 0.16}" fill="#b04a3a"/>`
+    + `<rect x="${x - s * 0.16}" y="${y - s * 0.05}" width="${s * 0.32}" height="${s * 0.55}" rx="6" fill="#3a2f2a"/>`;
+}
+function lmRuins(x, y, s) {
+  let o = `<rect x="${x - s}" y="${y + s * 0.5}" width="${s * 2}" height="${s * 0.2}" fill="#9c9384"/>`;
+  for (let i = -2; i <= 2; i++) { const cx2 = x + i * s * 0.42, hh = s * (0.7 + ((i + 2) % 2) * 0.22); o += `<rect x="${cx2 - s * 0.1}" y="${y + s * 0.5 - hh}" width="${s * 0.2}" height="${hh}" fill="#b7ae9c" stroke="#867c68" stroke-width="3"/>`; }
+  return o;
+}
+function lmMansion(x, y, s) {
+  return `<rect x="${x - s * 0.8}" y="${y - s * 0.4}" width="${s * 1.6}" height="${s}" fill="#e7dcc2" stroke="#7a6a44" stroke-width="6"/>`
+    + `<polygon points="${x - s * 0.9},${y - s * 0.4} ${x + s * 0.9},${y - s * 0.4} ${x},${y - s * 0.85}" fill="#7a3b2a"/>`
+    + `<rect x="${x - s * 0.12}" y="${y + s * 0.1}" width="${s * 0.24}" height="${s * 0.5}" fill="#3a2f2a"/>`;
+}
+function lmObservatory(x, y, s) {
+  return `<rect x="${x - s * 0.6}" y="${y}" width="${s * 1.2}" height="${s * 0.6}" fill="#d7dbe0" stroke="#6c7076" stroke-width="6"/>`
+    + `<path d="M${x - s * 0.6} ${y} a ${s * 0.6} ${s * 0.6} 0 0 1 ${s * 1.2} 0 z" fill="#b9c0c8" stroke="#6c7076" stroke-width="6"/>`
+    + `<line x1="${x}" y1="${y - s * 0.55}" x2="${x + s * 0.5}" y2="${y - s * 0.82}" stroke="#4c5158" stroke-width="8"/>`;
+}
+function lmCaveMouth(x, y, s) {
+  return `<polygon points="${x - s * 1.1},${y + s * 0.7} ${x - s * 0.6},${y - s * 0.6} ${x + s * 0.6},${y - s * 0.6} ${x + s * 1.1},${y + s * 0.7}" fill="#4a4550" stroke="#2e2b34" stroke-width="6"/>`
+    + `<path d="M${x - s * 0.45} ${y + s * 0.7} a ${s * 0.45} ${s * 0.6} 0 0 1 ${s * 0.9} 0 z" fill="#1c1a22"/>`
+    + `<polygon points="${x - s * 0.2},${y - s * 0.6} ${x - s * 0.1},${y - s * 0.25} ${x - s * 0.3},${y - s * 0.25}" fill="#6b6674"/>`;
+}
+function lmIsland(x, y, s) {
+  return `<ellipse cx="${x}" cy="${y + s * 0.4}" rx="${s * 1.1}" ry="${s * 0.5}" fill="#e6d29a" stroke="#c9b072" stroke-width="5"/>`
+    + `<rect x="${x - s * 0.06}" y="${y - s * 0.5}" width="${s * 0.12}" height="${s * 0.7}" fill="#8a6a3a"/>`
+    + `<circle cx="${x}" cy="${y - s * 0.55}" r="${s * 0.32}" fill="#2f8f4f"/>`;
+}
+function lmPeaks(x, y, s) {
+  return `<polygon points="${x - s * 1.1},${y + s * 0.6} ${x - s * 0.4},${y - s * 0.7} ${x + s * 0.1},${y + s * 0.1} ${x + s * 0.5},${y - s * 0.55} ${x + s * 1.1},${y + s * 0.6}" fill="#7a7168" stroke="#4c463f" stroke-width="6"/>`
+    + `<polygon points="${x - s * 0.4},${y - s * 0.7} ${x - s * 0.2},${y - s * 0.3} ${x - s * 0.6},${y - s * 0.3}" fill="#eef2f7"/>`
+    + `<polygon points="${x + s * 0.5},${y - s * 0.55} ${x + s * 0.66},${y - s * 0.22} ${x + s * 0.34},${y - s * 0.22}" fill="#eef2f7"/>`;
+}
+
+/** Which hero landmark (if any) a place should show — specific names first. */
+function landmarkType(map) {
+  const n = map.name.toLowerCase();
+  if (/lighthouse/.test(n)) return lmLighthouse;
+  if (/volcano|chimney|cinnabar|stark mountain|fiery path|blush mountain|mt\. ember|firespit/.test(n)) return lmVolcano;
+  if (/observatory/.test(n)) return lmObservatory;
+  if (/tower|sky pillar|spear pillar|distortion/.test(n)) return lmTower;
+  if (/stadium|frontier|battle tower|battle maison|battle tree|battle royal|royal dome|indigo plateau|pokémon league|colosseum|\bdome\b/.test(n)) return lmStadium;
+  if (/power plant|windworks/.test(n)) return lmPower;
+  if (/\bgate\b|checkpoint/.test(n)) return lmGate;
+  if (/ruins|temple of|ancient quarry|relic castle|tanoby|of alph/.test(n)) return lmRuins;
+  if (/\blake\b|lake of/.test(n)) return lmLake;
+  if (/mansion|chateau|palace|parfum|lost hotel|weather institute|academy|master dojo|secret hq|aether/.test(n)) return lmMansion;
+  return null;
+}
+/** A coarse biome that recolours the ground (desert/snow/beach) for a place. */
+function biomeOf(map) {
+  const n = map.name.toLowerCase();
+  if (map.habitat === "sand" || /desert|\bdune|asado|haina/.test(n)) return "desert";
+  if (/snow|icicle|\bice\b|ice path|icefall|frost|glaseado|icirrus|alabaster|icepeak|freezington|circhester|snowpoint|tundra|glacier/.test(n)) return "snow";
+  if (/beach|\bbay\b|seafoam|treasure|cape|coast/.test(n)) return "beach";
+  return null;
+}
+
 function mapSvg(map) {
   const w = map.w ?? 2400;
   const h = map.h ?? 1600;
   const kind = map.kind;
-  const fill = KIND_FILL[kind] ?? "#8ec98e";
   const rng = seededRng(map.key);
+  const biome = biomeOf(map);
+  // Ground colour: the kind's base, nudged a few % per-map so no two are identical,
+  // then overridden by a desert/snow biome.
+  let fill = shade(KIND_FILL[kind] ?? "#8ec98e", (rng() - 0.5) * 0.14);
+  if (biome === "desert") fill = "#e6cd8f";
+  else if (biome === "snow") fill = "#e8eef4";
   const road = ROAD[kind] ?? null;
   const cx = w / 2, cy = h / 2;
-  // Town roads/NPCs meet on the street just below the building row; elsewhere the
-  // paths meet at the map centre.
   const hubY = kind === "town" ? cy + 140 : cy;
   const p = [`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">`, `<rect width="${w}" height="${h}" fill="${fill}"/>`];
 
@@ -1277,9 +1425,8 @@ function mapSvg(map) {
   const nearCenter = (fx, fy) => Math.abs(fx - cx) < w * 0.16 && Math.abs(fy - cy) < h * 0.16;
   const scatter = (n, draw) => { for (let i = 0; i < n; i++) { const fx = 120 + rng() * (w - 240), fy = 160 + rng() * (h - 320); if (!nearCenter(fx, fy)) p.push(draw(fx, fy)); } };
   if (kind === "route") {
-    p.push(`<rect x="0" y="0" width="${w}" height="${h}" fill="#7dbf7d" opacity="0.0"/>`);
-    scatter(70, (x, y) => `<circle cx="${x}" cy="${y}" r="${18 + rng() * 16}" fill="#5fa85f" opacity="0.7"/>`); // tall-grass tufts
-    scatter(18, (x, y) => `<circle cx="${x}" cy="${y}" r="${34 + rng() * 18}" fill="#2f7d32"/><rect x="${x - 6}" y="${y}" width="12" height="34" fill="#6b4a2a"/>`); // trees
+    if (biome === "desert") { scatter(26, (x, y) => `<path d="M${x} ${y} l0 -46 M${x} ${y - 26} l-16 -6 M${x} ${y - 18} l16 -6" stroke="#3f8f4f" stroke-width="10" fill="none"/>`); scatter(20, (x, y) => `<ellipse cx="${x}" cy="${y}" rx="${40 + rng() * 30}" ry="14" fill="#d8bd79"/>`); }
+    else { scatter(70, (x, y) => `<circle cx="${x}" cy="${y}" r="${18 + rng() * 16}" fill="${biome === "snow" ? "#cfe0ee" : "#5fa85f"}" opacity="0.75"/>`); scatter(18, (x, y) => biome === "snow" ? `<polygon points="${x},${y - 40} ${x + 22},${y + 20} ${x - 22},${y + 20}" fill="#2f6a4a"/><rect x="${x - 5}" y="${y + 18}" width="10" height="18" fill="#6b4a2a"/>` : `<circle cx="${x}" cy="${y}" r="${34 + rng() * 18}" fill="#2f7d32"/><rect x="${x - 6}" y="${y}" width="12" height="34" fill="#6b4a2a"/>`); }
   } else if (kind === "forest") {
     scatter(120, (x, y) => `<circle cx="${x}" cy="${y}" r="${30 + rng() * 26}" fill="#2c5f2c"/><circle cx="${x}" cy="${y - 8}" r="${18 + rng() * 14}" fill="#367a36"/>`);
   } else if (kind === "cave") {
@@ -1290,6 +1437,17 @@ function mapSvg(map) {
     p.push(`<rect x="${w * 0.08}" y="${h * 0.08}" width="${w * 0.84}" height="${h * 0.84}" rx="20" fill="#c9a875" stroke="#8a6a3a" stroke-width="8"/>`);
     for (let gx = w * 0.12; gx < w * 0.88; gx += 220) p.push(`<line x1="${gx}" y1="${h * 0.08}" x2="${gx}" y2="${h * 0.92}" stroke="#b8975f" stroke-width="2"/>`);
   }
+  // A beach biome lays a sand strip along the bottom of an otherwise-grassy map.
+  if (biome === "beach" && kind !== "ocean") p.push(`<path d="M0 ${h * 0.7} Q ${w * 0.5} ${h * 0.62} ${w} ${h * 0.7} L ${w} ${h} L 0 ${h} Z" fill="#e6d29a"/>`);
+  // Snow specks over everything.
+  if (biome === "snow") for (let i = 0; i < 80; i++) p.push(`<circle cx="${60 + rng() * (w - 120)}" cy="${120 + rng() * (h - 240)}" r="${3 + rng() * 4}" fill="#ffffff" opacity="0.8"/>`);
+
+  // ---- Hero landmark: a named structure, else a kind-appropriate default. ----
+  const S = Math.min(w, h) * 0.15;
+  const lx = cx, ly = kind === "town" ? h * 0.17 : h * 0.30;
+  const drawer = landmarkType(map)
+    ?? (kind === "cave" ? lmCaveMouth : (kind === "ocean" && map.island) ? lmIsland : (map.habitat === "mountain") ? lmPeaks : null);
+  if (drawer) p.push(`<g opacity="0.96">${drawer(lx, ly, S)}</g>`);
 
   // ---- Road network: a hub with a path to every land exit ----
   if (road) {
@@ -1301,14 +1459,25 @@ function mapSvg(map) {
     p.push(`<circle cx="${cx}" cy="${hubY}" r="60" fill="${road}"/>`);
   }
 
-  // ---- Town: a main street + the service buildings (aligned with their region
-  //      tiles at cy-120), each with a door and a bright entrance mat. ----
+  // ---- Town: a main street + service buildings + two enterable houses, each
+  //      aligned with its region tile (at cy-120) with a door and entrance mat. ----
   if (kind === "town") {
     p.push(`<rect x="${cx - 560}" y="${cy + 84}" width="1320" height="120" rx="20" fill="${road}"/>`); // main street below the buildings
+    // Decorative skyline behind the row — denser for a "City" than a "Town".
+    const blocks = /city/i.test(map.name) ? 9 : 5;
+    for (let i = 0; i < blocks; i++) { const bx = cx - 620 + i * (1240 / blocks) + rng() * 40, bh2 = 120 + rng() * 220; p.push(`<rect x="${bx}" y="${cy - 320 - bh2 + 200}" width="${90 + rng() * 40}" height="${bh2}" fill="${shade(fill, -0.18)}" opacity="0.55"/>`); }
+    const [h1, h2] = HOUSE_DOORS(map);
+    p.push(houseBuilding(h1[0], h1[1], "#f0e7d8", "#caa15e", "House", road));
+    p.push(houseBuilding(h2[0], h2[1], "#f0e7d8", "#8a9b53", "House", road));
     p.push(buildingWithDoor(cx - 500, cy - 120, 200, 200, "#f3efe6", "#e0554f", "Pokémon Center", road));
     p.push(buildingWithDoor(cx - 100, cy - 120, 200, 200, "#f3efe6", "#4f7fd0", "Poké Mart", road));
     p.push(buildingWithDoor(cx + 220, cy - 120, 200, 200, "#eef2f7", "#2f5aa8", "Police 🚓", road));
-    if (map.gym) p.push(buildingWithDoor(cx + 520, cy - 120, 200, 200, "#efe6ff", "#7b2ff7", `${map.gym.leader}'s Gym ★`, road));
+    if (map.gym) { const [gx, gy] = GYM_DOOR(map); p.push(buildingWithDoor(gx, gy, 200, 200, "#efe6ff", "#7b2ff7", `${map.gym.leader}'s Gym ★`, road)); }
+  } else if (map.gym) {
+    // A gym/trial that isn't in a town (Grusha on Glaseado Mountain, Alola trial
+    // sites) — the leader's building stands on the site itself.
+    const [gx, gy] = GYM_DOOR(map);
+    p.push(buildingWithDoor(gx, gy, 200, 200, "#efe6ff", "#7b2ff7", `${map.gym.leader}'s Gym ★`, road ?? "#d8c7a6"));
   }
 
   // ---- Ship docks (ferry/flight exits) ----
@@ -1331,8 +1500,8 @@ function mapSvg(map) {
 // Building interiors are a fixed small room: a service counter up top, an exit
 // door at the bottom. The player walks in through the building's door tile.
 const INT_W = 1600, INT_H = 1100;
-const INT_FLOOR = { center: "#f6e9f0", mart: "#e8f1fb", police: "#e9eef6", gym: "#efe7ff" };
-const INT_TRIM = { center: "#e0554f", mart: "#4f7fd0", police: "#2f5aa8", gym: "#7b2ff7" };
+const INT_FLOOR = { center: "#f6e9f0", mart: "#e8f1fb", police: "#e9eef6", gym: "#efe7ff", house: "#f3ecdd" };
+const INT_TRIM = { center: "#e0554f", mart: "#4f7fd0", police: "#2f5aa8", gym: "#7b2ff7", house: "#caa15e" };
 function interiorSvg(kind, title) {
   const floor = INT_FLOOR[kind] ?? "#efe6da", trim = INT_TRIM[kind] ?? "#8a6a3a";
   const cx = INT_W / 2;
@@ -1341,9 +1510,19 @@ function interiorSvg(kind, title) {
   for (let gx = 0; gx <= INT_W; gx += 100) p.push(`<line x1="${gx}" y1="0" x2="${gx}" y2="${INT_H}" stroke="#00000010" stroke-width="2"/>`);
   for (let gy = 0; gy <= INT_H; gy += 100) p.push(`<line x1="0" y1="${gy}" x2="${INT_W}" y2="${gy}" stroke="#00000010" stroke-width="2"/>`);
   p.push(`<rect x="0" y="0" width="${INT_W}" height="120" fill="${trim}"/>`);              // back wall
-  p.push(`<rect x="${cx - 260}" y="230" width="520" height="150" rx="12" fill="#c9a06a" stroke="#8a6a3a" stroke-width="6"/>`); // counter
   p.push(`<text x="${cx}" y="200" font-family="Arial" font-size="34" font-weight="bold" fill="#fff" text-anchor="middle">${xml(title)}</text>`);
-  p.push(`<text x="${cx}" y="470" font-family="Arial" font-size="24" fill="#555" text-anchor="middle">Step up to the counter</text>`);
+  if (kind === "house") {
+    // A lived-in room: a rug, a table with chairs, a bookshelf and a potted plant.
+    p.push(`<ellipse cx="${cx}" cy="${INT_H * 0.6}" rx="440" ry="260" fill="#d9c7a0" opacity="0.6"/>`);
+    p.push(`<rect x="${cx - 110}" y="${INT_H * 0.55}" width="220" height="120" rx="12" fill="#a9773f" stroke="#7a5628" stroke-width="5"/>`);
+    p.push(`<rect x="${cx - 170}" y="${INT_H * 0.57}" width="46" height="80" rx="8" fill="#8a5a2e"/><rect x="${cx + 124}" y="${INT_H * 0.57}" width="46" height="80" rx="8" fill="#8a5a2e"/>`);
+    p.push(`<rect x="140" y="180" width="150" height="220" rx="6" fill="#8a5a2e" stroke="#5c3d1e" stroke-width="5"/><line x1="140" y1="250" x2="290" y2="250" stroke="#5c3d1e" stroke-width="4"/><line x1="140" y1="320" x2="290" y2="320" stroke="#5c3d1e" stroke-width="4"/>`);
+    p.push(`<rect x="${INT_W - 250}" y="300" width="60" height="80" rx="6" fill="#b5763c"/><circle cx="${INT_W - 220}" cy="270" r="46" fill="#3f8f4f"/>`);
+    p.push(`<text x="${cx}" y="470" font-family="Arial" font-size="24" fill="#6a5a3a" text-anchor="middle">A cosy home — talk to whoever's in.</text>`);
+  } else {
+    p.push(`<rect x="${cx - 260}" y="230" width="520" height="150" rx="12" fill="#c9a06a" stroke="#8a6a3a" stroke-width="6"/>`); // service counter
+    p.push(`<text x="${cx}" y="470" font-family="Arial" font-size="24" fill="#555" text-anchor="middle">Step up to the counter</text>`);
+  }
   p.push(`<rect x="${cx - 90}" y="${INT_H - 150}" width="180" height="150" rx="8" fill="#3a2f2a"/>`);  // exit door
   p.push(`<rect x="${cx - 70}" y="${INT_H - 200}" width="140" height="40" rx="8" fill="#ffd94a" stroke="#b28a00" stroke-width="3"/>`);
   p.push(`<text x="${cx}" y="${INT_H - 210}" font-family="Arial" font-size="26" font-weight="bold" fill="#12324f" text-anchor="middle">▼ Exit</text>`);
@@ -1383,6 +1562,7 @@ async function buildScenes() {
     const cx = INT_W / 2;
     const svc = kind === "center" ? { kind: "center", healOnEnter: true, announce: true }
       : kind === "gym" ? { kind: "gym", announce: true, leader: gym.leader, gymRegion: gym.region, gymIndex: gym.gymIndex, gymType: gym.type, badge: gym.badge }
+      : kind === "house" ? { kind: "house", announce: false }
       : { kind, announce: true };
     const regions = [
       region("Indoors", KIND_FILL.venue, 40, 130, INT_W - 80, INT_H - 200, "safeZone", { kind: "indoor", announce: false }),
@@ -1396,21 +1576,28 @@ async function buildScenes() {
   for (const map of allMaps()) {
     const w = map.w ?? 2400;
     const h = map.h ?? 1600;
-    map.gym = map.kind === "town" ? (GYM_BY_CITY.get(map.name) ?? null) : null;
+    // A gym/trial lands on its city whatever the map kind — so Grusha's gym sits
+    // on Glaseado Mountain and Alola's captains at their trial sites, not nowhere.
+    map.gym = GYM_BY_CITY.get(map.name) ?? null;
     await fs.writeFile(path.join(mapsDir, `${map.key}.svg`), mapSvg(map));
     const regions = [];
+    // A door tile: stepping on it walks you into a building interior (a separate
+    // scene); the interior's exit brings you back just below the door.
+    const doorTo = (name, color, x, y, dest) => region(name, color, x, y, 200, 200, "zoneTransit",
+      { enterInterior: true, destinationSceneName: dest, destX: INT_W / 2, destY: INT_H - 320, announce: false });
     if (map.kind === "town") {
-      // The building tiles are DOORS now — stepping on one walks you into the
-      // building's interior (a separate scene). The interior's exit brings you
-      // back to the town, just below the door.
-      const door = (name, color, x, dest) => region(name, color, x, h / 2 - 120, 200, 200, "zoneTransit",
-        { enterInterior: true, destinationSceneName: dest, destX: INT_W / 2, destY: INT_H - 320, announce: false });
+      const door = (name, color, x, dest) => doorTo(name, color, x, h / 2 - 120, dest);
       regions.push(region("Town", KIND_FILL.town, 120, 120, w - 240, h - 240, "safeZone", { kind: "town", announce: false }));
       regions.push(door("Poké Center", "#e0554f", w / 2 - 500, "Pokémon Center"));
       regions.push(door("Poké Mart", "#4f7fd0", w / 2 - 100, "Poké Mart"));
       regions.push(door("Police Station", "#2f5aa8", w / 2 + 220, "Police Station"));
+      // Two enterable houses (aligned with the drawn buildings) → a shared home.
+      const [hd1, hd2] = HOUSE_DOORS(map);
+      regions.push(doorTo("House 1", "#caa15e", hd1[0], hd1[1] - 20, "House"));
+      regions.push(doorTo("House 2", "#8a9b53", hd2[0], hd2[1] - 20, "House"));
       if (map.gym) {
-        regions.push(door("Gym", "#7b2ff7", w / 2 + 520, `${map.gym.leader}'s Gym`));
+        const [gx, gy] = GYM_DOOR(map);
+        regions.push(doorTo("Gym", "#7b2ff7", gx, gy, `${map.gym.leader}'s Gym`));
         gymInteriors.set(map.gym.leader, map.gym);
       }
     } else if (map.habitat) {
@@ -1424,6 +1611,13 @@ async function buildScenes() {
       // A venue with no habitat (lab, gate, resort, ship, academy…) is a safe
       // indoor area — it must NOT spawn wild grass Pokémon.
       regions.push(region("Indoors", KIND_FILL.venue, 120, 120, w - 240, h - 240, "safeZone", { kind: "indoor", announce: false }));
+    }
+    // A gym/trial on a non-town map (Grusha's mountain, Alola's trial sites) gets
+    // its leader's building here too — placed centrally, clear of the exits.
+    if (map.gym && map.kind !== "town") {
+      const [gx, gy] = GYM_DOOR(map);
+      regions.push(doorTo("Gym", "#7b2ff7", gx, gy, `${map.gym.leader}'s Gym`));
+      gymInteriors.set(map.gym.leader, map.gym);
     }
     let shipIdx = 0;
     for (const ex of map.exits) {
@@ -1462,18 +1656,18 @@ async function buildScenes() {
     });
   }
 
-  // Building interiors: 3 shared service scenes (every town's doors point here)
-  // plus one per gym (so each shows its own leader).
-  for (const [nm, kind] of [["Pokémon Center", "center"], ["Poké Mart", "mart"], ["Police Station", "police"]]) {
+  // Building interiors: 4 shared scenes (every town's doors point here) — the
+  // three services plus a home for the houses — plus one per gym (its leader).
+  for (const [nm, kind] of [["Pokémon Center", "center"], ["Poké Mart", "mart"], ["Police Station", "police"], ["House", "house"]]) {
     scenes.push(await makeInterior(nm, kind));
   }
   for (const gym of gymInteriors.values()) scenes.push(await makeInterior(`${gym.leader}'s Gym`, "gym", gym));
 
-  // Surface any gym whose city isn't a town map (e.g. Alola trial sites) — those
-  // leaders get no gym building placed, so the mismatch is visible, not silent.
-  const townNames = new Set(scenes.filter((s) => s.regions?.some((r) => r.name === "Poké Center")).map((s) => s.name));
+  // Surface any gym whose city is not an actual map at all — that leader's gym
+  // could not be placed anywhere, so the mismatch stays visible, not silent.
+  const placedGymCities = new Set(scenes.filter((s) => s.regions?.some((r) => r.name === "Gym")).map((s) => s.name));
   for (const [city, gym] of GYM_BY_CITY) {
-    if (!townNames.has(city)) console.warn(`Pokémon Masters | ${gym.leader}'s city "${city}" is not a town map — no gym placed.`);
+    if (!placedGymCities.has(city)) console.warn(`Pokémon Masters | ${gym.leader}'s city "${city}" has no map — no gym placed.`);
   }
   return scenes;
 }
