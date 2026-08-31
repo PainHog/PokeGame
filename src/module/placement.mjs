@@ -43,7 +43,7 @@ export function tokenOnScene(scene, actor) {
  * Place an Actor's token on a scene at (x,y) in pixels (defaults to centre).
  * No-op if a token for the actor is already there. Returns the TokenDocument.
  */
-export async function placeToken(scene, actor, { x = null, y = null, linked = false } = {}) {
+export async function placeToken(scene, actor, { x = null, y = null, linked = false, overrides = {} } = {}) {
   if (!scene || !actor) return null;
   const existing = tokenOnScene(scene, actor);
   if (existing) return existing;
@@ -52,7 +52,8 @@ export async function placeToken(scene, actor, { x = null, y = null, linked = fa
   const py = y ?? Math.round((scene.height / 2) / gs) * gs;
   try {
     const td = await actor.getTokenDocument({ x: px, y: py, actorLink: linked });
-    const [created] = await scene.createEmbeddedDocuments("Token", [td.toObject()]);
+    const data = foundry.utils.mergeObject(td.toObject(), overrides, { inplace: false });
+    const [created] = await scene.createEmbeddedDocuments("Token", [data]);
     return created;
   } catch (err) {
     console.warn("Pokémon Masters | could not place token for", actor.name, err);

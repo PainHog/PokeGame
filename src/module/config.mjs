@@ -371,7 +371,7 @@ PM.npcSpriteMatch = [
   [/jessie/i, "rocket_grunt_f"], [/\bjames\b/i, "rocket_grunt_m"],
   [/rocket|galactic|plasma|flare|skull|team ?star|team ?yell|macro|grunt|admin/i, "rocket_grunt_m"],
   // — Service / town NPCs —
-  [/nurse|joy/i, "nurse"], [/officer|police|jenny|cop\b/i, "gentleman"],
+  [/nurse|joy/i, "nurse"], [/officer|police|jenny|cop\b/i, "policeman"],
   [/mart|clerk|cashier|shopkeep/i, "mart_clerk"],
   [/\bmom\b|mother/i, "mom"], [/reporter|interview|press/i, "reporter_m"],
   [/\bcook\b|chef|waiter/i, "cook"], [/professor|\bprof\b|\bdr\.? /i, "professor_oak"],
@@ -388,7 +388,8 @@ PM.npcSpriteMatch = [
   [/dragon/i, "dragon_tamer"], [/aroma|florist/i, "aroma_lady"],
   [/hex|witch|psychic ?girl/i, "hex_maniac"], [/expert|veteran|ace/i, "expert_m"],
   [/school ?kid|student|pupil/i, "school_kid_m"], [/pok[eé] ?fan|fan\b/i, "pokefan_m"],
-  [/old (man|woman)|elder|gramps|grandpa|grandma/i, "old_woman"],
+  [/old ?man|gramps|grandpa|\belder\b/i, "old_man"],
+  [/old ?woman|granny|grandma/i, "old_woman"],
   [/\bkid\b|\bboy\b|child/i, "little_boy"], [/\bgirl\b/i, "little_girl"],
   [/tamer|maniac/i, "pokemaniac"], [/bird ?keeper|falconer/i, "bird_keeper"],
   [/leader|kahuna|captain|elite|champion|gym/i, "cool_trainer_m"], // generic authority fallback

@@ -1211,6 +1211,7 @@ function mapSvg(map) {
     const cy = h / 2;
     p.push(`<rect x="${cx - 500}" y="${cy - 120}" width="200" height="200" rx="10" fill="#f0f0f0" stroke="#ccc" stroke-width="4"/><rect x="${cx - 500}" y="${cy - 120}" width="200" height="64" fill="#e0554f"/><text x="${cx - 400}" y="${cy + 140}" font-family="Arial" font-size="26" fill="#444" text-anchor="middle">Center</text>`);
     p.push(`<rect x="${cx - 100}" y="${cy - 120}" width="200" height="200" rx="10" fill="#f0f0f0" stroke="#ccc" stroke-width="4"/><rect x="${cx - 100}" y="${cy - 120}" width="200" height="64" fill="#4f7fd0"/><text x="${cx}" y="${cy + 140}" font-family="Arial" font-size="26" fill="#444" text-anchor="middle">Mart</text>`);
+    p.push(`<rect x="${cx + 220}" y="${cy - 120}" width="200" height="200" rx="10" fill="#eef2f7" stroke="#ccc" stroke-width="4"/><rect x="${cx + 220}" y="${cy - 120}" width="200" height="64" fill="#2f5aa8"/><text x="${cx + 320}" y="${cy - 78}" font-family="Arial" font-size="34" fill="#fff" text-anchor="middle">🚓</text><text x="${cx + 320}" y="${cy + 140}" font-family="Arial" font-size="26" fill="#444" text-anchor="middle">Police</text>`);
   } else {
     p.push(`<rect x="${w * 0.12}" y="${h * 0.12}" width="${w * 0.76}" height="${h * 0.76}" rx="24" fill="rgba(0,0,0,0.08)"/>`);
   }
@@ -1250,6 +1251,7 @@ async function buildScenes() {
       regions.push(region("Town", KIND_FILL.town, 120, 120, w - 240, h - 240, "safeZone", { kind: "town", announce: false }));
       regions.push(region("Poké Center", "#e0554f", w / 2 - 500, h / 2 - 120, 200, 200, "safeZone", { kind: "center", healOnEnter: true }));
       regions.push(region("Poké Mart", "#4f7fd0", w / 2 - 100, h / 2 - 120, 200, 200, "safeZone", { kind: "mart" }));
+      regions.push(region("Police Station", "#2f5aa8", w / 2 + 220, h / 2 - 120, 200, 200, "safeZone", { kind: "police", announce: true }));
     } else if (map.habitat) {
       // A wild zone: its encounter category is the map's real habitat, never a
       // blanket default. Level band scales a little with the habitat's danger.

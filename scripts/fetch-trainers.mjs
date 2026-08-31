@@ -78,6 +78,8 @@ async function firedRedFrontPics() {
 // scale ×2 and pad to a centred 64×64 so they share the trainers' framing.
 const OVERWORLD = [
   { key: "nurse",    url: `${EM}/graphics/object_events/pics/people/nurse.png` },
+  { key: "policeman", url: `${FR}/graphics/object_events/pics/people/policeman.png` },
+  { key: "old_man",  url: `${EM}/graphics/object_events/pics/people/old_man.png` },
   { key: "mart_clerk", url: `${EM}/graphics/object_events/pics/people/mart_employee.png` },
   { key: "mom",      url: `${EM}/graphics/object_events/pics/people/mom.png` },
   { key: "old_woman", url: `${EM}/graphics/object_events/pics/people/old_woman.png` },

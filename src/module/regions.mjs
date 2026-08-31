@@ -42,6 +42,9 @@ function trainerFromEvent(event) {
   const token = event?.data?.token;
   const actor = token?.actor ?? null;
   if (!actor || actor.type !== "trainer") return { token: null, actor: null };
+  // Placed NPC actors (Nurse Joy, Officer Jenny, townsfolk…) are scenery — they
+  // must never trigger venue greetings, healing or wild encounters themselves.
+  if (actor.getFlag?.("pokemon-masters", "isNpc")) return { token: null, actor: null };
   return { token, actor };
 }
 
@@ -352,7 +355,7 @@ export class SafeZoneBehaviorType extends foundry.data.regionBehaviors.RegionBeh
       if (!isResponsible(token)) return;
 
       // Visiting a town/Center/Mart registers this scene as a Fly destination.
-      if (["town", "center", "mart"].includes(this.kind) && token.parent?.name) {
+      if (["town", "center", "mart", "police"].includes(this.kind) && token.parent?.name) {
         const pts = actor.system.flyPoints ?? [];
         if (!pts.includes(token.parent.name)) await actor.update({ "system.flyPoints": [...pts, token.parent.name] });
       }
@@ -372,6 +375,20 @@ export class SafeZoneBehaviorType extends foundry.data.regionBehaviors.RegionBeh
               <h3>💗 Welcome to the Pokémon Center!</h3>
               <p>${this.healOnEnter ? `We've restored <strong>${actor.name}</strong>'s Pokémon to full health! We hope to see you again!` : "Would you like to rest your Pokémon?"}</p>
               <button type="button" class="pm-nurse-btn">Talk to Nurse Joy</button>
+            </div>`
+          });
+        }
+        return;
+      }
+
+      if (this.kind === "police") {
+        if (this.announce) {
+          await ChatMessage.create({
+            speaker: { alias: "Officer Jenny" },
+            content: `<div class="pm-encounter-card">
+              <h3>🚓 Welcome to the Police Station</h3>
+              <p>If you've witnessed a crime — or had a Pokémon stolen — report it here. We reward good citizens for their civic duty.</p>
+              <button type="button" class="pm-police-btn">Talk to Officer Jenny</button>
             </div>`
           });
         }

@@ -274,6 +274,14 @@ export function registerServicesApi() {
     nurseJoy();
   });
 
+  // "Talk to Officer Jenny" button on the Police Station arrival card.
+  document.addEventListener("click", (event) => {
+    const btn = event.target?.closest?.(".pm-police-btn");
+    if (!btn) return;
+    event.preventDefault();
+    officerJenny();
+  });
+
   // A committed crime (e.g. a theft) can bring the police down on the culprit.
   Hooks.on("pmCrimeCommitted", async ({ trainer }) => {
     if (!trainer?.isOwner || Math.random() >= 0.5) return;

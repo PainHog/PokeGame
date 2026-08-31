@@ -19,6 +19,7 @@ import { registerPokedexApi } from "./module/pokedex.mjs";
 import { registerQuestApi } from "./module/quests.mjs";
 import { registerTrainerChallenges } from "./module/trainers.mjs";
 import { registerPlacementApi } from "./module/placement.mjs";
+import { registerWorldPop } from "./module/worldpop.mjs";
 import { AmbushBehaviorType, registerFactionApi } from "./module/factions.mjs";
 import { FieldMoveGateBehaviorType, registerTmApi } from "./module/tms.mjs";
 import { registerTravelApi } from "./module/travel.mjs";
@@ -138,5 +139,6 @@ Hooks.once("ready", () => {
   registerQuestApi();
   registerTrainerChallenges();
   registerPlacementApi();
+  registerWorldPop();
   console.log("Pokémon Masters | Ready");
 });
