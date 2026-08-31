@@ -356,8 +356,11 @@ export class ZoneTransitBehaviorType extends foundry.data.regionBehaviors.Region
     return {
       zoneName: new fields.StringField({ required: false, blank: true, initial: "" }),
       announce: new fields.BooleanField({ initial: true }),
+      /** Entry point on the destination (or same-scene warp target), in pixels. */
       destX: new fields.NumberField({ required: true, integer: true, initial: 0 }),
       destY: new fields.NumberField({ required: true, integer: true, initial: 0 }),
+      /** Destination scene BY NAME — survives compendium import (unlike a UUID). */
+      destinationSceneName: new fields.StringField({ required: false, blank: true, initial: "" }),
       destinationScene: new fields.DocumentUUIDField({ type: "Scene", required: false, nullable: true, initial: null })
     };
   }
@@ -373,15 +376,44 @@ export class ZoneTransitBehaviorType extends foundry.data.regionBehaviors.Region
           content: `<p><strong>${token.name}</strong> entered <strong>${this.zoneName}</strong>.</p>`
         });
       }
-
       if (!isResponsible(token)) return;
 
-      if (this.destX || this.destY) {
+      // Resolve the destination scene (by name first, then UUID).
+      let destScene = this.destinationSceneName ? game.scenes?.getName(this.destinationSceneName) : null;
+      if (!destScene && this.destinationScene) destScene = await fromUuid(this.destinationScene);
+
+      if (destScene && destScene !== token.parent) {
+        await crossScene(token, actor, destScene, this.destX, this.destY);
+      } else if (this.destX || this.destY) {
         await token.update({ x: this.destX, y: this.destY });
-      } else if (this.destinationScene) {
-        const scene = await fromUuid(this.destinationScene);
-        scene?.view?.();
       }
     }
   };
+}
+
+/** Move a token to another Scene at (x, y) and bring its owner(s) along. */
+async function crossScene(token, actor, destScene, x, y) {
+  const source = token.toObject();
+  delete source._id;
+  source.x = x || 0;
+  source.y = y || 0;
+  await destScene.createEmbeddedDocuments("Token", [source]);
+  if (token.parent && token.id) await token.parent.deleteEmbeddedDocuments("Token", [token.id]);
+
+  const ownerIds = (game.users?.contents ?? [])
+    .filter((u) => !u.isGM && u.active && actor.testUserPermission(u, "OWNER"))
+    .map((u) => u.id);
+  if (game.user.isGM && ownerIds.length) {
+    game.socket.emit("system.pokemon-masters", { action: "viewScene", sceneId: destScene.id, userIds: ownerIds });
+  }
+  if (ownerIds.includes(game.user.id) || game.user.isGM) destScene.view();
+}
+
+/** Socket: pull a player to a destination scene when the GM moved their token. */
+export function registerTravelSocket() {
+  game.socket.on("system.pokemon-masters", (data) => {
+    if (data?.action === "viewScene" && data.userIds?.includes(game.user.id)) {
+      game.scenes.get(data.sceneId)?.view();
+    }
+  });
 }

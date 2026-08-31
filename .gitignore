@@ -5,6 +5,8 @@ node_modules/
 # Source JSON is derived from @pkmn/data; compiled LevelDB packs are the runtime artifact.
 src/packs/
 packs/
+# Generated map images (rebuilt by `npm run build`)
+assets/maps/
 
 # OS / editor
 .DS_Store

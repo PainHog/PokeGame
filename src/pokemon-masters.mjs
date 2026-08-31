@@ -10,7 +10,7 @@ import { PM } from "./module/config.mjs";
 import { TrainerData, PokemonData, MoveData, AbilityData, GearData } from "./module/data-models.mjs";
 import { PokemonMastersActor, PokemonMastersItem } from "./module/documents.mjs";
 import { TrainerSheet, PokemonSheet, PMItemSheet } from "./module/sheets.mjs";
-import { WildTileBehaviorType, SafeZoneBehaviorType, ZoneTransitBehaviorType } from "./module/regions.mjs";
+import { WildTileBehaviorType, SafeZoneBehaviorType, ZoneTransitBehaviorType, registerTravelSocket } from "./module/regions.mjs";
 import { AmbushBehaviorType, registerFactionApi } from "./module/factions.mjs";
 import { FieldMoveGateBehaviorType, registerTmApi } from "./module/tms.mjs";
 import { registerWorldHooks } from "./module/world.mjs";
@@ -109,5 +109,6 @@ Hooks.once("ready", () => {
   registerBreedingApi();
   registerFactionApi();
   registerTmApi();
+  registerTravelSocket();
   console.log("Pokémon Masters | Ready");
 });

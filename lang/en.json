@@ -62,9 +62,10 @@
         "FIELDS": {
           "zoneName": { "label": "Zone Name", "hint": "Name announced when a trainer enters this region." },
           "announce": { "label": "Announce Entry", "hint": "Post a chat message when a trainer enters." },
-          "destX": { "label": "Destination X (px)", "hint": "Same-scene warp target. Leave 0 to disable." },
-          "destY": { "label": "Destination Y (px)", "hint": "Same-scene warp target. Leave 0 to disable." },
-          "destinationScene": { "label": "Destination Scene", "hint": "Scene to view on entry (GM side)." }
+          "destX": { "label": "Entry X (px)", "hint": "Where the token lands (destination scene, or same-scene warp)." },
+          "destY": { "label": "Entry Y (px)", "hint": "Where the token lands (destination scene, or same-scene warp)." },
+          "destinationSceneName": { "label": "Destination Scene (by name)", "hint": "Name of the scene to travel to — survives compendium import. Preferred over the UUID." },
+          "destinationScene": { "label": "Destination Scene (UUID)", "hint": "Fallback if no name is set." }
         }
       }
     }

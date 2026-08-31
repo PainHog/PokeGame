@@ -373,36 +373,92 @@ function buildGear() {
 /*  Scenes  ->  a ready-to-play test map         */
 /* -------------------------------------------- */
 
-function buildScene() {
-  const bg = "systems/pokemon-masters/assets/maps/test-route.svg";
+const MAP_W = 2400;
+const MAP_H = 1600;
+
+/** A small connected Kanto slice. Each map is its own Scene, linked by edge exits. */
+const MAPS = [
+  { key: "pallet", name: "Pallet Town", kind: "town", region: "kanto", exits: [{ edge: "north", to: "Route 1" }] },
+  { key: "route1", name: "Route 1", kind: "route", region: "kanto", habitat: "grass", exits: [{ edge: "south", to: "Pallet Town" }, { edge: "north", to: "Viridian City" }] },
+  { key: "viridian", name: "Viridian City", kind: "town", region: "kanto", exits: [{ edge: "south", to: "Route 1" }, { edge: "north", to: "Viridian Forest" }] },
+  { key: "vforest", name: "Viridian Forest", kind: "forest", region: "kanto", habitat: "forest", exits: [{ edge: "south", to: "Viridian City" }, { edge: "north", to: "Pewter City" }] },
+  { key: "pewter", name: "Pewter City", kind: "town", region: "kanto", exits: [{ edge: "south", to: "Viridian Forest" }] }
+];
+
+const KIND_FILL = { town: "#cdbd8f", route: "#8ec98e", forest: "#3f7a3f", cave: "#5a5560", ocean: "#4a86c5" };
+const EDGE_RECT = {
+  north: [MAP_W / 2 - 150, 0, 300, 120], south: [MAP_W / 2 - 150, MAP_H - 120, 300, 120],
+  east: [MAP_W - 120, MAP_H / 2 - 150, 120, 300], west: [0, MAP_H / 2 - 150, 120, 300]
+};
+// Where you land on the DESTINATION, arriving from a given exit edge (opposite side, clear of its return exit).
+const ARRIVE_ENTRY = { north: [MAP_W / 2, MAP_H - 300], south: [MAP_W / 2, 300], east: [300, MAP_H / 2], west: [MAP_W - 300, MAP_H / 2] };
+const EDGE_LABEL_POS = {
+  north: [MAP_W / 2, 150], south: [MAP_W / 2, MAP_H - 140], east: [MAP_W - 180, MAP_H / 2], west: [180, MAP_H / 2]
+};
+
+function mapSvg(map) {
+  const fill = KIND_FILL[map.kind] ?? "#8ec98e";
+  const parts = [`<svg xmlns="http://www.w3.org/2000/svg" width="${MAP_W}" height="${MAP_H}" viewBox="0 0 ${MAP_W} ${MAP_H}">`];
+  parts.push(`<rect width="${MAP_W}" height="${MAP_H}" fill="${fill}"/>`);
+  if (map.kind === "town") {
+    parts.push(`<rect x="${MAP_W / 2 - 500}" y="${MAP_H / 2 - 120}" width="200" height="200" rx="10" fill="#f0f0f0" stroke="#ccc" stroke-width="4"/><rect x="${MAP_W / 2 - 500}" y="${MAP_H / 2 - 120}" width="200" height="64" fill="#e0554f"/><text x="${MAP_W / 2 - 400}" y="${MAP_H / 2 + 130}" font-family="Arial" font-size="26" fill="#444" text-anchor="middle">Center</text>`);
+    parts.push(`<rect x="${MAP_W / 2 - 100}" y="${MAP_H / 2 - 120}" width="200" height="200" rx="10" fill="#f0f0f0" stroke="#ccc" stroke-width="4"/><rect x="${MAP_W / 2 - 100}" y="${MAP_H / 2 - 120}" width="200" height="64" fill="#4f7fd0"/><text x="${MAP_W / 2}" y="${MAP_H / 2 + 130}" font-family="Arial" font-size="26" fill="#444" text-anchor="middle">Mart</text>`);
+  } else {
+    // A wild patch cue.
+    parts.push(`<rect x="400" y="400" width="${MAP_W - 800}" height="${MAP_H - 800}" rx="20" fill="rgba(0,0,0,0.08)"/>`);
+  }
+  parts.push(`<text x="${MAP_W / 2}" y="70" font-family="Arial" font-size="52" font-weight="bold" fill="#333" text-anchor="middle">${map.name}</text>`);
+  for (const ex of map.exits) {
+    const [lx, ly] = EDGE_LABEL_POS[ex.edge];
+    parts.push(`<text x="${lx}" y="${ly}" font-family="Arial" font-size="30" font-weight="bold" fill="#1c3c5c" text-anchor="middle">▲ ${ex.to}</text>`);
+  }
+  parts.push("</svg>");
+  return parts.join("\n");
+}
+
+async function buildScenes() {
+  const mapsDir = path.join(ROOT, "assets", "maps");
+  await fs.mkdir(mapsDir, { recursive: true });
+
   const region = (name, color, x, y, w, h, type, sys) => ({
-    _id: stableId("region", name),
-    name,
-    color,
+    _id: stableId("region", `${name}-${x}-${y}`),
+    name, color,
     shapes: [{ type: "rectangle", x, y, width: w, height: h, rotation: 0, hole: false }],
-    behaviors: [{ _id: stableId("beh", name), name, type: `pokemon-masters.${type}`, system: sys, disabled: false }],
-    visibility: 0,
-    locked: false
+    behaviors: [{ _id: stableId("beh", `${name}-${x}-${y}`), name, type: `pokemon-masters.${type}`, system: sys, disabled: false }],
+    visibility: 0, locked: false
   });
-  const scene = {
-    _id: stableId("scene", "test-route"),
-    name: "Test Route (Pokémon Masters)",
-    width: 2400,
-    height: 1600,
-    padding: 0.25,
-    background: { src: bg },
-    grid: { type: 1, size: 100 },
-    flags: { "pokemon-masters": { region: "kanto" } },
-    regions: [
-      region("Tall Grass", "#3f7a3f", 200, 200, 700, 500, "wildTile", { category: "grass", chance: 30, poolSource: "requirements", announceOnly: true, minLevel: 2, maxLevel: 6 }),
-      region("Pond", "#3f77b8", 1500, 200, 700, 400, "wildTile", { category: "water", chance: 25, poolSource: "requirements", announceOnly: true, minLevel: 5, maxLevel: 10 }),
-      region("Cave", "#5a5560", 1600, 1000, 600, 450, "wildTile", { category: "cave", chance: 30, poolSource: "requirements", announceOnly: true, minLevel: 6, maxLevel: 12 }),
-      region("Town", "#cdbd8f", 800, 900, 700, 500, "safeZone", { kind: "town", announce: false }),
-      region("Poké Center", "#e0554f", 900, 1000, 200, 200, "safeZone", { kind: "center", healOnEnter: true }),
-      region("Poké Mart", "#4f7fd0", 1200, 1000, 200, 200, "safeZone", { kind: "mart" })
-    ]
-  };
-  return [scene];
+
+  const scenes = [];
+  for (const map of MAPS) {
+    await fs.writeFile(path.join(mapsDir, `${map.key}.svg`), mapSvg(map));
+    const regions = [];
+    if (map.kind === "town") {
+      regions.push(region("Town", KIND_FILL.town, 160, 160, MAP_W - 320, MAP_H - 320, "safeZone", { kind: "town", announce: false }));
+      regions.push(region("Poké Center", "#e0554f", MAP_W / 2 - 500, MAP_H / 2 - 120, 200, 200, "safeZone", { kind: "center", healOnEnter: true }));
+      regions.push(region("Poké Mart", "#4f7fd0", MAP_W / 2 - 100, MAP_H / 2 - 120, 200, 200, "safeZone", { kind: "mart" }));
+    } else {
+      regions.push(region("Wild Area", "rgba(0,0,0,0.1)", 300, 300, MAP_W - 600, MAP_H - 600, "wildTile", {
+        category: map.habitat ?? "grass", chance: 25, poolSource: "requirements", announceOnly: true, minLevel: 2, maxLevel: 8
+      }));
+    }
+    for (const ex of map.exits) {
+      const [rx, ry, rw, rh] = EDGE_RECT[ex.edge];
+      const [ex2, ey2] = ARRIVE_ENTRY[ex.edge];
+      regions.push(region(`To ${ex.to}`, "#ffd94a", rx, ry, rw, rh, "zoneTransit", {
+        zoneName: ex.to, destinationSceneName: ex.to, destX: ex2, destY: ey2, announce: true
+      }));
+    }
+    scenes.push({
+      _id: stableId("scene", map.key),
+      name: map.name,
+      width: MAP_W, height: MAP_H, padding: 0.25,
+      background: { src: `systems/pokemon-masters/assets/maps/${map.key}.svg` },
+      grid: { type: 1, size: 100 },
+      flags: { "pokemon-masters": { region: map.region } },
+      regions
+    });
+  }
+  return scenes;
 }
 
 /* -------------------------------------------- */
@@ -417,7 +473,7 @@ async function main() {
   await writePack("moves", buildMoves());
   await writePack("abilities", buildAbilities());
   await writePack("gear", buildGear());
-  await writePack("scenes", buildScene());
+  await writePack("scenes", await buildScenes());
   console.log("Done.");
 }
 
