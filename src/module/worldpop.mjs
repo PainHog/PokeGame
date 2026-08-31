@@ -257,15 +257,23 @@ export async function rebuildWorld() {
   ui.notifications?.info(`Pokémon Masters: refreshed ${refreshed} map(s), added ${regionsAdded} new region(s), repopulated NPCs.`);
 }
 
-/** Ensure a clickable "Rebuild Pokémon World" macro exists for the GM. */
+/** Ensure a clickable "Rebuild Pokémon World" macro exists on the GM's hotbar. */
 async function ensureRebuildMacro() {
   if (!game.user?.isGM) return;
   const name = "Rebuild Pokémon World";
-  if (game.macros?.getName?.(name)) return;
-  await Macro.create({
-    name, type: "script", img: "icons/svg/regen.svg", scope: "global",
-    command: "game.pokemonMasters?.world?.rebuild?.();",
-  }).catch(() => {});
+  let macro = game.macros?.getName?.(name);
+  if (!macro) {
+    macro = await Macro.create({
+      name, type: "script", img: "icons/svg/regen.svg", scope: "global",
+      command: "game.pokemonMasters?.world?.rebuild?.();",
+    }).catch(() => null);
+  }
+  // Put it on the first free hotbar slot so it's an actual visible button.
+  const hotbar = game.user.hotbar ?? {};
+  if (macro && !Object.values(hotbar).includes(macro.id)) {
+    let slot = 1; while (hotbar[slot] && slot < 50) slot++;
+    try { await game.user.assignHotbarMacro(macro, slot); } catch (err) { /* hotbar full / optional */ }
+  }
 }
 
 export function registerWorldPop() {
