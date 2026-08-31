@@ -29,6 +29,7 @@
     <input type="number" name="system.hp.value" value="{{system.hp.value}}" min="0" max="{{system.hp.max}}">
     <span>/ {{system.hp.max}}</span>
     <div class="pm-hptrack"><div class="pm-hpfill" style="width: {{hpPct}}%"></div></div>
+    <button type="button" class="pm-iconbtn" data-action="sendOut" data-tooltip="Send out / recall on the map">🔴</button>
     <button type="button" class="pm-iconbtn" data-action="useItem" data-tooltip="Use an item">🎒</button>
     <button type="button" class="pm-iconbtn pm-gimmick-chip{{#if gimmick.active}} is-active{{/if}}" data-action="gimmick"
       data-tooltip="{{#if gimmick.active}}{{gimmick.active}} active — click to revert{{else}}Battle gimmick{{/if}}">⚡</button>

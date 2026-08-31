@@ -92,7 +92,8 @@ export class PokemonSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       useMove(event, target) { return this._useMove(target); },
       useItem() { return game.pokemonMasters?.items?.useDialog(this.actor); },
       teachMove() { return game.pokemonMasters?.tms?.teachDialog(this.actor); },
-      gimmick() { return this._gimmickMenu(); }
+      gimmick() { return this._gimmickMenu(); },
+      sendOut() { return game.pokemonMasters?.placement?.sendOut(this.actor); }
     }
   };
 

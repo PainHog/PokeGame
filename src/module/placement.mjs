@@ -87,12 +87,34 @@ export async function spawnTrainerAt(trainer, region) {
   });
 }
 
+/**
+ * Send a Pokémon out onto the current scene (next to its trainer's token), or
+ * recall it if it's already out. Returns "sent" | "recalled" | null.
+ */
+export async function sendOut(pokemon) {
+  if (pokemon?.type !== "pokemon") return null;
+  const scene = canvas?.scene;
+  if (!scene) return null;
+  if (!canPlace()) { ui.notifications?.info(`${pokemon.name} will be sent out by the GM.`); return null; }
+  if (tokenOnScene(scene, pokemon)) { await removeToken(scene, pokemon); return "recalled"; }
+  const trainer = pokemon.system.trainer ? await fromUuid(pokemon.system.trainer) : null;
+  const tt = trainer ? scene.tokens.find((t) => t.actorId === trainer.id) : null;
+  const gs = scene.grid?.size || 100;
+  const pos = tt ? { x: tt.x + gs, y: tt.y } : {};
+  await placeToken(scene, pokemon, pos);
+  return "sent";
+}
+
 export function registerPlacementApi() {
   game.pokemonMasters = Object.assign(game.pokemonMasters ?? {}, {
-    placement: { ensureScene, placeToken, removeToken, spawnTrainerAt, canPlace }
+    placement: { ensureScene, placeToken, removeToken, spawnTrainerAt, sendOut, canPlace }
   });
   // When a trainer receives their starter, the GM client spawns them on the map.
   Hooks.on("pmStarterChosen", ({ trainer, region }) => {
     if (trainer && !trainer.getFlag(FLAG, "spawned")) spawnTrainerAt(trainer, region);
+  });
+  // A fainted Pokémon is recalled from the field automatically.
+  Hooks.on("pmPokemonFainted", ({ target }) => {
+    if (target?.type === "pokemon" && canPlace() && canvas?.scene) removeToken(canvas.scene, target);
   });
 }
