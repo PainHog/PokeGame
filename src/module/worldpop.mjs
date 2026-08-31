@@ -404,10 +404,51 @@ export function registerWorldPop() {
 }
 
 /** Install the Rebuild macro + build/populate the world on load (GM only). */
+/**
+ * Self-heal stale world scenes after a system update. A system update refreshes
+ * the compendium but never rewrites scenes already imported into a world, so an
+ * old scene keeps its previous (blank / pre-WebP) background and renders as a
+ * white grid. On load, refresh each imported map's background art, colour,
+ * lighting & vision from the compendium — touching only scenes that are actually
+ * out of date — so maps just work without a manual Rebuild. Responsible-client
+ * only (one writer); returns how many it fixed.
+ */
+async function healSceneBackgrounds() {
+  if (!canPlace()) return 0;
+  const pack = game.packs.get("pokemon-masters.scenes");
+  if (!pack) return 0;
+  await pack.getIndex();
+  let fixed = 0;
+  for (const s of game.scenes ?? []) {
+    const entry = pack.index.find((e) => e.name === s.name);
+    if (!entry) continue;
+    const src = s.background?.src ?? "";
+    // Already current (a WebP background on a black ground)? Skip — no fetch.
+    if (src.endsWith(".webp") && s.backgroundColor === "#000000") continue;
+    try {
+      const o = (await pack.getDocument(entry._id)).toObject();
+      if ((o.background?.src ?? "") === src && o.backgroundColor === s.backgroundColor) continue;
+      await s.update({
+        "background.src": o.background?.src, backgroundColor: o.backgroundColor,
+        tokenVision: o.tokenVision, fog: o.fog, environment: o.environment,
+      });
+      fixed++;
+    } catch (err) { console.warn("Pokémon Masters | could not heal scene", s?.name, err); }
+  }
+  if (fixed) {
+    ui.notifications?.info(`Pokémon Masters: refreshed ${fixed} stale map background(s).`);
+    try { if (canvas?.ready) await canvas.draw(); } catch (err) { /* redraw is best-effort */ }
+  }
+  return fixed;
+}
+
 async function initWorldPop() {
   if (!canPlace()) return;
   await ensureRebuildMacro();
   try {
+    // Refresh any stale map backgrounds from the compendium (e.g. right after a
+    // system update) so old scenes render instead of showing a blank white grid.
+    await healSceneBackgrounds();
     // Populate any already-imported scenes once per version.
     if ((game.settings.get(FLAG, "worldPopVersion") ?? 0) < POP_VERSION) {
       for (const scene of game.scenes ?? []) await populateScene(scene);
