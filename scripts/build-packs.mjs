@@ -21,9 +21,19 @@ import { fileURLToPath } from "node:url";
 import { Dex } from "@pkmn/dex";
 import { Sprites } from "@pkmn/img";
 import { compilePack } from "@foundryvtt/foundryvtt-cli";
+import { PM } from "../src/module/config.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
+
+// City → gym info, from the (Bulbapedia-verified) region rosters. Used to drop a
+// Gym building + its leader into the right town.
+const GYM_BY_CITY = new Map();
+for (const [region, data] of Object.entries(PM.gymLeaders ?? {})) {
+  (data.leaders ?? []).forEach((l, i) => {
+    if (l.city) GYM_BY_CITY.set(l.city, { leader: l.name, region, gymIndex: i, type: l.type, badge: l.badge });
+  });
+}
 
 // Locally-bundled sprites (assets/sprites/<num>.<ext>), if they've been fetched
 // with `npm run sprites`. Keyed by National Dex number. Loaded synchronously so
@@ -1212,6 +1222,9 @@ function mapSvg(map) {
     p.push(`<rect x="${cx - 500}" y="${cy - 120}" width="200" height="200" rx="10" fill="#f0f0f0" stroke="#ccc" stroke-width="4"/><rect x="${cx - 500}" y="${cy - 120}" width="200" height="64" fill="#e0554f"/><text x="${cx - 400}" y="${cy + 140}" font-family="Arial" font-size="26" fill="#444" text-anchor="middle">Center</text>`);
     p.push(`<rect x="${cx - 100}" y="${cy - 120}" width="200" height="200" rx="10" fill="#f0f0f0" stroke="#ccc" stroke-width="4"/><rect x="${cx - 100}" y="${cy - 120}" width="200" height="64" fill="#4f7fd0"/><text x="${cx}" y="${cy + 140}" font-family="Arial" font-size="26" fill="#444" text-anchor="middle">Mart</text>`);
     p.push(`<rect x="${cx + 220}" y="${cy - 120}" width="200" height="200" rx="10" fill="#eef2f7" stroke="#ccc" stroke-width="4"/><rect x="${cx + 220}" y="${cy - 120}" width="200" height="64" fill="#2f5aa8"/><text x="${cx + 320}" y="${cy - 78}" font-family="Arial" font-size="34" fill="#fff" text-anchor="middle">🚓</text><text x="${cx + 320}" y="${cy + 140}" font-family="Arial" font-size="26" fill="#444" text-anchor="middle">Police</text>`);
+    if (map.gym) {
+      p.push(`<rect x="${cx + 520}" y="${cy - 120}" width="200" height="200" rx="10" fill="#efe6ff" stroke="#7b2ff7" stroke-width="6"/><rect x="${cx + 520}" y="${cy - 120}" width="200" height="64" fill="#7b2ff7"/><text x="${cx + 620}" y="${cy - 78}" font-family="Arial" font-size="30" fill="#ffd94a" text-anchor="middle">★</text><text x="${cx + 620}" y="${cy + 140}" font-family="Arial" font-size="24" fill="#444" text-anchor="middle">${map.gym.leader}'s Gym</text>`);
+    }
   } else {
     p.push(`<rect x="${w * 0.12}" y="${h * 0.12}" width="${w * 0.76}" height="${h * 0.76}" rx="24" fill="rgba(0,0,0,0.08)"/>`);
   }
@@ -1245,6 +1258,7 @@ async function buildScenes() {
   for (const map of allMaps()) {
     const w = map.w ?? 2400;
     const h = map.h ?? 1600;
+    map.gym = map.kind === "town" ? (GYM_BY_CITY.get(map.name) ?? null) : null;
     await fs.writeFile(path.join(mapsDir, `${map.key}.svg`), mapSvg(map));
     const regions = [];
     if (map.kind === "town") {
@@ -1252,6 +1266,11 @@ async function buildScenes() {
       regions.push(region("Poké Center", "#e0554f", w / 2 - 500, h / 2 - 120, 200, 200, "safeZone", { kind: "center", healOnEnter: true }));
       regions.push(region("Poké Mart", "#4f7fd0", w / 2 - 100, h / 2 - 120, 200, 200, "safeZone", { kind: "mart" }));
       regions.push(region("Police Station", "#2f5aa8", w / 2 + 220, h / 2 - 120, 200, 200, "safeZone", { kind: "police", announce: true }));
+      if (map.gym) {
+        regions.push(region("Gym", "#7b2ff7", w / 2 + 520, h / 2 - 120, 200, 200, "safeZone", {
+          kind: "gym", announce: true, leader: map.gym.leader, gymRegion: map.gym.region, gymIndex: map.gym.gymIndex, gymType: map.gym.type, badge: map.gym.badge,
+        }));
+      }
     } else if (map.habitat) {
       // A wild zone: its encounter category is the map's real habitat, never a
       // blanket default. Level band scales a little with the habitat's danger.

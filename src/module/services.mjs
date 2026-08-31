@@ -282,6 +282,18 @@ export function registerServicesApi() {
     officerJenny();
   });
 
+  // "Challenge <Leader>" button on the Gym arrival card.
+  document.addEventListener("click", (event) => {
+    const btn = event.target?.closest?.(".pm-gym-btn");
+    if (!btn) return;
+    event.preventDefault();
+    const trainer = resolveTrainer();
+    if (!trainer) return ui.notifications?.warn("Assign your Trainer to challenge the Gym.");
+    const region = btn.dataset.region || undefined;
+    const index = btn.dataset.index === "" ? undefined : Number(btn.dataset.index);
+    game.pokemonMasters?.league?.gymChallenge?.(trainer, region, index);
+  });
+
   // A committed crime (e.g. a theft) can bring the police down on the culprit.
   Hooks.on("pmCrimeCommitted", async ({ trainer }) => {
     if (!trainer?.isOwner || Math.random() >= 0.5) return;

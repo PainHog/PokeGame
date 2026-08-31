@@ -5,7 +5,7 @@ node_modules/
 # Source JSON is derived from @pkmn/data; compiled LevelDB packs are the runtime artifact.
 src/packs/
 packs/
-# Generated map images (rebuilt by `npm run build`)
+# Generated map images (rebuilt by `npm run build` from our own code)
 assets/maps/
 
 # OS / editor
@@ -16,8 +16,4 @@ npm-debug.log*
 .idea/
 .smoke-extract/
 
-# Bundled sprites (fetched by `npm run sprites`, packaged into the release)
-assets/sprites/
 
-# Bundled trainer/NPC sprites (fetched by `npm run trainers`, packaged into the release)
-assets/trainers/

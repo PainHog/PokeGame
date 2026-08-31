@@ -45,8 +45,19 @@ async function npcFolder() {
   return f;
 }
 
+/** Token/actor flags for an NPC, from its placement options. */
+function npcFlags(opts = {}) {
+  return {
+    isNpc: true,
+    npcRole: opts.role ?? null,
+    npcFlavor: opts.flavor ?? null,
+    npcGymRegion: opts.gymRegion ?? null,
+    npcGymIndex: opts.gymIndex ?? null,
+  };
+}
+
 /** Find-or-create a shared NPC actor by name (cached; one per world). */
-async function ensureNpc(name, { role = null, flavor = null } = {}) {
+async function ensureNpc(name, opts = {}) {
   if (cache.has(name)) return cache.get(name);
   let actor = game.actors?.find((a) => a.type === "trainer" && a.name === name && a.getFlag(FLAG, "isNpc"));
   if (!actor) {
@@ -56,9 +67,9 @@ async function ensureNpc(name, { role = null, flavor = null } = {}) {
       name, type: "trainer", img, folder: folder.id,
       prototypeToken: {
         name, texture: { src: img }, actorLink: false,
-        disposition: role ? 1 : 0, displayName: 20, width: 1, height: 1, lockRotation: true,
+        disposition: opts.role ? 1 : 0, displayName: 20, width: 1, height: 1, lockRotation: true,
       },
-      flags: { [FLAG]: { isNpc: true, npcRole: role ?? null, npcFlavor: flavor ?? null } },
+      flags: { [FLAG]: npcFlags(opts) },
     });
   }
   cache.set(name, actor);
@@ -78,10 +89,7 @@ function snap(scene, px, py) {
 async function placeNpc(scene, name, opts, px, py) {
   const actor = await ensureNpc(name, opts);
   const { x, y } = snap(scene, px, py);
-  return placeToken(scene, actor, {
-    x, y,
-    overrides: { flags: { [FLAG]: { isNpc: true, npcRole: opts.role ?? null, npcFlavor: opts.flavor ?? null } } },
-  });
+  return placeToken(scene, actor, { x, y, overrides: { flags: { [FLAG]: npcFlags(opts) } } });
 }
 
 /** Town flavour residents (varied gender), placed away from the buildings. */
@@ -106,6 +114,13 @@ export async function populateScene(scene) {
       await placeNpc(scene, "Nurse Joy", { role: "nurse" }, cx - 400, cy + 120);
       await placeNpc(scene, "Mart Clerk", { role: "clerk" }, cx, cy + 120);
       await placeNpc(scene, "Officer Jenny", { role: "officer" }, cx + 320, cy + 120);
+      // Gym cities: stand the leader at the gym door, clickable to battle.
+      const gymRegion = scene.regions?.find((r) => r.name === "Gym");
+      const gymBeh = gymRegion?.behaviors?.find((b) => b.type === "pokemon-masters.safeZone");
+      const gsys = gymBeh?.system ?? {};
+      if (gsys.leader) {
+        await placeNpc(scene, gsys.leader, { role: "gym", gymRegion: gsys.gymRegion, gymIndex: gsys.gymIndex }, cx + 620, cy + 120);
+      }
       // Flavour residents scattered around the town.
       const spots = [[w * 0.20, h * 0.28], [w * 0.80, h * 0.30], [w * 0.24, h * 0.74], [w * 0.76, h * 0.72], [w * 0.5, h * 0.82]];
       for (let i = 0; i < TOWNSFOLK.length; i++) {
@@ -145,6 +160,13 @@ export async function interactNpc(doc) {
   if (role === "clerk") {
     const t = playerTrainer();
     return t ? pm.shop?.open?.(t) : ui.notifications?.warn("Assign your Trainer to shop here.");
+  }
+  if (role === "gym") {
+    const t = playerTrainer();
+    if (!t) return ui.notifications?.warn("Assign your Trainer to challenge the Gym.");
+    const region = doc.getFlag(FLAG, "npcGymRegion") || undefined;
+    const idx = doc.getFlag(FLAG, "npcGymIndex");
+    return pm.league?.gymChallenge?.(t, region, idx ?? undefined);
   }
   const line = FLAVOR[doc?.getFlag?.(FLAG, "npcFlavor")] ?? "Hello there, trainer!";
   return ChatMessage.create({ speaker: { alias: doc?.name ?? "NPC" }, content: `<div class="pm-encounter-card"><p>${line}</p></div>` });

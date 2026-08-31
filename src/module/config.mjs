@@ -298,6 +298,8 @@ PM.safeZoneKinds = {
   town: "Town",
   center: "Pokémon Center",
   mart: "Poké Mart",
+  police: "Police Station",
+  gym: "Pokémon Gym",
   indoor: "Building Interior"
 };
 
@@ -392,12 +394,27 @@ PM.npcSpriteMatch = [
   [/old ?woman|granny|grandma/i, "old_woman"],
   [/\bkid\b|\bboy\b|child/i, "little_boy"], [/\bgirl\b/i, "little_girl"],
   [/tamer|maniac/i, "pokemaniac"], [/bird ?keeper|falconer/i, "bird_keeper"],
-  [/leader|kahuna|captain|elite|champion|gym/i, "cool_trainer_m"], // generic authority fallback
 ];
-/** The sprite path for a trainer/NPC of the given name (defaults to Ace Trainer). */
+/**
+ * Colourful class sprites used to give any un-matched trainer (e.g. a gym leader
+ * from a region with no exact sprite) a *distinct* look, deterministically by
+ * name — so no two leaders end up identical and everything stays full-colour and
+ * uniform. All keys exist in assets/trainers/.
+ */
+PM.variedTrainerPool = [
+  "cool_trainer_m", "cool_trainer_f", "black_belt", "psychic_m", "psychic_f",
+  "beauty", "gentleman", "expert_m", "expert_f", "swimmer_m", "swimmer_f",
+  "guitarist", "dragon_tamer", "hex_maniac", "bird_keeper", "ninja_boy",
+  "aroma_lady", "rich_boy", "pokemaniac", "super_nerd", "gamer", "biker",
+  "sailor", "picnicker", "kindler", "parasol_lady", "collector", "painter",
+];
+function hashName(s = "") { let h = 0; for (let i = 0; i < s.length; i++) h = (Math.imul(h, 31) + s.charCodeAt(i)) >>> 0; return h; }
+/** The sprite path for a trainer/NPC of the given name. Named characters get
+ *  their exact sprite; anyone else gets a stable, distinct colourful class. */
 PM.npcSpriteFor = function npcSpriteFor(name = "") {
   for (const [re, key] of PM.npcSpriteMatch) if (re.test(name)) return `${PM.npcSpriteBase}${key}.png`;
-  return `${PM.npcSpriteBase}cool_trainer_m.png`;
+  const pool = PM.variedTrainerPool;
+  return `${PM.npcSpriteBase}${pool[hashName(name) % pool.length]}.png`;
 };
 
 /**

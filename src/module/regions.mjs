@@ -344,7 +344,13 @@ export class SafeZoneBehaviorType extends foundry.data.regionBehaviors.RegionBeh
         required: true, blank: false, initial: "town", choices: PM.safeZoneKinds
       }),
       healOnEnter: new fields.BooleanField({ initial: true }),
-      announce: new fields.BooleanField({ initial: true })
+      announce: new fields.BooleanField({ initial: true }),
+      // Gym metadata (kind === "gym"): which leader/region/order this gym is.
+      leader: new fields.StringField({ required: false, blank: true, initial: "" }),
+      gymRegion: new fields.StringField({ required: false, blank: true, initial: "" }),
+      gymIndex: new fields.NumberField({ required: false, nullable: true, integer: true, min: 0, initial: null }),
+      gymType: new fields.StringField({ required: false, blank: true, initial: "" }),
+      badge: new fields.StringField({ required: false, blank: true, initial: "" })
     };
   }
 
@@ -389,6 +395,22 @@ export class SafeZoneBehaviorType extends foundry.data.regionBehaviors.RegionBeh
               <h3>🚓 Welcome to the Police Station</h3>
               <p>If you've witnessed a crime — or had a Pokémon stolen — report it here. We reward good citizens for their civic duty.</p>
               <button type="button" class="pm-police-btn">Talk to Officer Jenny</button>
+            </div>`
+          });
+        }
+        return;
+      }
+
+      if (this.kind === "gym") {
+        if (this.announce) {
+          const leader = this.leader || "the Gym Leader";
+          const typ = this.gymType ? ` <em>${this.gymType}-type</em>` : "";
+          await ChatMessage.create({
+            speaker: { alias: leader },
+            content: `<div class="pm-encounter-card">
+              <h3>★ ${leader}'s Gym</h3>
+              <p>Welcome, challenger! Beat me and my${typ} team to earn the <strong>${this.badge || "Gym"} Badge</strong>.</p>
+              <button type="button" class="pm-gym-btn" data-region="${this.gymRegion || ""}" data-index="${this.gymIndex ?? ""}">Challenge ${leader}</button>
             </div>`
           });
         }

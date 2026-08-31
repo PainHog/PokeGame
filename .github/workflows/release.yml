@@ -25,15 +25,9 @@ jobs:
           node-version: "20"
       - run: npm ci
 
+      # Sprites are vendored in the repo (assets/sprites, assets/trainers), so the
+      # build is fully self-contained — no fetching from any external repo.
       - name: Build compendium packs (+ maps)
-        run: npm run build
-      - name: Bundle Pokémon sprites locally (best-effort; falls back to external URLs)
-        run: npm run sprites
-        continue-on-error: true
-      - name: Bundle trainer & NPC sprites (best-effort)
-        run: npm run trainers
-        continue-on-error: true
-      - name: Rebuild with bundled sprites
         run: npm run build
       - name: Verify + smoke test
         run: npm run verify && npm run smoke
