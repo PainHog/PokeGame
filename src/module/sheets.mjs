@@ -39,7 +39,8 @@ export class TrainerSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       collectEgg() { return game.pokemonMasters?.breeding?.collectEgg(this.actor); },
       fly() { return game.pokemonMasters?.travel?.fly(this.actor); },
       tradeService() { return game.pokemonMasters?.trade?.serviceDialog(this.actor); },
-      shop() { return game.pokemonMasters?.shop?.open(this.actor); }
+      shop() { return game.pokemonMasters?.shop?.open(this.actor); },
+      pokedex() { return game.pokemonMasters?.pokedex?.open(this.actor); }
     }
   };
 

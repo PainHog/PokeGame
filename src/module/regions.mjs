@@ -357,15 +357,22 @@ export class SafeZoneBehaviorType extends foundry.data.regionBehaviors.RegionBeh
         if (!pts.includes(token.parent.name)) await actor.update({ "system.flyPoints": [...pts, token.parent.name] });
       }
 
-      if (this.kind === "center" && this.healOnEnter) {
-        const party = await actor.getParty();
-        for (const mon of party) {
-          await mon.update({ "system.hp.value": mon.system.hp.max, "system.status": "none" });
+      if (this.kind === "center") {
+        if (this.healOnEnter) {
+          const party = await actor.getParty();
+          for (const mon of party) {
+            await mon.update({ "system.hp.value": mon.system.hp.max, "system.status": "none" });
+          }
         }
         if (this.announce) {
+          // Nurse Joy greets you; the button opens a real click-through chat.
           await ChatMessage.create({
-            speaker: { alias: "Pokémon Center" },
-            content: `<p>💗 <strong>${actor.name}</strong>'s Pokémon were restored to full health!</p>`
+            speaker: { alias: "Nurse Joy" },
+            content: `<div class="pm-encounter-card">
+              <h3>💗 Welcome to the Pokémon Center!</h3>
+              <p>${this.healOnEnter ? `We've restored <strong>${actor.name}</strong>'s Pokémon to full health! We hope to see you again!` : "Would you like to rest your Pokémon?"}</p>
+              <button type="button" class="pm-nurse-btn">Talk to Nurse Joy</button>
+            </div>`
           });
         }
         return;

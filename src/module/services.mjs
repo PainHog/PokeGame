@@ -20,8 +20,39 @@ import { PM } from "./config.mjs";
 import { resolveTrainer, catchButtonHtml } from "./catch.mjs";
 import { eligibleSpecies } from "./eligibility.mjs";
 import { teachMove, teachMoveDialog } from "./tms.mjs";
+import { startDialogue } from "./npc.mjs";
 
 const DialogV2 = () => foundry.applications?.api?.DialogV2;
+
+/* ---- Pokémon Center: Nurse Joy ----------------------------- */
+
+/** Restore a trainer's whole party to full HP and clear status. */
+async function healParty(trainer) {
+  const party = (await trainer.getParty?.()) ?? [];
+  for (const mon of party) await mon.update({ "system.hp.value": mon.system.hp?.max ?? 1, "system.status": "none" });
+  await ChatMessage.create({ speaker: { alias: "Nurse Joy" }, content: "<div class=\"pm-encounter-card\"><p>💗 We've restored your Pokémon to full health! We hope to see you again!</p></div>" });
+}
+
+/** An interactive Nurse Joy: heal, PC access, or a chat — a real click-through NPC. */
+export async function nurseJoy(trainer) {
+  trainer ??= resolveTrainer();
+  if (!trainer) return ui.notifications?.warn("Assign your Trainer first.");
+  await startDialogue({
+    start: "greet",
+    nodes: {
+      greet: {
+        text: "Welcome to the Pokémon Center! How can I help you today?",
+        choices: [
+          { label: "💗 Heal my Pokémon", next: null, action: () => healParty(trainer) },
+          { label: "🖥️ Access the PC", next: null, action: () => ui.notifications?.info("Open your Trainer sheet to manage your PC boxes and party.") },
+          { label: "💬 Have a chat", next: "chat" },
+          { label: "Be on my way", next: null }
+        ]
+      },
+      chat: { text: "Battling can tire your Pokémon out — stop by any Center any time for a free rest!", choices: [{ label: "Thanks, Nurse Joy!", next: null }] }
+    }
+  }, { speaker: "Nurse Joy" });
+}
 
 async function findSpecies(name) {
   const pack = game.packs.get("pokemon-masters.species");
@@ -188,7 +219,15 @@ export function registerServicesApi() {
   game.pokemonMasters = Object.assign(game.pokemonMasters ?? {}, {
     services: {
       moveTutor, moveReminder, moveDeleter, nameRater,
-      fish, useRepel, toggleBike, ridePokemon, partyLead
+      fish, useRepel, toggleBike, ridePokemon, partyLead, nurseJoy
     }
+  });
+
+  // "Talk to Nurse Joy" button on the Pokémon Center arrival card.
+  document.addEventListener("click", (event) => {
+    const btn = event.target?.closest?.(".pm-nurse-btn");
+    if (!btn) return;
+    event.preventDefault();
+    nurseJoy();
   });
 }

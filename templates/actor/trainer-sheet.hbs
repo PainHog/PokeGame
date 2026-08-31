@@ -17,7 +17,7 @@
       </label>
       {{#if vocationBlurb}}<p class="pm-vocation-blurb">{{vocationBlurb}}</p>{{/if}}
       <div class="pm-dex-line">
-        <span class="pm-badge">Pokédex</span>
+        <button type="button" class="pm-badge pm-dex-open" data-action="pokedex" data-tooltip="Open the Pokédex">📖 Pokédex</button>
         <span>{{dex.caught}} caught · {{dex.seen}} seen</span>
         <div class="pm-hptrack" style="flex:1"><div class="pm-hpfill" style="width: {{dex.pct}}%"></div></div>
         <small>{{dex.pct}}% of {{dex.total}}</small>

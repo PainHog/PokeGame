@@ -400,3 +400,34 @@
 .pm-org-leave { margin-left: auto; border: none; background: transparent; cursor: pointer; color: #999; font-weight: 700; }
 .pm-org .pm-hptrack { margin: 5px 0 3px; }
 .pm-org small { color: var(--muted, #6d6560); }
+
+/* Pokédex browser */
+.pm-pokedex { display: flex; flex-direction: column; height: 100%; gap: 8px; color: var(--pm-ink, #26333f); }
+.pm-pokedex .pm-dex-head { display: flex; flex-direction: column; gap: 6px; }
+.pm-dex-title { display: flex; align-items: baseline; gap: 10px; }
+.pm-dex-title small { color: var(--pm-muted, #7b8794); }
+.pm-pokedex input[name="pm-dex-search"] { width: 100%; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--pm-line, rgba(0,0,0,.12)); }
+.pm-dex-filters { display: flex; gap: 6px; }
+.pm-dex-filter { cursor: pointer; font-size: .72rem; font-weight: 700; padding: 3px 12px; border-radius: 999px; border: 1px solid var(--pm-line, rgba(0,0,0,.12)); background: var(--pm-ground, #f4f7fb); }
+.pm-dex-filter.on { background: var(--pm-accent, #e3350d); color: #fff; border-color: transparent; }
+.pm-dex-body { display: grid; grid-template-columns: 1fr 240px; gap: 10px; flex: 1; min-height: 0; }
+.pm-dex-list { list-style: none; margin: 0; padding: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; }
+.pm-dex-row { display: flex; align-items: center; gap: 8px; padding: 3px 6px; border-radius: 6px; cursor: pointer; }
+.pm-dex-row:hover { background: rgba(0,0,0,.05); }
+.pm-dex-row.sel { background: rgba(227,53,13,.10); outline: 1px solid var(--pm-accent, #e3350d); }
+.pm-dex-num { width: 46px; color: var(--pm-muted, #7b8794); font-size: .74rem; font-variant-numeric: tabular-nums; }
+.pm-dex-sprite { width: 40px; height: 40px; object-fit: contain; image-rendering: auto; }
+.pm-dex-name { flex: 1; font-weight: 600; }
+.pm-dex-undiscovered .pm-dex-sprite { filter: brightness(0) opacity(0.35); }
+.pm-dex-undiscovered .pm-dex-name { color: #aaa; letter-spacing: 2px; }
+.pm-dex-dot { width: 9px; height: 9px; border-radius: 50%; flex: 0 0 auto; }
+.pm-dex-dot-caught { background: #e3350d; }
+.pm-dex-dot-seen { background: #f0a020; }
+.pm-dex-dot-undiscovered { background: #ccc; }
+.pm-dex-detail { border-left: 1px solid var(--pm-line, rgba(0,0,0,.12)); padding-left: 10px; overflow-y: auto; text-align: center; }
+.pm-dex-detail h2 { margin: 4px 0; border: none; }
+.pm-dex-big { width: 120px; height: 120px; object-fit: contain; }
+.pm-dex-big.pm-dex-unknown { filter: brightness(0) opacity(0.3); }
+.pm-dex-detail .pm-typerow { justify-content: center; }
+.pm-dex-detail .pm-stats { margin: 8px 0; font-size: .74rem; }
+.pm-dex-open { cursor: pointer; border: none; }
