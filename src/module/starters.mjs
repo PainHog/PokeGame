@@ -42,6 +42,8 @@ export async function grantStarter(trainer, speciesName) {
     speaker: { alias: professor },
     content: `<div class="pm-encounter-card"><h3>${trainer.name} chose ${species.name}!</h3><p>"${species.name} is a fine choice — take good care of it." Their journey begins.</p></div>`
   });
+  // Auto-spawn the trainer on their home town (handled by the GM client).
+  Hooks.callAll("pmStarterChosen", { trainer, region: species.system.nativeRegion });
   return created;
 }
 

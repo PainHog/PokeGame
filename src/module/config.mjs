@@ -336,6 +336,13 @@ PM.venueInfo = {
  * Region starter trios (anime/game accurate). The starter picker grants one at
  * level 5. Names resolve against the Pokédex compendium.
  */
+/** The town a new trainer of each region spawns in (auto-placed on start). */
+PM.startTowns = {
+  kanto: "Pallet Town", johto: "New Bark Town", hoenn: "Littleroot Town",
+  sinnoh: "Twinleaf Town", unova: "Nuvema Town", kalos: "Vaniville Town",
+  alola: "Iki Town", galar: "Postwick", paldea: "Cabo Poco", hisui: "Jubilife Village"
+};
+
 PM.starterSets = {
   kanto: ["Bulbasaur", "Charmander", "Squirtle"],
   johto: ["Chikorita", "Cyndaquil", "Totodile"],
