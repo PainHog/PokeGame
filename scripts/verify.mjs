@@ -133,15 +133,50 @@ async function verifyMaps() {
 }
 
 /* -------------------------------------------- */
+/*  Region locking                               */
+/* -------------------------------------------- */
+
+// A regional form's name suffix → the region it must be locked to.
+const FORM_REGION = { Alola: "alola", Galar: "galar", Hisui: "hisui", Paldea: "paldea" };
+
+async function verifyRegions() {
+  const species = await loadPack("species");
+  const scenes = await loadPack("scenes");
+  const inRegion = (reqRegions, region) => !reqRegions?.length || reqRegions.includes(region);
+
+  // Every region that actually has maps must have a non-empty catchable pool,
+  // or its wild tiles would spawn nothing.
+  const mapped = new Set(scenes.map((s) => s.flags?.["pokemon-masters"]?.region).filter(Boolean));
+  for (const region of mapped) {
+    const n = species.filter((sp) => inRegion(sp.system.requirements?.regions, region)).length;
+    if (n === 0) flag(`region: "${region}" has maps but no native Pokémon can spawn there`);
+  }
+
+  // Regional forms must stay locked to their own region — never leak elsewhere.
+  for (const sp of species) {
+    for (const [suffix, region] of Object.entries(FORM_REGION)) {
+      if (!sp.name.includes(`-${suffix}`)) continue;
+      const regs = sp.system.requirements?.regions ?? [];
+      if (!regs.includes(region) || regs.length !== 1) {
+        flag(`region: ${sp.name} (a ${suffix} form) should be locked to ${region}, but is ${JSON.stringify(regs)}`);
+      }
+    }
+  }
+  return { mapped: mapped.size };
+}
+
+/* -------------------------------------------- */
 
 async function main() {
   console.log("Verifying lore accuracy against @pkmn + canonical maps…\n");
   const sp = await verifySpecies();
   const mv = await verifyMoves();
   const mp = await verifyMaps();
+  const rg = await verifyRegions();
   console.log(`  species: ${sp.checked}/${sp.total} checked`);
   console.log(`  moves:   ${mv.checked}/${mv.total} checked`);
   console.log(`  maps:    ${mp.total} scenes checked`);
+  console.log(`  regions: ${rg.mapped} mapped, encounter pools + regional forms checked`);
   if (!problems.length) {
     console.log("\n✅ No discrepancies — data and maps match canon.");
     return;

@@ -143,19 +143,24 @@ const TYPE_HABITATS = {
 
 /**
  * Per-species encounter requirements. A species can only roll on a tile whose
- * context satisfies EVERY non-empty axis. Sensible, tunable defaults:
+ * context satisfies EVERY non-empty axis, so region-specific Pokémon stay in
+ * their own regions:
  *  - habitats: the union of its types' habitats (bugs → forest, etc.).
- *  - regions:  variant → its region; legendary/very-rare → its native region;
- *              everything else → any region (empty).
+ *  - regions:  a regional form is locked to its form's region; otherwise the
+ *              species appears in its native (introduction-generation) region.
+ *              Kanto and Johto are the one exception — a single connected
+ *              landmass that canonically shares its wild Pokémon — so a native
+ *              of either also appears in the other.
  *  - methods:  water-types are surf/fishing; everyone else walks.
  */
+const SHARED_DEX = { kanto: ["kanto", "johto"], johto: ["johto", "kanto"] };
 function deriveRequirements(s, rarity, nativeReg, varReg) {
   const habitats = [...new Set((s.types || []).flatMap((t) => TYPE_HABITATS[t] || []))];
   const isWater = (s.types || []).includes("Water");
   const methods = isWater ? ["surf", "fishing"] : ["walk"];
   let regions = [];
   if (varReg) regions = [varReg];
-  else if ((rarity === "legendary" || rarity === "veryrare") && nativeReg) regions = [nativeReg];
+  else if (nativeReg) regions = SHARED_DEX[nativeReg] ?? [nativeReg];
   return { habitats, regions, methods, times: [] };
 }
 
