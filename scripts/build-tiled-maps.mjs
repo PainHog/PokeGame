@@ -130,7 +130,6 @@ async function extractStamps(layouts) {
  * ------------------------------------------------------------------ */
 function classify(scene) {
   const pm = scene.flags?.["pokemon-masters"]; if (!pm) return null;
-  if (pm.authentic) return null;                        // already real art
   const regions = scene.regions ?? [];
   const isTown = regions.some((r) => r.name === "Town");
   const wild = regions.find((r) => r.behaviors?.[0]?.type?.endsWith("wildTile"));
@@ -149,7 +148,7 @@ function classify(scene) {
   else if (/route|road|path|pass|bridge|way|avenue|street|trail|approach|outskirts/.test(n)) kind = "route";
   const w = scene.width || 2400, h = scene.height || 1600;
   const hasGym = (scene.regions ?? []).some((r) => (r.behaviors?.[0]?.system?.destinationSceneName || "").endsWith("Gym"));
-  return { name: scene.name, region: pm.region || "misc", kind, climate, aspect: w / h, hasGym };
+  return { name: scene.name, region: pm.region || "misc", kind, climate, aspect: w / h, hasGym, authentic: !!pm.authentic };
 }
 
 /* pick tile dimensions (in metatiles) from kind + aspect */
@@ -242,15 +241,18 @@ function compose(kind, W, H, rand, stamps, hasGym) {
   return { g, warps, grass: null };
 }
 
-/* recolour the rendered RGBA in place for climate variety */
+/* recolour the rendered RGBA in place for climate variety.
+   Blends a fraction of the original toward a climate tint (keeps buildings
+   readable) and CLAMPS every channel — a value >255 into a Uint8Array wraps,
+   which turned snow magenta. */
+const clamp8 = (v) => (v < 0 ? 0 : v > 255 ? 255 : v);
 function reclimate(data, climate) {
   if (climate === "temperate") return;
   for (let o = 0; o < data.length; o += 4) {
-    let r = data[o], gg = data[o + 1], b = data[o + 2];
-    if (climate === "snow") { const l = Math.min(255, (r + gg + b) / 3 + 90); r = l * 0.9 + 25; gg = l * 0.95 + 20; b = Math.min(255, l + 30); }
-    else if (climate === "desert") { r = Math.min(255, r * 0.6 + 150); gg = Math.min(255, gg * 0.7 + 110); b = Math.min(255, b * 0.5 + 60); }
-    else if (climate === "volcanic") { r = Math.min(255, r * 0.9 + 40); gg = gg * 0.55; b = b * 0.5; }
-    data[o] = r; data[o + 1] = gg; data[o + 2] = b;
+    const r = data[o], g = data[o + 1], b = data[o + 2];
+    if (climate === "snow") { data[o] = clamp8(r * 0.45 + 140); data[o + 1] = clamp8(g * 0.45 + 146); data[o + 2] = clamp8(b * 0.45 + 156); }
+    else if (climate === "desert") { data[o] = clamp8(r * 0.55 + 118); data[o + 1] = clamp8(g * 0.5 + 92); data[o + 2] = clamp8(b * 0.45 + 40); }
+    else if (climate === "volcanic") { data[o] = clamp8(r * 0.8 + 46); data[o + 1] = clamp8(g * 0.42 + 12); data[o + 2] = clamp8(b * 0.4 + 12); }
   }
 }
 
@@ -262,7 +264,7 @@ async function main() {
   const only = process.argv.slice(2);
   // inventory from the last build
   const targets = [];
-  for (const f of readdirSync(SCENES)) { const s = JSON.parse(readFileSync(path.join(SCENES, f), "utf8")); const c = classify(s); if (c && (!only.length || only.includes(c.name))) targets.push(c); }
+  for (const f of readdirSync(SCENES)) { const s = JSON.parse(readFileSync(path.join(SCENES, f), "utf8")); const c = classify(s); if (c && (only.length ? only.includes(c.name) : !c.authentic)) targets.push(c); }
   console.log(`Composing ${targets.length} GBA-tile maps…`);
 
   const layouts = (await fetchJson(`${FR}/data/layouts/layouts.json`))?.layouts.filter(Boolean) ?? [];
@@ -320,7 +322,13 @@ async function main() {
     } catch (e) { console.warn(`  ! ${t.name}: ${e.message}`); }
   }
   await browser.close();
-  for (const [region, maps] of Object.entries(byRegion)) await fs.writeFile(path.join(OUT, `tiled-${region}.json`), JSON.stringify(maps, null, 1));
-  console.log(`Done — ${ok}/${targets.length} composed. Wrote tiled-<region>.json for: ${Object.keys(byRegion).join(", ")}`);
+  // Merge into any existing tiled-<region>.json so a partial (by-name) run never
+  // drops the maps it didn't touch this pass.
+  for (const [region, maps] of Object.entries(byRegion)) {
+    const p = path.join(OUT, `tiled-${region}.json`);
+    let existing = {}; if (existsSync(p)) { try { existing = JSON.parse(readFileSync(p, "utf8")); } catch { /* rewrite */ } }
+    await fs.writeFile(p, JSON.stringify({ ...existing, ...maps }, null, 1));
+  }
+  console.log(`Done — ${ok}/${targets.length} composed. Updated tiled-<region>.json for: ${Object.keys(byRegion).join(", ")}`);
 }
 main().catch((e) => { console.error(e); process.exitCode = 1; });
