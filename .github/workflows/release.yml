@@ -27,8 +27,11 @@ jobs:
 
       - name: Build compendium packs (+ maps)
         run: npm run build
-      - name: Bundle sprites locally (best-effort; falls back to external URLs)
+      - name: Bundle Pokémon sprites locally (best-effort; falls back to external URLs)
         run: npm run sprites
+        continue-on-error: true
+      - name: Bundle trainer & NPC sprites (best-effort)
+        run: npm run trainers
         continue-on-error: true
       - name: Rebuild with bundled sprites
         run: npm run build

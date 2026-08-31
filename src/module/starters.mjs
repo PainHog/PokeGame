@@ -56,6 +56,10 @@ export async function chooseStarter(trainer) {
     if (!proceed) return;
   }
 
+  // First, let the player choose their trainer look & gender (once), like the
+  // start of a mainline game — before the professor hands out the first partner.
+  await game.pokemonMasters?.appearance?.offerOnce?.(trainer);
+
   const DialogV2 = foundry.applications?.api?.DialogV2;
   let region = "kanto";
   if (DialogV2) {

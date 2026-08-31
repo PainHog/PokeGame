@@ -454,3 +454,34 @@
 .pm-challenge-btn { margin-top: 4px; cursor: pointer; font-weight: 700; font-size: .78rem; padding: 4px 14px; border: none; border-radius: 999px; color: #fff; background: linear-gradient(135deg, #d4a017, #e3350d); }
 .pm-challenge-btn:hover { filter: brightness(1.08); }
 .pm-challenge-btn:disabled { opacity: .5; cursor: default; }
+
+/* ---------------------------------------------------------------------------
+   Trainer appearance picker (choose your look + gender)
+   --------------------------------------------------------------------------- */
+.pm-portrait-wrap { position: relative; display: inline-block; }
+.pm-appearance-btn {
+  position: absolute; left: 50%; bottom: -6px; transform: translateX(-50%);
+  font-size: 11px; line-height: 1; padding: 3px 8px; white-space: nowrap;
+  border: 1px solid #b23; border-radius: 999px; cursor: pointer;
+  background: #e3350d; color: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.35);
+}
+.pm-appearance-btn:hover { background: #c02a08; }
+
+.pm-appearance { color: #202830; }
+.pm-gender-toggle { display: flex; gap: 16px; justify-content: center; margin: 4px 0 12px; }
+.pm-gender-toggle label { cursor: pointer; font-weight: 600; color: #202830; }
+.pm-avatar-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+  max-height: 320px; overflow-y: auto; padding: 4px;
+}
+.pm-avatar {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 6px 2px; border: 2px solid transparent; border-radius: 8px;
+  cursor: pointer; background: #f4f7fb;
+}
+.pm-avatar:hover { background: #e7eef8; }
+.pm-avatar img {
+  image-rendering: pixelated; width: 56px; height: 56px; object-fit: contain;
+}
+.pm-avatar span { font-size: 10px; color: #34404c; text-align: center; }
+.pm-avatar--selected { border-color: #e3350d; background: #fdece8; }

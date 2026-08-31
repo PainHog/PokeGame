@@ -285,6 +285,7 @@ export async function stealPokemon(thief, target = null, { confirmed = false } =
   if (!thief || actor?.type !== "pokemon") return ui.notifications?.warn("Target a Pokémon to steal.");
   const owner = actor.system.trainer;
   if (!owner || owner === thief.uuid) return ui.notifications?.warn("That Pokémon isn't owned by another trainer.");
+  if (actor.getFlag("pokemon-masters", "inDaycare")) return ui.notifications?.warn("That Pokémon is safe at the daycare — it can't be stolen.");
   if (!game.user.isGM && !actor.isOwner) return ui.notifications?.warn("You don't have permission to take that Pokémon (ask your GM).");
 
   // Warn first — this is a crime. Only a deliberate "yes, do it" goes through.

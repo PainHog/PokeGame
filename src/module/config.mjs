@@ -336,6 +336,113 @@ PM.venueInfo = {
  * Region starter trios (anime/game accurate). The starter picker grants one at
  * level 5. Names resolve against the Pokédex compendium.
  */
+/**
+ * NPC/trainer token sprites — full-colour Gen-3 pixel art (bundled under
+ * assets/trainers/, fetched by `npm run trainers`). A Trainer actor is
+ * auto-assigned one by matching keywords in its name so the world reads at a
+ * glance: named gym leaders, the Elite Four, champions, villain-team members and
+ * professors get their real sprites; everyone else gets a fitting trainer class.
+ * These are uniform 64×64 colour sprites, matching the front-facing Pokémon
+ * battle sprites. GMs can always set a custom token image instead.
+ */
+PM.npcSpriteBase = "systems/pokemon-masters/assets/trainers/";
+PM.npcSpriteMatch = [
+  // — Named Kanto gym leaders —
+  [/\bbrock\b/i, "leader_brock"], [/\bmisty\b/i, "leader_misty"],
+  [/(lt\.? ?)?surge/i, "leader_lt_surge"], [/\berika\b/i, "leader_erika"],
+  [/\bkoga\b/i, "leader_koga"], [/\bsabrina\b/i, "leader_sabrina"],
+  [/\bblaine\b/i, "leader_blaine"], [/\bgiovanni\b/i, "leader_giovanni"],
+  // — Named Hoenn gym leaders —
+  [/roxanne/i, "leader_roxanne"], [/brawly/i, "leader_brawly"],
+  [/wattson/i, "leader_wattson"], [/flannery/i, "leader_flannery"],
+  [/\bnorman\b/i, "leader_norman"], [/winona/i, "leader_winona"],
+  [/tate|liza/i, "leader_tate_and_liza"], [/wallace|\bjuan\b/i, "leader_wallace"],
+  // — Elite Four & Champions —
+  [/lorelei/i, "elite_four_lorelei"], [/\bbruno\b/i, "elite_four_bruno"],
+  [/agatha/i, "elite_four_agatha"], [/\blance\b/i, "elite_four_lance"],
+  [/sidney/i, "elite_four_sidney"], [/phoebe/i, "elite_four_phoebe"],
+  [/glacia/i, "elite_four_glacia"], [/\bdrake\b/i, "elite_four_drake"],
+  [/steven/i, "champion_steven"],
+  [/\brival\b|\bblue\b|\bgary\b|\bgreen\b/i, "champion_rival"],
+  // — Villain teams (boss → admin → grunt; female cues where possible) —
+  [/maxie/i, "magma_leader_maxie"], [/archie/i, "aqua_leader_archie"],
+  [/magma.*(admin|leader)/i, "magma_admin_m"], [/aqua.*(admin|leader)/i, "aqua_admin_m"],
+  [/magma/i, "magma_grunt_m"], [/aqua/i, "aqua_grunt_m"],
+  [/jessie/i, "rocket_grunt_f"], [/\bjames\b/i, "rocket_grunt_m"],
+  [/rocket|galactic|plasma|flare|skull|team ?star|team ?yell|macro|grunt|admin/i, "rocket_grunt_m"],
+  // — Service / town NPCs —
+  [/nurse|joy/i, "nurse"], [/officer|police|jenny|cop\b/i, "gentleman"],
+  [/mart|clerk|cashier|shopkeep/i, "mart_clerk"],
+  [/\bmom\b|mother/i, "mom"], [/reporter|interview|press/i, "reporter_m"],
+  [/\bcook\b|chef|waiter/i, "cook"], [/professor|\bprof\b|\bdr\.? /i, "professor_oak"],
+  // — Civilian / trainer classes —
+  [/bug ?catcher/i, "bug_catcher"], [/youngster/i, "youngster"], [/\blass\b/i, "lass"],
+  [/black ?belt/i, "black_belt"], [/\bhiker\b/i, "hiker"], [/fisher(man)?|angler/i, "fisherman"],
+  [/sailor|swimmer/i, "swimmer_m"], [/\bbeauty\b/i, "beauty"], [/gentle ?man/i, "gentleman"],
+  [/scientist/i, "scientist"], [/psychic/i, "psychic_m"], [/\blady\b/i, "lady"],
+  [/camper/i, "camper"], [/picnicker/i, "picnicker"], [/painter|artist/i, "painter"],
+  [/guitarist|rocker|musician|bard/i, "guitarist"], [/biker/i, "biker"],
+  [/ranger/i, "pokemon_ranger_m"], [/breeder/i, "pokemon_breeder"],
+  [/\bgambler\b|gamer|game ?boy/i, "gamer"], [/super ?nerd|engineer|nerd/i, "super_nerd"],
+  [/rich|millionaire|gentleman|collector/i, "rich_boy"], [/ninja/i, "ninja_boy"],
+  [/dragon/i, "dragon_tamer"], [/aroma|florist/i, "aroma_lady"],
+  [/hex|witch|psychic ?girl/i, "hex_maniac"], [/expert|veteran|ace/i, "expert_m"],
+  [/school ?kid|student|pupil/i, "school_kid_m"], [/pok[eé] ?fan|fan\b/i, "pokefan_m"],
+  [/old (man|woman)|elder|gramps|grandpa|grandma/i, "old_woman"],
+  [/\bkid\b|\bboy\b|child/i, "little_boy"], [/\bgirl\b/i, "little_girl"],
+  [/tamer|maniac/i, "pokemaniac"], [/bird ?keeper|falconer/i, "bird_keeper"],
+  [/leader|kahuna|captain|elite|champion|gym/i, "cool_trainer_m"], // generic authority fallback
+];
+/** The sprite path for a trainer/NPC of the given name (defaults to Ace Trainer). */
+PM.npcSpriteFor = function npcSpriteFor(name = "") {
+  for (const [re, key] of PM.npcSpriteMatch) if (re.test(name)) return `${PM.npcSpriteBase}${key}.png`;
+  return `${PM.npcSpriteBase}cool_trainer_m.png`;
+};
+
+/**
+ * Player-selectable trainer avatars (choose your look + gender, like the games).
+ * Each id is a file in assets/trainers/. Used by the appearance picker on the
+ * trainer sheet and offered during onboarding.
+ */
+PM.playerAvatars = [
+  // Male
+  { id: "red", label: "Red", gender: "male" },
+  { id: "ruby_sapphire_brendan", label: "Brendan", gender: "male" },
+  { id: "wally", label: "Wally", gender: "male" },
+  { id: "cool_trainer_m", label: "Ace Trainer", gender: "male" },
+  { id: "black_belt", label: "Black Belt", gender: "male" },
+  { id: "swimmer_m", label: "Swimmer", gender: "male" },
+  { id: "psychic_m", label: "Psychic", gender: "male" },
+  { id: "camper", label: "Camper", gender: "male" },
+  { id: "bug_catcher", label: "Bug Catcher", gender: "male" },
+  { id: "hiker", label: "Hiker", gender: "male" },
+  { id: "ninja_boy", label: "Ninja Boy", gender: "male" },
+  { id: "guitarist", label: "Guitarist", gender: "male" },
+  { id: "biker", label: "Biker", gender: "male" },
+  { id: "pokefan_m", label: "PokéFan", gender: "male" },
+  { id: "expert_m", label: "Expert", gender: "male" },
+  { id: "school_kid_m", label: "School Kid", gender: "male" },
+  // Female
+  { id: "leaf", label: "Leaf", gender: "female" },
+  { id: "ruby_sapphire_may", label: "May", gender: "female" },
+  { id: "cool_trainer_f", label: "Ace Trainer", gender: "female" },
+  { id: "battle_girl", label: "Battle Girl", gender: "female" },
+  { id: "swimmer_f", label: "Swimmer", gender: "female" },
+  { id: "psychic_f", label: "Psychic", gender: "female" },
+  { id: "lass", label: "Lass", gender: "female" },
+  { id: "beauty", label: "Beauty", gender: "female" },
+  { id: "aroma_lady", label: "Aroma Lady", gender: "female" },
+  { id: "picnicker", label: "Picnicker", gender: "female" },
+  { id: "parasol_lady", label: "Parasol Lady", gender: "female" },
+  { id: "pokefan_f", label: "PokéFan", gender: "female" },
+  { id: "expert_f", label: "Expert", gender: "female" },
+  { id: "pokemon_ranger_f", label: "Ranger", gender: "female" },
+  { id: "hex_maniac", label: "Hex Maniac", gender: "female" },
+  { id: "school_kid_f", label: "School Kid", gender: "female" },
+];
+/** Absolute token image path for a player-avatar id. */
+PM.avatarImg = (id) => `${PM.npcSpriteBase}${id}.png`;
+
 /** The town a new trainer of each region spawns in (auto-placed on start). */
 PM.startTowns = {
   kanto: "Pallet Town", johto: "New Bark Town", hoenn: "Littleroot Town",

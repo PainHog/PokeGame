@@ -29,6 +29,7 @@ import { registerCatchHooks } from "./module/catch.mjs";
 import { registerBattleApi } from "./module/battle.mjs";
 import { registerProgressionHooks } from "./module/progression.mjs";
 import { registerStarterApi } from "./module/starters.mjs";
+import { registerAppearanceApi } from "./module/appearance.mjs";
 import { registerStorageApi } from "./module/storage.mjs";
 import { registerOrgApi } from "./module/organizations.mjs";
 import { registerNpcApi } from "./module/npc.mjs";
@@ -115,6 +116,7 @@ Hooks.once("ready", () => {
   registerBattleApi();
   registerProgressionHooks();
   registerStarterApi();
+  registerAppearanceApi();
   registerStorageApi();
   registerOrgApi();
   registerNpcApi();

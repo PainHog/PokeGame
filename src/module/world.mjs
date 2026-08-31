@@ -60,10 +60,23 @@ async function organizeActor(actor, options, userId) {
     if (!game.user.can("FOLDER_CREATE")) return;
 
     if (actor.type === "trainer") {
-      if (actor.folder) return; // already filed
-      const folder = await Folder.create({ name: actor.name, type: "Actor", color: "#e3350d" });
-      const sub = await Folder.create({ name: "Pokémon", type: "Actor", color: "#3b6db3", folder: folder.id });
-      await actor.update({ folder: folder.id, "flags.pokemon-masters.pokeFolder": sub.id });
+      // Give the trainer/NPC a token sprite by name (Nurse Joy, Bug Catcher…),
+      // unless the GM already set a custom image.
+      const isDefaultImg = !actor.img || actor.img === "icons/svg/mystery-man.svg";
+      const update = {};
+      if (isDefaultImg) {
+        const sprite = PM.npcSpriteFor(actor.name);
+        update.img = sprite;
+        update["prototypeToken.texture.src"] = sprite;
+        update["prototypeToken.actorLink"] = true;
+      }
+      if (!actor.folder) {
+        const folder = await Folder.create({ name: actor.name, type: "Actor", color: "#e3350d" });
+        const sub = await Folder.create({ name: "Pokémon", type: "Actor", color: "#3b6db3", folder: folder.id });
+        update.folder = folder.id;
+        update["flags.pokemon-masters.pokeFolder"] = sub.id;
+      }
+      if (Object.keys(update).length) await actor.update(update);
     } else if (actor.type === "pokemon" && actor.system.trainer) {
       const trainer = await fromUuid(actor.system.trainer);
       const sub = trainer?.getFlag?.("pokemon-masters", "pokeFolder");

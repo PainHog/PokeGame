@@ -1,6 +1,9 @@
 <div class="pm-sheet pm-trainer">
   <header class="pm-header">
-    <img class="pm-portrait" src="{{actor.img}}" data-edit="img" alt="{{actor.name}}">
+    <div class="pm-portrait-wrap">
+      <img class="pm-portrait" src="{{actor.img}}" data-edit="img" alt="{{actor.name}}">
+      <button type="button" class="pm-appearance-btn" data-action="appearance" data-tooltip="Change your look">👤 Look</button>
+    </div>
     <div class="pm-header-fields">
       <input type="text" name="name" value="{{actor.name}}" placeholder="Trainer name">
       <div class="pm-row">
