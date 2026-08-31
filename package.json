@@ -12,6 +12,7 @@
   "devDependencies": {
     "@foundryvtt/foundryvtt-cli": "^3.0.4",
     "@pkmn/data": "^0.10.11",
-    "@pkmn/dex": "^0.10.11"
+    "@pkmn/dex": "^0.10.11",
+    "@pkmn/img": "^0.3.4"
   }
 }

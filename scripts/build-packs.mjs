@@ -18,7 +18,14 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { Dex } from "@pkmn/dex";
+import { Sprites } from "@pkmn/img";
 import { compilePack } from "@foundryvtt/foundryvtt-cli";
+
+/** Animated Pokémon Showdown sprite URL for a species (loaded by the Foundry client). */
+function spriteFor(name) {
+  try { return Sprites.getPokemon(name, { gen: "ani" }).url; }
+  catch { return "icons/svg/mystery-man.svg"; }
+}
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -198,11 +205,12 @@ async function buildSpecies() {
       }
     } catch { /* some formes have no learnset */ }
 
+    const sprite = spriteFor(s.name);
     docs.push({
       _id: stableId("species", s.id),
       name: s.name,
       type: "pokemon",
-      img: "icons/svg/mystery-man.svg",
+      img: sprite,
       system: {
         species: {
           name: s.name,
@@ -247,6 +255,7 @@ async function buildSpecies() {
         name: s.name,
         actorLink: false,
         disposition: -1,
+        texture: { src: sprite },
         bar1: { attribute: "hp" }
       }
     });

@@ -209,7 +209,7 @@ async function doEvolve(pokemon, species) {
     "system.hp.value": null // re-topped from new max next prepare; keep ratio below
   };
   if (!isNicknamed) update.name = species.name;
-  if (species.img && pokemon.img === "icons/svg/mystery-man.svg") update.img = species.img;
+  if (species.img) { update.img = species.img; update["prototypeToken.texture.src"] = species.prototypeToken?.texture?.src ?? species.img; }
   await pokemon.update(update);
 
   // Preserve the HP ratio against the new max.
