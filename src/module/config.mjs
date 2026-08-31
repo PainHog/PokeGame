@@ -384,10 +384,44 @@ PM.levelCapPerBadge = 10;
  * gating on them would be impassable. (Re-add them if HM learnsets are injected.)
  */
 PM.fieldMoves = {
-  fly: "Fly",
+  cut: "Cut",
   surf: "Surf",
+  strength: "Strength",
+  rocksmash: "Rock Smash",
+  flash: "Flash",
+  fly: "Fly",
   waterfall: "Waterfall",
+  whirlpool: "Whirlpool",
   dive: "Dive"
+};
+
+/** How each field move reads when it clears its obstacle. */
+PM.fieldMoveFlavor = {
+  cut: "cut down the small tree",
+  surf: "surfed across the water",
+  strength: "pushed the boulder aside",
+  rocksmash: "smashed the cracked rock",
+  flash: "lit up the dark cavern",
+  fly: "flew over the gap",
+  waterfall: "climbed the waterfall",
+  whirlpool: "cleared the raging whirlpool",
+  dive: "dove beneath the surface"
+};
+
+/**
+ * Canon badge each HM needs to be used in the field (Kanto/Johto). A Field Gate
+ * only enforces this when its `requireBadge` option is on; empty = no badge.
+ */
+PM.hmBadges = {
+  cut: "Cascade Badge",
+  fly: "Thunder Badge",
+  surf: "Soul Badge",
+  strength: "Rainbow Badge",
+  flash: "Boulder Badge",
+  rocksmash: "",
+  waterfall: "Rising Badge",
+  whirlpool: "Glacier Badge",
+  dive: ""
 };
 
 /**

@@ -103,6 +103,8 @@ export class FieldMoveGateBehaviorType extends foundry.data.regionBehaviors.Regi
   static defineSchema() {
     return {
       move: new fields.StringField({ required: true, blank: false, initial: "surf", choices: PM.fieldMoves }),
+      // Enforce the canon badge for this HM (Cut→Cascade, Surf→Soul, …).
+      requireBadge: new fields.BooleanField({ initial: false }),
       announce: new fields.BooleanField({ initial: true })
     };
   }
@@ -112,27 +114,39 @@ export class FieldMoveGateBehaviorType extends foundry.data.regionBehaviors.Regi
     [EVENTS.TOKEN_MOVE_IN]: async function (event) { return FieldMoveGateBehaviorType.gate.call(this, event); }
   };
 
+  /** Bounce a token back to where it stepped from — a real, blocking obstacle. */
+  static async bounce(event, token) {
+    const origin = event.data?.origin ?? event.data?.movement?.origin;
+    if (origin && Number.isFinite(origin.x)) {
+      await token.update({ x: origin.x, y: origin.y, elevation: origin.elevation ?? token.elevation });
+    }
+  }
+
   static async gate(event) {
     const token = event?.data?.token;
     const actor = token?.actor;
     if (actor?.type !== "trainer") return;
     const moveName = PM.fieldMoves[this.move] ?? this.move;
+    const flavor = PM.fieldMoveFlavor[this.move] ?? `used ${moveName}`;
+    const badge = this.requireBadge ? (PM.hmBadges[this.move] ?? "") : "";
 
     if (await partyKnows(actor, moveName)) {
+      // Knowing the HM isn't enough if the badge that authorizes it is missing.
+      if (badge && !(actor.system.badges ?? []).includes(badge)) {
+        if (!isResponsible(token)) return;
+        await FieldMoveGateBehaviorType.bounce(event, token);
+        ui.notifications?.warn(`${moveName} can't be used in the field until you earn the ${badge}.`);
+        return;
+      }
       if (this.announce && isResponsible(token)) {
-        await ChatMessage.create({ speaker: { alias: "Field" }, content: `<p>${actor.name} used <strong>${moveName}</strong> to pass.</p>` });
+        await ChatMessage.create({ speaker: { alias: "Field" }, content: `<p>${actor.name} ${flavor} with <strong>${moveName}</strong>.</p>` });
       }
       return;
     }
 
     if (!isResponsible(token)) return;
-    // Bounce the token back to where it came from — a real gate. (Event shape
-    // differs across v12/v13; try the known locations for the origin waypoint.)
-    const origin = event.data?.origin ?? event.data?.movement?.origin;
-    if (origin && Number.isFinite(origin.x)) {
-      await token.update({ x: origin.x, y: origin.y, elevation: origin.elevation ?? token.elevation });
-    }
-    ui.notifications?.warn(`You need ${moveName} to pass here.`);
+    await FieldMoveGateBehaviorType.bounce(event, token);
+    ui.notifications?.warn(`A Pokémon that knows ${moveName} is needed to pass here.`);
   }
 }
 
