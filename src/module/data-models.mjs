@@ -108,6 +108,10 @@ export class PokemonData extends foundry.abstract.TypeDataModel {
       megaData: new fields.ArrayField(new fields.ObjectField()),
       /** Terastallization type (defaults to the primary type). */
       teraType: new fields.StringField({ required: false, blank: true, initial: "" }),
+      /** Active battle gimmick that changes derived stats ("mega" | "dynamax" | ""). */
+      activeGimmick: new fields.StringField({ required: false, blank: true, initial: "" }),
+      /** Base stats to derive from while Mega-Evolved (the mega forme's base stats). */
+      megaBaseStats: new fields.ObjectField(),
       catchRate: new fields.NumberField({ required: true, integer: true, min: 1, max: 255, initial: 45 }),
       ability: new fields.StringField({ required: false, blank: true, initial: "" }),
       abilities: new fields.ArrayField(new fields.StringField({ blank: false })),
@@ -167,7 +171,9 @@ export class PokemonData extends foundry.abstract.TypeDataModel {
   /** Derive fighting stats from base stats, level, IVs, and nature (canon curve, EV=0). */
   prepareDerivedData() {
     const lvl = this.level ?? 1;
-    const b = this.baseStats;
+    // While Mega-Evolved, derive from the mega forme's base stats — so the boost
+    // survives re-derivation instead of being wiped on the next data prep.
+    const b = (this.activeGimmick === "mega" && this.megaBaseStats?.hp) ? this.megaBaseStats : this.baseStats;
     const iv = this.ivs ?? {};
     const ev = this.evs ?? {};
     const nature = PM.natures[this.nature] ?? {};
@@ -184,8 +190,8 @@ export class PokemonData extends foundry.abstract.TypeDataModel {
     this.bst = b.hp + b.atk + b.def + b.spa + b.spd + b.spe;
     // Shedinja is the one exception to the HP formula — always exactly 1 HP.
     if (this.species?.name === "Shedinja") this.stats.hp = 1;
-    // Keep the HP resource sensible without clobbering a set (e.g. damaged) value.
-    this.hp.max = this.stats.hp;
+    // Dynamax doubles max HP for the duration.
+    this.hp.max = this.activeGimmick === "dynamax" ? this.stats.hp * 2 : this.stats.hp;
     if (this.hp.value === null) this.hp.value = this.hp.max;
     else this.hp.value = Math.min(this.hp.value, this.hp.max);
   }

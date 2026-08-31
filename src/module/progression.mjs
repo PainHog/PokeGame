@@ -279,8 +279,12 @@ export function registerProgressionHooks() {
   });
   // Every newly-created Pokémon (starter, catch, egg, wild spawn) gets its
   // level-appropriate moves, so it never enters battle able only to Struggle.
-  Hooks.on("createActor", (actor) => {
-    if (actor?.type === "pokemon" && actor.isOwner) seedMoves(actor).catch((e) => console.warn("Pokémon Masters | seedMoves failed", e));
+  // Only the creating client runs it — createActor fires on every connected
+  // client, so gate on userId (not isOwner) to avoid a double-seed race.
+  Hooks.on("createActor", (actor, options, userId) => {
+    if (game.userId === userId && actor?.type === "pokemon") {
+      seedMoves(actor).catch((e) => console.warn("Pokémon Masters | seedMoves failed", e));
+    }
   });
   // Backfill any pre-existing moveless Pokémon once, so older worlds catch up.
   for (const actor of game.actors ?? []) {

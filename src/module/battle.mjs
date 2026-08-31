@@ -204,17 +204,19 @@ export async function activateGimmick(actor, kind) {
   if (kind === "mega") {
     const mega = (s.megaData ?? []).find((m) => (m.item ?? "").toLowerCase() === held);
     if (!mega) return ui.notifications?.warn(`${actor.name} isn't holding the right Mega Stone.`);
-    const base = s.baseStats ?? s.stats;
-    const stats = { ...s.stats };
-    for (const k of ["hp", "atk", "def", "spa", "spd", "spe"]) {
-      const b = base?.[k] || 1;
-      stats[k] = Math.max(1, Math.round((s.stats?.[k] ?? b) * ((mega.stats?.[k] ?? b) / b)));
-    }
-    const oldMax = s.hp?.max ?? s.stats?.hp ?? 1;
-    const newMax = stats.hp;
-    const newVal = Math.min(newMax, Math.max(1, Math.round((s.hp?.value ?? oldMax) * newMax / oldMax)));
-    const snapshot = { types: [...(s.types ?? [])], stats: { ...s.stats }, ability: s.ability ?? "", hp: { value: s.hp?.value ?? oldMax, max: oldMax } };
-    await actor.update({ "system.stats": stats, "system.types": [...(mega.types ?? s.types)], "system.ability": mega.ability || s.ability, "system.hp.max": newMax, "system.hp.value": newVal });
+    // Persist the mega's base stats + type/ability; prepareDerivedData recomputes
+    // the leveled stats from megaBaseStats while activeGimmick is "mega".
+    const snapshot = { types: [...(s.types ?? [])], ability: s.ability ?? "" };
+    const hpFrac = s.hp?.max ? (s.hp.value ?? s.hp.max) / s.hp.max : 1;
+    await actor.update({
+      "system.activeGimmick": "mega",
+      "system.megaBaseStats": { ...(mega.stats ?? s.baseStats) },
+      "system.types": [...(mega.types ?? s.types)],
+      "system.ability": mega.ability || s.ability
+    });
+    // Keep the HP proportion against the (usually unchanged) new max.
+    const nm = actor.system.hp?.max ?? 1;
+    await actor.update({ "system.hp.value": Math.max(1, Math.round(nm * hpFrac)) });
     await actor.setFlag("pokemon-masters", "gimmick", { used: true, form: "mega", snapshot });
     return say(`${actor.name} Mega Evolved into <strong>${mega.name}</strong>!`);
   }
@@ -229,10 +231,11 @@ export async function activateGimmick(actor, kind) {
   }
 
   if (kind === "dynamax") {
-    const oldMax = s.hp?.max ?? s.stats?.hp ?? 1;
-    const snapshot = { hp: { value: s.hp?.value ?? oldMax, max: oldMax } };
-    await actor.update({ "system.hp.max": oldMax * 2, "system.hp.value": (s.hp?.value ?? oldMax) * 2 });
-    await actor.setFlag("pokemon-masters", "gimmick", { used: true, form: "dynamax", snapshot });
+    // Set the flag; prepareDerivedData doubles max HP while active. Then fill
+    // the freshly-doubled bar so the current HP swells too.
+    await actor.update({ "system.activeGimmick": "dynamax" });
+    await actor.update({ "system.hp.value": actor.system.hp?.max ?? 1 });
+    await actor.setFlag("pokemon-masters", "gimmick", { used: true, form: "dynamax" });
     return say(`${actor.name} Dynamaxed! Its HP swelled enormously.`);
   }
 
@@ -245,21 +248,19 @@ export async function activateGimmick(actor, kind) {
   return ui.notifications?.warn(`Unknown gimmick "${kind}".`);
 }
 
-/** Undo a Pokémon's active gimmick (restore stats/types/HP) and clear the flag. */
+/** Undo a Pokémon's active gimmick (restore types/ability, clear the transform). */
 export async function revertGimmick(actor) {
   if (!actor) return;
   const g = actor.getFlag("pokemon-masters", "gimmick");
   if (!g) return;
   const snap = g.snapshot ?? {};
-  const update = {};
+  const update = { "system.activeGimmick": "", "system.megaBaseStats": {} };
   if (snap.types) update["system.types"] = snap.types;
-  if (snap.stats) update["system.stats"] = snap.stats;
   if (snap.ability !== undefined) update["system.ability"] = snap.ability;
-  if (snap.hp) {
-    update["system.hp.max"] = snap.hp.max;
-    update["system.hp.value"] = Math.min(snap.hp.max, actor.system.hp?.value ?? snap.hp.max);
-  }
-  if (Object.keys(update).length) await actor.update(update);
+  await actor.update(update);
+  // hp.max re-derives to the normal value; clamp the current HP down to it.
+  const max = actor.system.hp?.max ?? 1;
+  if ((actor.system.hp?.value ?? 0) > max) await actor.update({ "system.hp.value": max });
   await actor.unsetFlag("pokemon-masters", "gimmick");
 }
 
