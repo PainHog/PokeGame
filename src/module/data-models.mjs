@@ -104,6 +104,10 @@ export class PokemonData extends foundry.abstract.TypeDataModel {
       populationCap: new fields.NumberField({ required: true, integer: true, min: 0, initial: 0 }),
       /** Ultra Beast (drives Beast Ball). */
       ultraBeast: new fields.BooleanField({ initial: false }),
+      /** Mega/Primal formes available to this species (name, item, stats, types, ability). */
+      megaData: new fields.ArrayField(new fields.ObjectField()),
+      /** Terastallization type (defaults to the primary type). */
+      teraType: new fields.StringField({ required: false, blank: true, initial: "" }),
       catchRate: new fields.NumberField({ required: true, integer: true, min: 1, max: 255, initial: 45 }),
       ability: new fields.StringField({ required: false, blank: true, initial: "" }),
       abilities: new fields.ArrayField(new fields.StringField({ blank: false })),

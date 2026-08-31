@@ -47,6 +47,16 @@ const okNs = (e) => !e.isNonstandard || e.isNonstandard === "Past" || e.isNonsta
 /** Map a Pokémon Showdown status code to our status keys. */
 const mapStatus = (s) => ({ brn: "burn", par: "paralysis", slp: "sleep", frz: "freeze", psn: "poison", tox: "toxic" }[s] || "");
 
+/** Mega / Primal formes grouped by their base species (for Mega Evolution). */
+const MEGA_BY_BASE = {};
+for (const sp of Dex.species.all()) {
+  if (!/^(Mega|Primal)/.test(sp.forme || "")) continue;
+  (MEGA_BY_BASE[sp.baseSpecies] ??= []).push({
+    name: sp.name, item: sp.requiredItem || "",
+    stats: { ...sp.baseStats }, types: [...sp.types], ability: Object.values(sp.abilities || {})[0] || ""
+  });
+}
+
 /* -------------------------------------------- */
 /*  Helpers                                      */
 /* -------------------------------------------- */
@@ -238,6 +248,8 @@ async function buildSpecies() {
         // Legendaries/mythicals are unique in the world; 0 = unlimited.
         populationCap: rarity === "legendary" ? 1 : 0,
         ultraBeast: (s.tags || []).includes("Ultra Beast"),
+        megaData: MEGA_BY_BASE[s.name] ?? [],
+        teraType: s.types?.[0] ?? "Normal",
         eggGroups: s.eggGroups ?? [],
         eggSpecies: eggSpeciesOf(s),
         genderless: isGenderless(s),
@@ -390,7 +402,9 @@ function buildGear() {
     ["Escape Rope", "item", 1000, 1], ["Repel", "item", 400, 1], ["Super Repel", "item", 700, 1], ["Max Repel", "item", 900, 1], ["Poké Doll", "item", 1000, 1],
     ["Fire Stone", "item", 3000, 1], ["Water Stone", "item", 3000, 1], ["Thunder Stone", "item", 3000, 1], ["Leaf Stone", "item", 3000, 1], ["Moon Stone", "item", 3000, 1],
     ["Sun Stone", "item", 3000, 1], ["Shiny Stone", "item", 3000, 1], ["Dusk Stone", "item", 3000, 1], ["Dawn Stone", "item", 3000, 1], ["Ice Stone", "item", 3000, 1],
-    ["S.S. Ticket", "key", 0, 1], ["Bike Voucher", "key", 0, 1], ["Bicycle", "key", 0, 1], ["Old Rod", "key", 0, 1], ["Good Rod", "key", 0, 1], ["Super Rod", "key", 0, 1]
+    ["S.S. Ticket", "key", 0, 1], ["Bike Voucher", "key", 0, 1], ["Bicycle", "key", 0, 1], ["Old Rod", "key", 0, 1], ["Good Rod", "key", 0, 1], ["Super Rod", "key", 0, 1],
+    // Battle-gimmick triggers (held): a Tera Orb terastallizes; a Z-Crystal powers one Z-Move.
+    ["Tera Orb", "item", 0, 1], ["Z-Crystal", "item", 0, 1]
   ];
   for (const [name, category, price, catchMod] of CUSTOM) {
     if (have.has(name.toLowerCase())) continue;

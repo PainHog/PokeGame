@@ -90,7 +90,9 @@ export class PokemonSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     actions: {
       useMove(event, target) { return this._useMove(target); },
       useItem() { return game.pokemonMasters?.items?.useDialog(this.actor); },
-      teachMove() { return game.pokemonMasters?.tms?.teachDialog(this.actor); }
+      teachMove() { return game.pokemonMasters?.tms?.teachDialog(this.actor); },
+      gimmick(event, target) { return game.pokemonMasters?.battle?.activateGimmick(this.actor, target?.dataset?.kind); },
+      revertGimmick() { return game.pokemonMasters?.battle?.revertGimmick(this.actor); }
     }
   };
 
@@ -116,6 +118,16 @@ export class PokemonSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     context.statuses = PM.statuses;
     context.natures = Object.fromEntries(Object.keys(PM.natures).map((n) => [n, n.charAt(0).toUpperCase() + n.slice(1)]));
     context.hpPct = sys.hp?.max ? Math.round(((sys.hp.value ?? 0) / sys.hp.max) * 100) : 0;
+    // Which battle gimmicks this Pokémon can trigger right now (held-item gated).
+    const held = (sys.heldItem ?? "").toLowerCase();
+    const active = this.actor.getFlag("pokemon-masters", "gimmick");
+    context.gimmick = {
+      active: active?.form ?? "",
+      mega: (sys.megaData ?? []).some((m) => (m.item ?? "").toLowerCase() === held),
+      tera: held === "tera orb",
+      z: held === "z-crystal",
+      dynamax: true
+    };
     // Level-up moves available at or below this Pokémon's level.
     context.levelMoves = (sys.learnset ?? [])
       .filter((l) => l.level > 0 && l.level <= sys.level)

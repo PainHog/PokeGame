@@ -55,21 +55,30 @@ export function chooseBestMove(attacker, defender) {
 
 /** Deep-ish copy of a combatant with working HP. */
 function prep(c) {
-  const maxHp = c.hp?.max ?? c.stats.hp;
+  let maxHp = c.hp?.max ?? c.stats.hp;
+  let value = c.hp?.value ?? maxHp;
+  const dynamax = !!c.dynamax;
+  if (dynamax) { maxHp *= 2; value *= 2; } // Dynamax doubles current & max HP for the duration.
   return {
     name: c.name,
     level: c.level ?? 5,
     types: [...(c.types ?? [])],
     stats: { ...c.stats },
+    baseStats: { ...(c.baseStats ?? c.stats) },
     status: c.status ?? "none",
     statusTurns: 0,
     toxicCounter: c.toxicCounter ?? 0,
     ability: (c.ability ?? "").toLowerCase(),
     heldItem: (c.heldItem ?? "").toLowerCase(),
+    megaData: c.megaData ?? [],
+    teraType: c.teraType || (c.types ?? [])[0] || "Normal",
+    // Gimmick state: one-shot flags + Dynamax countdown.
+    megaUsed: false, teraUsed: false, zUsed: false,
+    dynamaxTurns: dynamax ? 3 : 0,
     boosts: { atk: 0, def: 0, spa: 0, spd: 0, spe: 0 },
     flinch: false, sashUsed: false, berryUsed: false, confusion: 0, turnsSeen: 0,
     moves: (c.moves ?? []).map((m) => ({ ...m, pp: m.pp ?? 15 })),
-    hp: { value: c.hp?.value ?? maxHp, max: maxHp }
+    hp: { value, max: maxHp }
   };
 }
 
@@ -212,6 +221,13 @@ export function simulateBattle(teamAIn, teamBIn, { maxTurns = 300, rng = Math.ra
       const effBurn = burned && !gutsActive;
       if (attacker.heldItem === "life orb") typeMult *= 1.3;
 
+      // Z-Move: a held Z-Crystal empowers a single attack (1.6×), then is spent.
+      if (attacker.heldItem === "z-crystal" && !attacker.zUsed) {
+        typeMult *= 1.6; attacker.zUsed = true; log.push(`${attacker.name} unleashed its Z-Power!`);
+      }
+      // Dynamax: Max Moves strike harder while the transformation lasts (~1.5×).
+      if (attacker.dynamaxTurns > 0) typeMult *= 1.5;
+
       const preFull = defender.hp.value >= defender.hp.max;
       const hits = move.multihit ? (move.multihit[0] === move.multihit[1] ? move.multihit[0] : move.multihit[0] + Math.floor(rng() * (move.multihit[1] - move.multihit[0] + 1))) : 1;
       let total = 0;
@@ -281,9 +297,42 @@ export function simulateBattle(teamAIn, teamBIn, { maxTurns = 300, rng = Math.ra
     return s;
   };
 
+  // Battle gimmicks fired on switch-in (once per battle, whichever the mon can do).
+  //  · Mega Evolution — holding the matching Mega Stone: scale stats by the mega's
+  //    base-stat ratio, swap types + ability.
+  //  · Terastallization — holding a Tera Orb: the mon becomes its single Tera type.
+  //  (Z-Moves are per-attack, handled in strike; Dynamax is set up in prep.)
+  const activateGimmick = (mon) => {
+    if (!mon || mon.hp.value <= 0) return;
+    if (!mon.megaUsed && mon.heldItem && mon.megaData?.length) {
+      const mega = mon.megaData.find((m) => (m.item || "").toLowerCase() === mon.heldItem);
+      if (mega && mega.stats) {
+        mon.megaUsed = true;
+        const oldMax = mon.hp.max;
+        for (const k of ["hp", "atk", "def", "spa", "spd", "spe"]) {
+          const base = mon.baseStats?.[k] || 1;
+          const ratio = (mega.stats[k] ?? base) / base;
+          mon.stats[k] = Math.max(1, Math.round((mon.stats[k] ?? base) * ratio));
+        }
+        mon.hp.max = mon.stats.hp;
+        mon.hp.value = Math.min(mon.hp.max, Math.max(1, Math.round(mon.hp.value * mon.hp.max / oldMax)));
+        if (Array.isArray(mega.types) && mega.types.length) mon.types = [...mega.types];
+        if (mega.ability) mon.ability = mega.ability.toLowerCase();
+        log.push(`${mon.name} Mega Evolved into ${mega.name}!`);
+        return;
+      }
+    }
+    if (!mon.teraUsed && mon.heldItem === "tera orb") {
+      mon.teraUsed = true;
+      mon.types = [mon.teraType || mon.types[0] || "Normal"];
+      log.push(`${mon.name} Terastallized into the ${mon.types[0]} type!`);
+    }
+  };
+
   // Entry (lead) abilities: Intimidate + weather setters.
   const onEntry = (mon, foe) => {
     if (!mon) return;
+    activateGimmick(mon);
     switch (mon.ability) {
       case "intimidate": if (foe) { foe.boosts.atk = clampStage(foe.boosts.atk - 1); log.push(`${mon.name}'s Intimidate cut ${foe.name}'s Attack!`); } break;
       case "drizzle": weather.type = "rain"; weather.turns = 5; log.push(`${mon.name} made it rain!`); break;
@@ -325,6 +374,12 @@ export function simulateBattle(teamAIn, teamBIn, { maxTurns = 300, rng = Math.ra
     for (const [mon, isA] of [[atkA, true], [atkB, false]]) {
       mon.flinch = false;
       if (mon.hp.value <= 0) continue;
+      // Dynamax wears off after 3 turns: HP max halves back, current HP clamps.
+      if (mon.dynamaxTurns > 0 && --mon.dynamaxTurns === 0) {
+        const half = Math.max(1, Math.round(mon.hp.max / 2));
+        mon.hp.max = half; mon.hp.value = Math.min(mon.hp.value, half);
+        log.push(`${mon.name} returned to its normal size.`);
+      }
       // Speed Boost.
       if (mon.ability === "speed boost" && mon.boosts.spe < 6) { mon.boosts.spe = clampStage(mon.boosts.spe + 1); log.push(`${mon.name}'s Speed Boost raised its Speed!`); }
       // Sandstorm chip (non Rock/Ground/Steel; sand/guard abilities are exempt).
@@ -377,9 +432,13 @@ export function combatantFromActor(actor) {
     level: s.level,
     types: s.types ?? [],
     stats: s.stats ?? { hp: 20, atk: 10, def: 10, spa: 10, spd: 10, spe: 10 },
+    baseStats: s.baseStats ?? { hp: 50, atk: 50, def: 50, spa: 50, spd: 50, spe: 50 },
     status: s.status ?? "none",
     ability: s.ability ?? "",
     heldItem: s.heldItem ?? "",
+    megaData: s.megaData ?? [],
+    teraType: s.teraType || s.types?.[0] || "Normal",
+    dynamax: false,
     toxicCounter: s.toxicCounter ?? 0,
     hp: { value: s.hp?.value ?? s.stats?.hp, max: s.hp?.max ?? s.stats?.hp },
     moves: actor.items.filter((i) => i.type === "move").map((m) => ({

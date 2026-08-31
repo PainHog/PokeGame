@@ -96,13 +96,20 @@ export async function useMove(attacker, move, target = null, { autoRetaliate = f
   const crit = facts.category !== "Status" && Math.random() < CRIT_CHANCE;
   const burned = a.status === "burn" && isPhysical;
 
+  // Z-Move: a pending Z-Power (set by activateGimmick(actor, "z")) boosts one
+  // damaging move by 1.6×, then is spent.
+  const gimmick = attacker.getFlag?.("pokemon-masters", "gimmick") ?? null;
+  let zPower = false;
+  if (gimmick?.zAvailable && facts.category !== "Status") zPower = true;
+
   let result = { damage: 0, typeMult: typeMultiplier(facts.moveType, d.types ?? []) };
   let applied = 0;
   if (facts.category !== "Status") {
     const atkStat = isPhysical ? a.stats?.atk : a.stats?.spa;
     const defStat = isPhysical ? d.stats?.def : d.stats?.spd;
     const stab = (a.types ?? []).includes(facts.moveType) ? 1.5 : 1;
-    result = damageCalc({ level: a.level ?? 5, power: facts.power, atk: atkStat ?? 1, def: defStat ?? 1, stab, typeMult: result.typeMult, crit, burn: burned });
+    const zMult = zPower ? 1.6 : 1;
+    result = damageCalc({ level: a.level ?? 5, power: facts.power, atk: atkStat ?? 1, def: defStat ?? 1, stab, typeMult: result.typeMult * zMult, crit, burn: burned });
     const cur = d.hp?.value ?? d.hp?.max ?? 0;
     const newHp = Math.max(0, cur - result.damage);
     applied = cur - newHp;
@@ -118,13 +125,16 @@ export async function useMove(attacker, move, target = null, { autoRetaliate = f
     if (inflicted) { try { await tgt.update({ "system.status": inflicted }); } catch (err) { /* perms */ } }
   }
 
+  // A spent Z-Power is consumed whether or not it landed.
+  if (zPower) { try { await attacker.setFlag("pokemon-masters", "gimmick", { ...gimmick, zAvailable: false }); } catch (err) { /* perms */ } }
+
   const eff = effectivenessLabel(result.typeMult);
   const fainted = tgt.system.hp?.value <= 0 && facts.category !== "Status";
   await ChatMessage.create({
     speaker: { alias: attacker.name },
     content: `
       <div class="pm-battle-card">
-        <h3>${attacker.name} used <strong>${facts.name}</strong>!</h3>
+        <h3>${attacker.name} used <strong>${facts.name}</strong>!${zPower ? " <em>(Z-Power!)</em>" : ""}</h3>
         ${facts.category === "Status"
           ? `<p><em>${facts.name} is a status move.</em></p>`
           : `<p>Dealt <strong>${applied}</strong> damage to ${tgt.name}.${crit ? " <em>A critical hit!</em>" : ""} ${eff ? `<em>${eff}</em>` : ""}</p>
@@ -166,8 +176,91 @@ export async function applyEndOfTurn(pokemon) {
   if (newHp <= 0) Hooks.callAll("pmPokemonFainted", { attacker: null, target: pokemon });
 }
 
+/**
+ * Activate a battle gimmick on a player's Pokémon (they choose; NPCs auto-fire
+ * theirs in the simulation engine). One transformation per Pokémon per battle.
+ *   · "mega"     — needs the matching Mega Stone held; scales stats, swaps type/ability.
+ *   · "tera"     — needs a Tera Orb held; the Pokémon becomes its single Tera type.
+ *   · "dynamax"  — doubles current & max HP (wears off on revert / faint).
+ *   · "z"        — needs a Z-Crystal held; arms one 1.6× Z-Move (consumed by useMove).
+ * A snapshot of the pre-transform stats is stored on the `gimmick` flag so
+ * `revertGimmick` can restore the Pokémon after the fight.
+ */
+export async function activateGimmick(actor, kind) {
+  if (!actor || actor.type !== "pokemon") return ui.notifications?.warn("Only a Pokémon can use a battle gimmick.");
+  const s = actor.system;
+  const prior = actor.getFlag("pokemon-masters", "gimmick");
+  if (prior?.used) return ui.notifications?.warn(`${actor.name} has already used its gimmick this battle.`);
+  const held = (s.heldItem ?? "").toLowerCase();
+
+  const say = (msg) => ChatMessage.create({ speaker: { alias: actor.name }, content: `<div class="pm-battle-card pm-gimmick"><p>${msg}</p></div>` });
+
+  if (kind === "mega") {
+    const mega = (s.megaData ?? []).find((m) => (m.item ?? "").toLowerCase() === held);
+    if (!mega) return ui.notifications?.warn(`${actor.name} isn't holding the right Mega Stone.`);
+    const base = s.baseStats ?? s.stats;
+    const stats = { ...s.stats };
+    for (const k of ["hp", "atk", "def", "spa", "spd", "spe"]) {
+      const b = base?.[k] || 1;
+      stats[k] = Math.max(1, Math.round((s.stats?.[k] ?? b) * ((mega.stats?.[k] ?? b) / b)));
+    }
+    const oldMax = s.hp?.max ?? s.stats?.hp ?? 1;
+    const newMax = stats.hp;
+    const newVal = Math.min(newMax, Math.max(1, Math.round((s.hp?.value ?? oldMax) * newMax / oldMax)));
+    const snapshot = { types: [...(s.types ?? [])], stats: { ...s.stats }, ability: s.ability ?? "", hp: { value: s.hp?.value ?? oldMax, max: oldMax } };
+    await actor.update({ "system.stats": stats, "system.types": [...(mega.types ?? s.types)], "system.ability": mega.ability || s.ability, "system.hp.max": newMax, "system.hp.value": newVal });
+    await actor.setFlag("pokemon-masters", "gimmick", { used: true, form: "mega", snapshot });
+    return say(`${actor.name} Mega Evolved into <strong>${mega.name}</strong>!`);
+  }
+
+  if (kind === "tera") {
+    if (held !== "tera orb") return ui.notifications?.warn(`${actor.name} needs to hold a Tera Orb to Terastallize.`);
+    const tera = s.teraType || (s.types ?? [])[0] || "Normal";
+    const snapshot = { types: [...(s.types ?? [])] };
+    await actor.update({ "system.types": [tera] });
+    await actor.setFlag("pokemon-masters", "gimmick", { used: true, form: "tera", snapshot });
+    return say(`${actor.name} Terastallized into the <strong>${tera}</strong> type!`);
+  }
+
+  if (kind === "dynamax") {
+    const oldMax = s.hp?.max ?? s.stats?.hp ?? 1;
+    const snapshot = { hp: { value: s.hp?.value ?? oldMax, max: oldMax } };
+    await actor.update({ "system.hp.max": oldMax * 2, "system.hp.value": (s.hp?.value ?? oldMax) * 2 });
+    await actor.setFlag("pokemon-masters", "gimmick", { used: true, form: "dynamax", snapshot });
+    return say(`${actor.name} Dynamaxed! Its HP swelled enormously.`);
+  }
+
+  if (kind === "z") {
+    if (held !== "z-crystal") return ui.notifications?.warn(`${actor.name} needs to hold a Z-Crystal.`);
+    await actor.setFlag("pokemon-masters", "gimmick", { used: true, form: "z", zAvailable: true });
+    return say(`${actor.name}'s Z-Power is ready — its next attacking move will be a Z-Move!`);
+  }
+
+  return ui.notifications?.warn(`Unknown gimmick "${kind}".`);
+}
+
+/** Undo a Pokémon's active gimmick (restore stats/types/HP) and clear the flag. */
+export async function revertGimmick(actor) {
+  if (!actor) return;
+  const g = actor.getFlag("pokemon-masters", "gimmick");
+  if (!g) return;
+  const snap = g.snapshot ?? {};
+  const update = {};
+  if (snap.types) update["system.types"] = snap.types;
+  if (snap.stats) update["system.stats"] = snap.stats;
+  if (snap.ability !== undefined) update["system.ability"] = snap.ability;
+  if (snap.hp) {
+    update["system.hp.max"] = snap.hp.max;
+    update["system.hp.value"] = Math.min(snap.hp.max, actor.system.hp?.value ?? snap.hp.max);
+  }
+  if (Object.keys(update).length) await actor.update(update);
+  await actor.unsetFlag("pokemon-masters", "gimmick");
+}
+
 export function registerBattleApi() {
   game.pokemonMasters = Object.assign(game.pokemonMasters ?? {}, {
-    battle: { useMove, damageCalc, currentTarget, applyEndOfTurn }
+    battle: { useMove, damageCalc, currentTarget, applyEndOfTurn, activateGimmick, revertGimmick }
   });
+  // A fainted Pokémon automatically drops its gimmick transformation.
+  Hooks.on("pmPokemonFainted", ({ target }) => { if (target?.getFlag?.("pokemon-masters", "gimmick")) revertGimmick(target); });
 }

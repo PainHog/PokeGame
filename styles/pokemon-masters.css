@@ -307,6 +307,10 @@
 }
 .pm-usemove:hover { filter: brightness(1.1); }
 
+.pm-gimmickbar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 6px 2px 0; }
+.pm-gimmick-btn { background: linear-gradient(135deg, #7b2ff7, #f107a3); }
+.pm-gimmick-active { background: #7b2ff7; color: #fff; }
+
 .pm-vocation-blurb { font-size: .82rem; color: var(--muted, #6d6560); font-style: italic; margin: 4px 0 0; }
 .pm-dex-line { display: flex; align-items: center; gap: 8px; margin-top: 6px; font-size: .78rem; }
 .pm-dex-line small { color: var(--muted, #6d6560); white-space: nowrap; }

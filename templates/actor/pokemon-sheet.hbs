@@ -32,6 +32,18 @@
     <button type="button" class="pm-usemove" data-action="useItem">Use Item</button>
   </section>
 
+  <section class="pm-gimmickbar">
+    {{#if gimmick.active}}
+      <span class="pm-badge pm-gimmick-active">⚡ {{gimmick.active}} active</span>
+      <button type="button" class="pm-usemove" data-action="revertGimmick">Revert</button>
+    {{else}}
+      {{#if gimmick.mega}}<button type="button" class="pm-usemove pm-gimmick-btn" data-action="gimmick" data-kind="mega">Mega Evolve</button>{{/if}}
+      {{#if gimmick.tera}}<button type="button" class="pm-usemove pm-gimmick-btn" data-action="gimmick" data-kind="tera">Terastallize</button>{{/if}}
+      {{#if gimmick.z}}<button type="button" class="pm-usemove pm-gimmick-btn" data-action="gimmick" data-kind="z">Z-Power</button>{{/if}}
+      {{#if gimmick.dynamax}}<button type="button" class="pm-usemove pm-gimmick-btn" data-action="gimmick" data-kind="dynamax">Dynamax</button>{{/if}}
+    {{/if}}
+  </section>
+
   <section class="pm-section">
     <h2>Stats <small>(Lv {{system.level}} · {{system.xp}} XP)</small></h2>
     <table class="pm-stats">
