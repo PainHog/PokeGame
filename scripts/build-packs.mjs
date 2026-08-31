@@ -373,47 +373,123 @@ function buildGear() {
 /*  Scenes  ->  a ready-to-play test map         */
 /* -------------------------------------------- */
 
-const MAP_W = 2400;
-const MAP_H = 1600;
+/**
+ * Lore-accurate Kanto. Each city, route, dungeon and island is its own Scene,
+ * connected exactly as in the games (grounded in Bulbapedia). Sea routes 19–21
+ * link Fuchsia ↔ Seafoam ↔ Cinnabar ↔ Pallet; the S.S. Anne docks at Vermilion.
+ * Data-driven — MAP_DEFS lists the places, CONNECTIONS the edges between them.
+ */
+const MAP_DEFS = {
+  "Pallet Town": { kind: "town" }, "Viridian City": { kind: "town" }, "Pewter City": { kind: "town" },
+  "Cerulean City": { kind: "town" }, "Saffron City": { kind: "town" }, "Celadon City": { kind: "town" },
+  "Vermilion City": { kind: "town" }, "Lavender Town": { kind: "town" }, "Fuchsia City": { kind: "town" },
+  "Cinnabar Island": { kind: "town", island: true }, "Indigo Plateau": { kind: "town" },
+  "Viridian Forest": { kind: "forest", habitat: "forest" },
+  "Mt. Moon": { kind: "cave", habitat: "cave" }, "Rock Tunnel": { kind: "cave", habitat: "cave" },
+  "Seafoam Islands": { kind: "cave", habitat: "cave", island: true }, "Victory Road": { kind: "cave", habitat: "cave" },
+  "Diglett's Cave": { kind: "cave", habitat: "cave" }, "S.S. Anne": { kind: "venue" },
+  "Route 1": { kind: "route", habitat: "grass" }, "Route 3": { kind: "route", habitat: "mountain" },
+  "Route 4": { kind: "route", habitat: "mountain" }, "Route 5": { kind: "route", habitat: "grass" },
+  "Route 6": { kind: "route", habitat: "grass" }, "Route 7": { kind: "route", habitat: "urban" },
+  "Route 8": { kind: "route", habitat: "urban" }, "Route 9": { kind: "route", habitat: "grass" },
+  "Route 10": { kind: "route", habitat: "mountain" }, "Route 11": { kind: "route", habitat: "grass" },
+  "Route 12": { kind: "route", habitat: "water" }, "Route 13": { kind: "route", habitat: "grass" },
+  "Route 14": { kind: "route", habitat: "grass" }, "Route 15": { kind: "route", habitat: "grass" },
+  "Route 16": { kind: "route", habitat: "urban" }, "Route 17": { kind: "route", habitat: "grass" },
+  "Route 18": { kind: "route", habitat: "grass" }, "Route 19": { kind: "ocean", habitat: "water" },
+  "Route 20": { kind: "ocean", habitat: "water" }, "Route 21": { kind: "ocean", habitat: "water" },
+  "Route 22": { kind: "route", habitat: "grass" }, "Route 23": { kind: "route", habitat: "mountain" },
+  "Route 24": { kind: "route", habitat: "grass" }, "Route 25": { kind: "route", habitat: "grass" }
+};
 
-/** A small connected Kanto slice. Each map is its own Scene, linked by edge exits. */
-const MAPS = [
-  { key: "pallet", name: "Pallet Town", kind: "town", region: "kanto", exits: [{ edge: "north", to: "Route 1" }] },
-  { key: "route1", name: "Route 1", kind: "route", region: "kanto", habitat: "grass", exits: [{ edge: "south", to: "Pallet Town" }, { edge: "north", to: "Viridian City" }] },
-  { key: "viridian", name: "Viridian City", kind: "town", region: "kanto", exits: [{ edge: "south", to: "Route 1" }, { edge: "north", to: "Viridian Forest" }] },
-  { key: "vforest", name: "Viridian Forest", kind: "forest", region: "kanto", habitat: "forest", exits: [{ edge: "south", to: "Viridian City" }, { edge: "north", to: "Pewter City" }] },
-  { key: "pewter", name: "Pewter City", kind: "town", region: "kanto", exits: [{ edge: "south", to: "Viridian Forest" }] }
+// [from, from's edge, to] — the reverse (opposite edge) is generated automatically.
+const CONNECTIONS = [
+  ["Pallet Town", "north", "Route 1"], ["Route 1", "north", "Viridian City"],
+  ["Viridian City", "north", "Viridian Forest"], ["Viridian Forest", "north", "Pewter City"],
+  ["Viridian City", "west", "Route 22"], ["Route 22", "west", "Route 23"],
+  ["Route 23", "north", "Victory Road"], ["Victory Road", "north", "Indigo Plateau"],
+  ["Pewter City", "east", "Route 3"], ["Route 3", "east", "Mt. Moon"],
+  ["Mt. Moon", "east", "Route 4"], ["Route 4", "east", "Cerulean City"],
+  ["Cerulean City", "south", "Route 5"], ["Route 5", "south", "Saffron City"],
+  ["Cerulean City", "north", "Route 24"], ["Route 24", "north", "Route 25"],
+  ["Cerulean City", "east", "Route 9"], ["Route 9", "east", "Rock Tunnel"],
+  ["Rock Tunnel", "east", "Route 10"], ["Route 10", "south", "Lavender Town"],
+  ["Saffron City", "south", "Route 6"], ["Route 6", "south", "Vermilion City"],
+  ["Saffron City", "west", "Route 7"], ["Route 7", "west", "Celadon City"],
+  ["Saffron City", "east", "Route 8"], ["Route 8", "east", "Lavender Town"],
+  ["Vermilion City", "east", "Route 11"], ["Route 11", "east", "Diglett's Cave"],
+  ["Celadon City", "south", "Route 16"], ["Route 16", "south", "Route 17"],
+  ["Route 17", "south", "Route 18"], ["Route 18", "east", "Fuchsia City"],
+  ["Lavender Town", "south", "Route 12"], ["Route 12", "south", "Route 13"],
+  ["Route 13", "west", "Route 14"], ["Route 14", "south", "Route 15"],
+  ["Route 15", "west", "Fuchsia City"], ["Fuchsia City", "south", "Route 19"],
+  ["Route 19", "south", "Seafoam Islands"], ["Seafoam Islands", "west", "Route 20"],
+  ["Route 20", "west", "Cinnabar Island"], ["Cinnabar Island", "north", "Route 21"],
+  ["Route 21", "north", "Pallet Town"],
+  ["Vermilion City", "ship", "S.S. Anne", "S.S. Ticket"]
 ];
 
-const KIND_FILL = { town: "#cdbd8f", route: "#8ec98e", forest: "#3f7a3f", cave: "#5a5560", ocean: "#4a86c5" };
-const EDGE_RECT = {
-  north: [MAP_W / 2 - 150, 0, 300, 120], south: [MAP_W / 2 - 150, MAP_H - 120, 300, 120],
-  east: [MAP_W - 120, MAP_H / 2 - 150, 120, 300], west: [0, MAP_H / 2 - 150, 120, 300]
-};
-// Where you land on the DESTINATION, arriving from a given exit edge (opposite side, clear of its return exit).
-const ARRIVE_ENTRY = { north: [MAP_W / 2, MAP_H - 300], south: [MAP_W / 2, 300], east: [300, MAP_H / 2], west: [MAP_W - 300, MAP_H / 2] };
-const EDGE_LABEL_POS = {
-  north: [MAP_W / 2, 150], south: [MAP_W / 2, MAP_H - 140], east: [MAP_W - 180, MAP_H / 2], west: [180, MAP_H / 2]
-};
+const OPPOSITE = { north: "south", south: "north", east: "west", west: "east" };
+const KIND_DIMS = { town: [2600, 1800], route: [3400, 1900], forest: [3400, 3400], cave: [2600, 2600], ocean: [4200, 3000], venue: [2400, 1600] };
+const slug = (name) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
+const KIND_FILL = { town: "#cdbd8f", route: "#8ec98e", forest: "#3f7a3f", cave: "#5a5560", ocean: "#4a86c5", venue: "#b08a5a" };
+
+/** Build each map's exit list from the (symmetric) connection graph. */
+function exitsByMap() {
+  const out = {};
+  const add = (name, exit) => { (out[name] ??= []).push(exit); };
+  for (const [a, edge, b, ticket] of CONNECTIONS) {
+    if (edge === "ship") {
+      add(a, { ship: true, to: b, ticket }); add(b, { ship: true, to: a, ticket });
+    } else {
+      add(a, { edge, to: b }); add(b, { edge: OPPOSITE[edge], to: a });
+    }
+  }
+  return out;
+}
+
+/** Every map as a full object (name, kind, dims, exits). */
+function allMaps() {
+  const exits = exitsByMap();
+  return Object.entries(MAP_DEFS).map(([name, def]) => {
+    const [w, h] = KIND_DIMS[def.kind] ?? [2600, 1800];
+    return { key: slug(name), name, region: "kanto", w, h, exits: exits[name] ?? [], ...def };
+  });
+}
+const DIMS = Object.fromEntries(allMaps().map((m) => [m.name, [m.w, m.h]]));
+
+const edgeRect = (e, w, h) => ({ north: [w / 2 - 150, 0, 300, 120], south: [w / 2 - 150, h - 120, 300, 120], east: [w - 120, h / 2 - 150, 120, 300], west: [0, h / 2 - 150, 120, 300] }[e]);
+const arriveEntry = (e, w, h) => ({ north: [w / 2, h - 320], south: [w / 2, 320], east: [320, h / 2], west: [w - 320, h / 2] }[e]);
+const edgeLabelPos = (e, w, h) => ({ north: [w / 2, 150], south: [w / 2, h - 150], east: [w - 220, h / 2], west: [220, h / 2] }[e]);
+const dockRect = (w, h) => [w - 360, h - 360, 300, 300];
+const dockEntry = (w, h) => [w - 560, h - 560];
 
 function mapSvg(map) {
+  const w = map.w ?? 2400;
+  const h = map.h ?? 1600;
   const fill = KIND_FILL[map.kind] ?? "#8ec98e";
-  const parts = [`<svg xmlns="http://www.w3.org/2000/svg" width="${MAP_W}" height="${MAP_H}" viewBox="0 0 ${MAP_W} ${MAP_H}">`];
-  parts.push(`<rect width="${MAP_W}" height="${MAP_H}" fill="${fill}"/>`);
+  const p = [`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">`, `<rect width="${w}" height="${h}" fill="${fill}"/>`];
   if (map.kind === "town") {
-    parts.push(`<rect x="${MAP_W / 2 - 500}" y="${MAP_H / 2 - 120}" width="200" height="200" rx="10" fill="#f0f0f0" stroke="#ccc" stroke-width="4"/><rect x="${MAP_W / 2 - 500}" y="${MAP_H / 2 - 120}" width="200" height="64" fill="#e0554f"/><text x="${MAP_W / 2 - 400}" y="${MAP_H / 2 + 130}" font-family="Arial" font-size="26" fill="#444" text-anchor="middle">Center</text>`);
-    parts.push(`<rect x="${MAP_W / 2 - 100}" y="${MAP_H / 2 - 120}" width="200" height="200" rx="10" fill="#f0f0f0" stroke="#ccc" stroke-width="4"/><rect x="${MAP_W / 2 - 100}" y="${MAP_H / 2 - 120}" width="200" height="64" fill="#4f7fd0"/><text x="${MAP_W / 2}" y="${MAP_H / 2 + 130}" font-family="Arial" font-size="26" fill="#444" text-anchor="middle">Mart</text>`);
+    const cx = w / 2;
+    const cy = h / 2;
+    p.push(`<rect x="${cx - 500}" y="${cy - 120}" width="200" height="200" rx="10" fill="#f0f0f0" stroke="#ccc" stroke-width="4"/><rect x="${cx - 500}" y="${cy - 120}" width="200" height="64" fill="#e0554f"/><text x="${cx - 400}" y="${cy + 140}" font-family="Arial" font-size="26" fill="#444" text-anchor="middle">Center</text>`);
+    p.push(`<rect x="${cx - 100}" y="${cy - 120}" width="200" height="200" rx="10" fill="#f0f0f0" stroke="#ccc" stroke-width="4"/><rect x="${cx - 100}" y="${cy - 120}" width="200" height="64" fill="#4f7fd0"/><text x="${cx}" y="${cy + 140}" font-family="Arial" font-size="26" fill="#444" text-anchor="middle">Mart</text>`);
   } else {
-    // A wild patch cue.
-    parts.push(`<rect x="400" y="400" width="${MAP_W - 800}" height="${MAP_H - 800}" rx="20" fill="rgba(0,0,0,0.08)"/>`);
+    p.push(`<rect x="${w * 0.12}" y="${h * 0.12}" width="${w * 0.76}" height="${h * 0.76}" rx="24" fill="rgba(0,0,0,0.08)"/>`);
   }
-  parts.push(`<text x="${MAP_W / 2}" y="70" font-family="Arial" font-size="52" font-weight="bold" fill="#333" text-anchor="middle">${map.name}</text>`);
+  if (map.exits.some((e) => e.ship)) {
+    const [dx, dy, dw, dh] = dockRect(w, h);
+    p.push(`<rect x="${dx}" y="${dy}" width="${dw}" height="${dh}" fill="#8a6d3b"/><text x="${dx + dw / 2}" y="${dy + dh / 2 + 8}" font-family="Arial" font-size="28" fill="#fff" text-anchor="middle">⚓ S.S. Dock</text>`);
+  }
+  p.push(`<text x="${w / 2}" y="72" font-family="Arial" font-size="52" font-weight="bold" fill="#333" text-anchor="middle">${map.name}${map.island ? " (Island)" : ""}</text>`);
   for (const ex of map.exits) {
-    const [lx, ly] = EDGE_LABEL_POS[ex.edge];
-    parts.push(`<text x="${lx}" y="${ly}" font-family="Arial" font-size="30" font-weight="bold" fill="#1c3c5c" text-anchor="middle">▲ ${ex.to}</text>`);
+    if (ex.ship) continue;
+    const [lx, ly] = edgeLabelPos(ex.edge, w, h);
+    p.push(`<text x="${lx}" y="${ly}" font-family="Arial" font-size="30" font-weight="bold" fill="#1c3c5c" text-anchor="middle">▲ ${ex.to}</text>`);
   }
-  parts.push("</svg>");
-  return parts.join("\n");
+  p.push("</svg>");
+  return p.join("\n");
 }
 
 async function buildScenes() {
@@ -423,35 +499,46 @@ async function buildScenes() {
   const region = (name, color, x, y, w, h, type, sys) => ({
     _id: stableId("region", `${name}-${x}-${y}`),
     name, color,
-    shapes: [{ type: "rectangle", x, y, width: w, height: h, rotation: 0, hole: false }],
+    shapes: [{ type: "rectangle", x: Math.round(x), y: Math.round(y), width: Math.round(w), height: Math.round(h), rotation: 0, hole: false }],
     behaviors: [{ _id: stableId("beh", `${name}-${x}-${y}`), name, type: `pokemon-masters.${type}`, system: sys, disabled: false }],
     visibility: 0, locked: false
   });
 
   const scenes = [];
-  for (const map of MAPS) {
+  for (const map of allMaps()) {
+    const w = map.w ?? 2400;
+    const h = map.h ?? 1600;
     await fs.writeFile(path.join(mapsDir, `${map.key}.svg`), mapSvg(map));
     const regions = [];
     if (map.kind === "town") {
-      regions.push(region("Town", KIND_FILL.town, 160, 160, MAP_W - 320, MAP_H - 320, "safeZone", { kind: "town", announce: false }));
-      regions.push(region("Poké Center", "#e0554f", MAP_W / 2 - 500, MAP_H / 2 - 120, 200, 200, "safeZone", { kind: "center", healOnEnter: true }));
-      regions.push(region("Poké Mart", "#4f7fd0", MAP_W / 2 - 100, MAP_H / 2 - 120, 200, 200, "safeZone", { kind: "mart" }));
+      regions.push(region("Town", KIND_FILL.town, 120, 120, w - 240, h - 240, "safeZone", { kind: "town", announce: false }));
+      regions.push(region("Poké Center", "#e0554f", w / 2 - 500, h / 2 - 120, 200, 200, "safeZone", { kind: "center", healOnEnter: true }));
+      regions.push(region("Poké Mart", "#4f7fd0", w / 2 - 100, h / 2 - 120, 200, 200, "safeZone", { kind: "mart" }));
     } else {
-      regions.push(region("Wild Area", "rgba(0,0,0,0.1)", 300, 300, MAP_W - 600, MAP_H - 600, "wildTile", {
-        category: map.habitat ?? "grass", chance: 25, poolSource: "requirements", announceOnly: true, minLevel: 2, maxLevel: 8
+      regions.push(region("Wild Area", "rgba(0,0,0,0.1)", w * 0.12, h * 0.12, w * 0.76, h * 0.76, "wildTile", {
+        category: map.habitat ?? "grass", chance: 25, poolSource: "requirements", announceOnly: true, minLevel: 2, maxLevel: 10
       }));
     }
     for (const ex of map.exits) {
-      const [rx, ry, rw, rh] = EDGE_RECT[ex.edge];
-      const [ex2, ey2] = ARRIVE_ENTRY[ex.edge];
-      regions.push(region(`To ${ex.to}`, "#ffd94a", rx, ry, rw, rh, "zoneTransit", {
-        zoneName: ex.to, destinationSceneName: ex.to, destX: ex2, destY: ey2, announce: true
-      }));
+      const [dw, dh] = DIMS[ex.to] ?? [2400, 1600];
+      if (ex.ship) {
+        const [rx, ry, rw, rh] = dockRect(w, h);
+        const [ex2, ey2] = dockEntry(dw, dh);
+        regions.push(region(`Ship to ${ex.to}`, "#8a6d3b", rx, ry, rw, rh, "zoneTransit", {
+          zoneName: `S.S. Anne → ${ex.to}`, destinationSceneName: ex.to, destX: ex2, destY: ey2, announce: true, requiredItem: ex.ticket ?? ""
+        }));
+      } else {
+        const [rx, ry, rw, rh] = edgeRect(ex.edge, w, h);
+        const [ex2, ey2] = arriveEntry(ex.edge, dw, dh);
+        regions.push(region(`To ${ex.to}`, "#ffd94a", rx, ry, rw, rh, "zoneTransit", {
+          zoneName: ex.to, destinationSceneName: ex.to, destX: ex2, destY: ey2, announce: true
+        }));
+      }
     }
     scenes.push({
       _id: stableId("scene", map.key),
       name: map.name,
-      width: MAP_W, height: MAP_H, padding: 0.25,
+      width: w, height: h, padding: 0.25,
       background: { src: `systems/pokemon-masters/assets/maps/${map.key}.svg` },
       grid: { type: 1, size: 100 },
       flags: { "pokemon-masters": { region: map.region } },

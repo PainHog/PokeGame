@@ -320,6 +320,12 @@ export class SafeZoneBehaviorType extends foundry.data.regionBehaviors.RegionBeh
       if (!actor) return;
       if (!isResponsible(token)) return;
 
+      // Visiting a town/Center/Mart registers this scene as a Fly destination.
+      if (["town", "center", "mart"].includes(this.kind) && token.parent?.name) {
+        const pts = actor.system.flyPoints ?? [];
+        if (!pts.includes(token.parent.name)) await actor.update({ "system.flyPoints": [...pts, token.parent.name] });
+      }
+
       if (this.kind === "center" && this.healOnEnter) {
         const party = await actor.getParty();
         for (const mon of party) {
@@ -361,7 +367,9 @@ export class ZoneTransitBehaviorType extends foundry.data.regionBehaviors.Region
       destY: new fields.NumberField({ required: true, integer: true, initial: 0 }),
       /** Destination scene BY NAME — survives compendium import (unlike a UUID). */
       destinationSceneName: new fields.StringField({ required: false, blank: true, initial: "" }),
-      destinationScene: new fields.DocumentUUIDField({ type: "Scene", required: false, nullable: true, initial: null })
+      destinationScene: new fields.DocumentUUIDField({ type: "Scene", required: false, nullable: true, initial: null }),
+      /** Gear item the trainer must carry to pass (e.g. "S.S. Ticket" for a ship). */
+      requiredItem: new fields.StringField({ required: false, blank: true, initial: "" })
     };
   }
 
@@ -383,6 +391,10 @@ export class ZoneTransitBehaviorType extends foundry.data.regionBehaviors.Region
       if (!destScene && this.destinationScene) destScene = await fromUuid(this.destinationScene);
 
       if (destScene && destScene !== token.parent) {
+        if (this.requiredItem && !actor.items.some((i) => i.type === "gear" && i.name.toLowerCase() === this.requiredItem.toLowerCase())) {
+          ui.notifications?.warn(`You need a ${this.requiredItem} to board.`);
+          return;
+        }
         await crossScene(token, actor, destScene, this.destX, this.destY);
       } else if (this.destX || this.destY) {
         await token.update({ x: this.destX, y: this.destY });
@@ -392,7 +404,7 @@ export class ZoneTransitBehaviorType extends foundry.data.regionBehaviors.Region
 }
 
 /** Move a token to another Scene at (x, y) and bring its owner(s) along. */
-async function crossScene(token, actor, destScene, x, y) {
+export async function crossScene(token, actor, destScene, x, y) {
   const source = token.toObject();
   delete source._id;
   source.x = x || 0;

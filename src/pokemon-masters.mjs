@@ -13,6 +13,7 @@ import { TrainerSheet, PokemonSheet, PMItemSheet } from "./module/sheets.mjs";
 import { WildTileBehaviorType, SafeZoneBehaviorType, ZoneTransitBehaviorType, registerTravelSocket } from "./module/regions.mjs";
 import { AmbushBehaviorType, registerFactionApi } from "./module/factions.mjs";
 import { FieldMoveGateBehaviorType, registerTmApi } from "./module/tms.mjs";
+import { registerTravelApi } from "./module/travel.mjs";
 import { registerWorldHooks } from "./module/world.mjs";
 import { registerCatchHooks } from "./module/catch.mjs";
 import { registerBattleApi } from "./module/battle.mjs";
@@ -110,5 +111,6 @@ Hooks.once("ready", () => {
   registerFactionApi();
   registerTmApi();
   registerTravelSocket();
+  registerTravelApi();
   console.log("Pokémon Masters | Ready");
 });

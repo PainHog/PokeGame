@@ -49,6 +49,8 @@ export class TrainerData extends foundry.abstract.TypeDataModel {
       storage: new fields.ArrayField(new fields.DocumentUUIDField({ type: "Actor" })),
       /** Up to two Pokémon left at the daycare (Actor UUIDs) for breeding. */
       daycare: new fields.ArrayField(new fields.DocumentUUIDField({ type: "Actor" })),
+      /** Towns visited — the Fly destinations available to this trainer. */
+      flyPoints: new fields.ArrayField(new fields.StringField({ blank: false })),
       /** Living Pokédex: species seen and caught (by name; regional forms count). */
       pokedex: new fields.SchemaField({
         seen: new fields.ArrayField(new fields.StringField({ blank: false })),
