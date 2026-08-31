@@ -119,7 +119,7 @@ export async function populateScene(scene) {
       await placeNpc(scene, "Officer Jenny", { role: "officer" }, cx + 320, cy + 120);
       // Gym cities: stand the leader at the gym door, clickable to battle.
       const gymRegion = scene.regions?.find((r) => r.name === "Gym");
-      const gymBeh = gymRegion?.behaviors?.find((b) => b.type === "pokemon-masters.safeZone");
+      const gymBeh = gymRegion?.behaviors?.find((b) => b.type === "safeZone");
       const gsys = gymBeh?.system ?? {};
       if (gsys.leader) {
         await placeNpc(scene, gsys.leader, { role: "gym", gymRegion: gsys.gymRegion, gymIndex: gsys.gymIndex }, cx + 620, cy + 120);

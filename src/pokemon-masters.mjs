@@ -68,24 +68,27 @@ Hooks.once("init", () => {
     gear: GearData
   });
 
-  // Region (tile) behaviors — namespaced as `<system-id>.<type>`.
+  // Region (tile) behaviors. A SYSTEM's own document sub-types are keyed by the
+  // BARE name (Foundry derives the valid type from system.json's documentTypes as
+  // the key verbatim — no package-id prefix, unlike modules). The scenes and the
+  // data-model keys must match those bare names or Scene validation rejects them.
   Object.assign(CONFIG.RegionBehavior.dataModels, {
-    "pokemon-masters.wildTile": WildTileBehaviorType,
-    "pokemon-masters.safeZone": SafeZoneBehaviorType,
-    "pokemon-masters.zoneTransit": ZoneTransitBehaviorType,
-    "pokemon-masters.venue": VenueBehaviorType,
-    "pokemon-masters.legendary": LegendaryBehaviorType,
-    "pokemon-masters.ambush": AmbushBehaviorType,
-    "pokemon-masters.fieldGate": FieldMoveGateBehaviorType
+    wildTile: WildTileBehaviorType,
+    safeZone: SafeZoneBehaviorType,
+    zoneTransit: ZoneTransitBehaviorType,
+    venue: VenueBehaviorType,
+    legendary: LegendaryBehaviorType,
+    ambush: AmbushBehaviorType,
+    fieldGate: FieldMoveGateBehaviorType
   });
   Object.assign(CONFIG.RegionBehavior.typeIcons, {
-    "pokemon-masters.wildTile": "fa-solid fa-paw",
-    "pokemon-masters.safeZone": "fa-solid fa-house-medical",
-    "pokemon-masters.zoneTransit": "fa-solid fa-door-open",
-    "pokemon-masters.venue": "fa-solid fa-ticket",
-    "pokemon-masters.legendary": "fa-solid fa-star",
-    "pokemon-masters.ambush": "fa-solid fa-user-ninja",
-    "pokemon-masters.fieldGate": "fa-solid fa-water"
+    wildTile: "fa-solid fa-paw",
+    safeZone: "fa-solid fa-house-medical",
+    zoneTransit: "fa-solid fa-door-open",
+    venue: "fa-solid fa-ticket",
+    legendary: "fa-solid fa-star",
+    ambush: "fa-solid fa-user-ninja",
+    fieldGate: "fa-solid fa-water"
   });
 
   // Token resource bars.
@@ -112,35 +115,7 @@ Hooks.once("init", () => {
   registerWorldHooks();
 });
 
-// Self-heal a STALE install: if system.json wasn't refreshed on update (only
-// src/ was), its documentTypes won't list our RegionBehavior subtypes and every
-// map import fails with "not a valid type". Inject the types into the runtime
-// registry so scenes load anyway. Runs at setup, before any scene is imported.
-const PM_REGION_TYPES = ["wildTile", "safeZone", "zoneTransit", "venue", "legendary", "ambush", "fieldGate"]
-  .map((t) => `pokemon-masters.${t}`);
-function patchRegionTypes() {
-  try {
-    const reg = game.documentTypes?.RegionBehavior;
-    if (Array.isArray(reg)) { for (const t of PM_REGION_TYPES) if (!reg.includes(t)) reg.push(t); }
-    else if (reg instanceof Set) { for (const t of PM_REGION_TYPES) reg.add(t); }
-  } catch (err) { console.warn("Pokémon Masters | could not patch RegionBehavior type registry", err); }
-}
-Hooks.once("setup", patchRegionTypes);
-
 Hooks.once("ready", () => {
-  patchRegionTypes(); // belt-and-braces, before any scene import below
-  // If the region types still aren't registered, the install is stale — say so
-  // loudly with the fix, instead of leaving the GM with a silent black canvas.
-  try {
-    const reg = game.documentTypes?.RegionBehavior ?? [];
-    const ok = [...reg].includes("pokemon-masters.safeZone");
-    if (!ok && game.user.isGM) {
-      const msg = "Pokémon Masters: your installed system.json is out of date, so maps can't load. Update/reinstall the system (Setup → Game Systems → Pokémon Masters), then fully restart Foundry.";
-      ui.notifications?.error(msg, { permanent: true });
-      console.error("Pokémon Masters |", msg);
-    }
-  } catch (err) { /* diagnostic only */ }
-
   registerCatchHooks();
   registerBattleApi();
   registerProgressionHooks();

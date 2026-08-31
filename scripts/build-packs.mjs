@@ -1251,7 +1251,7 @@ async function buildScenes() {
     _id: stableId("region", `${name}-${x}-${y}`),
     name, color,
     shapes: [{ type: "rectangle", x: Math.round(x), y: Math.round(y), width: Math.round(w), height: Math.round(h), rotation: 0, hole: false }],
-    behaviors: [{ _id: stableId("beh", `${name}-${x}-${y}`), name, type: `pokemon-masters.${type}`, system: sys, disabled: false }],
+    behaviors: [{ _id: stableId("beh", `${name}-${x}-${y}`), name, type, system: sys, disabled: false }],
     visibility: 0, locked: false
   });
 

@@ -150,15 +150,28 @@ for (const pack of manifest.packs) {
 }
 rmSync(path.join(ROOT, ".smoke-extract"), { recursive: true, force: true });
 
-/* 9. RegionBehavior subtypes: code registration must match the manifest. */
-const codeBehaviors = new Set();
-for (const m of entry.matchAll(/"pokemon-masters\.([A-Za-z0-9_]+)"\s*:/g)) codeBehaviors.add(m[1]);
-// only those registered onto CONFIG.RegionBehavior.dataModels — narrow by the block
-const rbBlock = entry.slice(entry.indexOf("CONFIG.RegionBehavior.dataModels"), entry.indexOf("CONFIG.RegionBehavior.typeIcons") + 1);
-const rbCode = new Set([...rbBlock.matchAll(/"pokemon-masters\.([A-Za-z0-9_]+)"/g)].map((m) => m[1]));
+/* 9. RegionBehavior subtypes: code registration, manifest, and the compiled
+   scenes must ALL agree on the (bare) type names — a system's own sub-types are
+   keyed by the bare name, and a mismatch makes Foundry reject every scene at
+   import with "not a valid type for the RegionBehavior Document class". */
 const rbManifest = new Set(Object.keys(manifest.documentTypes?.RegionBehavior ?? {}));
+// Data-model keys registered onto CONFIG.RegionBehavior.dataModels (bare).
+const rbBlock = entry.slice(entry.indexOf("CONFIG.RegionBehavior.dataModels"), entry.indexOf("CONFIG.RegionBehavior.typeIcons") + 1);
+const rbCode = new Set([...rbBlock.matchAll(/\b([A-Za-z0-9_]+)\s*:\s*[A-Za-z0-9_]+BehaviorType/g)].map((m) => m[1]));
 for (const b of rbCode) if (!rbManifest.has(b)) fail(`RegionBehavior '${b}' is registered in code but missing from system.json documentTypes.RegionBehavior`);
 for (const b of rbManifest) if (!rbCode.has(b)) note(`RegionBehavior '${b}' is in the manifest but not registered in code`);
+// Every behavior type embedded in a compiled scene must be a declared bare type.
+const sceneSrc = path.join(ROOT, "src/packs/scenes");
+if (existsSync(sceneSrc)) {
+  const bad = new Set();
+  for (const f of readdirSync(sceneSrc).filter((x) => x.endsWith(".json"))) {
+    for (const m of readFileSync(path.join(sceneSrc, f), "utf8").matchAll(/"type"\s*:\s*"([^"]+)"/g)) {
+      const t = m[1];
+      if (t.startsWith("pokemon-masters.") || (!rbManifest.has(t) && /^(wildTile|safeZone|zoneTransit|venue|legendary|ambush|fieldGate)/.test(t.replace(/^pokemon-masters\./, "")))) bad.add(t);
+    }
+  }
+  if (bad.size) fail(`scene RegionBehavior type(s) not declared as a bare manifest type: ${[...bad].join(", ")} — scenes must use the bare name (e.g. "safeZone"), matching system.json`);
+}
 
 /* Report. */
 console.log("Pokémon Masters — pre-boot smoke test\n");
