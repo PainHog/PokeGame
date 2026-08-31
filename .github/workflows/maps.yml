@@ -17,6 +17,7 @@ on:
       - scripts/build-sevii-maps.mjs
       - scripts/build-hoenn-caves.mjs
       - scripts/build-tiled-maps.mjs
+      - scripts/build-interiors.mjs
       - .github/workflows/maps.yml
   workflow_dispatch:
     inputs:
@@ -24,7 +25,7 @@ on:
         description: Which renderer to run
         type: choice
         default: composer
-        options: [all, kanto, hoenn, sevii, hoenn-caves, composer]
+        options: [all, kanto, hoenn, sevii, hoenn-caves, interiors, composer]
 
 permissions:
   contents: write
@@ -52,6 +53,7 @@ jobs:
             [ "$RENDERER" = "all" -o "$RENDERER" = "hoenn" ]       && npm run emeraldmaps || true
             [ "$RENDERER" = "all" -o "$RENDERER" = "sevii" ]       && npm run seviimaps || true
             [ "$RENDERER" = "all" -o "$RENDERER" = "hoenn-caves" ] && npm run hoenncaves || true
+            [ "$RENDERER" = "all" -o "$RENDERER" = "interiors" ]   && npm run interiors || true
           }
           run_exact
           # The composer reads the built scenes to know which maps still need art, so
