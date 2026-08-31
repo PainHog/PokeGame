@@ -6,6 +6,8 @@
   "description": "Foundry VTT system: Pokémon Masters",
   "scripts": {
     "build": "node scripts/build-packs.mjs",
+    "verify": "node scripts/verify.mjs",
+    "check": "node scripts/build-packs.mjs && node scripts/verify.mjs",
     "build:limit": "node scripts/build-packs.mjs --limit=60",
     "clean": "node -e \"import('node:fs').then(fs=>{for(const d of ['packs','src/packs']){fs.rmSync(d,{recursive:true,force:true})}})\""
   },
