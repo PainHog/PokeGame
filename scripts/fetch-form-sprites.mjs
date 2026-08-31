@@ -77,9 +77,14 @@ function showdownSlug(name) {
 async function main() {
   await fs.mkdir(OUT, { recursive: true });
 
-  // Every alternate form: a real species whose name differs from its base species.
+  // Every alternate form: a real species whose name differs from its base
+  // species. Exclude `isNonstandard: "Future"` — those are fan/CAP speculative
+  // "megas" (e.g. Clefable-Mega) that the game itself does not ship, so their
+  // art would just be dead weight. Real Mega/regional forms are "Past"/null and
+  // stay in.
   const forms = [...Dex.species.all()]
-    .filter((s) => s.exists && s.num > 0 && s.baseSpecies && s.baseSpecies !== s.name);
+    .filter((s) => s.exists && s.num > 0 && s.baseSpecies && s.baseSpecies !== s.name
+      && s.isNonstandard !== "Future");
 
   // PokeAPI id space: normalized identifier -> numeric id.
   console.log("Fetching PokeAPI pokemon.csv…");
@@ -91,14 +96,47 @@ async function main() {
     if (identifier) idByIdentifier.set(norm(identifier), id);
   }
 
-  // Resolve each form to a PokeAPI numeric id via the normalized-slug bridge.
+  // A handful of notable forms whose PokeAPI identifier the slug bridge can't
+  // reach (PokeAPI spells them out — "-mask", "-breed", "-standard", "-female",
+  // "-single-strike-gmax" …). These are exactly the visually-distinct forms
+  // players notice, so map them explicitly to the right PokeAPI identifier.
+  const OVERRIDES = {
+    necrozmaduskmane: "necrozma-dusk", necrozmadawnwings: "necrozma-dawn",
+    ogerponwellspring: "ogerpon-wellspring-mask", ogerponhearthflame: "ogerpon-hearthflame-mask",
+    ogerponcornerstone: "ogerpon-cornerstone-mask",
+    taurospaldeablaze: "tauros-paldea-blaze-breed", taurospaldeaaqua: "tauros-paldea-aqua-breed",
+    taurospaldeacombat: "tauros-paldea-combat-breed",
+    darmanitangalar: "darmanitan-galar-standard", darmanitangalarzen: "darmanitan-galar-zen",
+    urshifugmax: "urshifu-single-strike-gmax", urshifurapidstrikegmax: "urshifu-rapid-strike-gmax",
+    meowsticf: "meowstic-female", basculegionf: "basculegion-female",
+    miniormeteor: "minior-red-meteor", mausholdfour: "maushold-family-of-four",
+    palafinhero: "palafin-hero",
+  };
+  // Generic candidate identifiers to try when the direct slug misses — catches
+  // many gendered / Gigantamax forms whose PokeAPI id spells the suffix out.
+  const candidatesFor = (s, slug) => {
+    const base = (s.baseSpecies || s.name).toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    const out = [];
+    if (slug) out.push(slug);
+    if (/(^|-)f$/i.test(slug || "") || /-f$/i.test(s.id)) out.push(`${base}-female`);
+    if (/(^|-)m$/i.test(slug || "")) out.push(`${base}-male`);
+    if (/gmax/i.test(slug || "") || /gmax/i.test(s.id)) out.push(`${base}-gmax`);
+    return out;
+  };
+
+  // Resolve each form to a PokeAPI numeric id via override → slug → candidates.
   const targets = []; // { id: species.id, num }
   const unmatched = [];
   for (const s of forms) {
     const slug = showdownSlug(s.name);
-    const key = norm(slug ?? s.name);
-    const pokeId = idByIdentifier.get(key);
-    if (pokeId) targets.push({ speciesId: s.id, name: s.name, num: pokeId });
+    let num = OVERRIDES[s.id] ? idByIdentifier.get(norm(OVERRIDES[s.id])) : null;
+    if (!num) {
+      for (const cand of candidatesFor(s, slug)) {
+        num = idByIdentifier.get(norm(cand));
+        if (num) break;
+      }
+    }
+    if (num) targets.push({ speciesId: s.id, name: s.name, num });
     else unmatched.push(s.name);
   }
 
