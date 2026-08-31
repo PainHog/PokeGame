@@ -87,6 +87,8 @@ const T = {
 };
 // Cave floor/wall metatile ids are sampled from a real cave map at runtime.
 let CAVE = { prim: null, sec: null, floor: [T.sand], wall: [T.rock] };
+// Building-interior floor/wall/decor sampled from a real interior for venues.
+let BLDG = { prim: null, sec: null, floor: [T.sand2], wall: [T.rock], decor: [] };
 
 /* ------------------------------------------------------------------ *
  *  Building + tree stamps extracted from real FireRed town blockdata  *
@@ -131,10 +133,12 @@ async function extractStamps(layouts) {
 function classify(scene) {
   const pm = scene.flags?.["pokemon-masters"]; if (!pm) return null;
   const regions = scene.regions ?? [];
+  // A building interior (Center/Mart/House/Gym) has a return-door and is rendered
+  // by makeInterior — never recompose those here.
+  if (regions.some((r) => r.behaviors?.[0]?.system?.returnDoor)) return null;
   const isTown = regions.some((r) => r.name === "Town");
   const wild = regions.find((r) => r.behaviors?.[0]?.type?.endsWith("wildTile"));
-  const isIndoor = regions.some((r) => r.name === "Indoors") && !isTown && !wild;
-  if (isIndoor) return null;                            // interiors aren't overworld art
+  const isVenue = regions.some((r) => r.name === "Indoors") && !isTown && !wild;
   const n = scene.name.toLowerCase();
   let climate = "temperate";
   if (/snow|ice|icy|frost|icicle|icepeak|glacier|glaseado|alabaster|snowpoint|freez|tundra|winter/.test(n)) climate = "snow";
@@ -142,6 +146,7 @@ function classify(scene) {
   else if (/volcan|lava|magma|wela|blush|stark|fiery|jagged|ember|cinder|ashfall/.test(n)) climate = "volcanic";
   let kind = "field";
   if (isTown) kind = "town";
+  else if (isVenue) kind = "venue";
   else if (/cave|cavern|tunnel|mine|chamber|chasm|grotto|den|pit|quarry|depths|\bmt\b|mount|coronet|pillar|chargestone|hollow|core|dungeon/.test(n)) kind = "cave";
   else if (/forest|woods|jungle|grove|thicket|tangle|wilds|weald/.test(n)) kind = "forest";
   else if (/\bsea\b|ocean|lake|bay|beach|coast|marinada|pacifidlog|undella|water|marsh|swamp|mire|river|falls|cascade|coastland|surf/.test(n)) kind = "water";
@@ -153,7 +158,7 @@ function classify(scene) {
 
 /* pick tile dimensions (in metatiles) from kind + aspect */
 function dimsFor(kind, aspect) {
-  const base = { town: [30, 26], route: [40, 26], forest: [34, 34], cave: [34, 28], water: [40, 30], field: [34, 28] }[kind] || [34, 28];
+  const base = { town: [30, 26], route: [40, 26], forest: [34, 34], cave: [34, 28], water: [40, 30], field: [34, 28], venue: [26, 22] }[kind] || [34, 28];
   let [w, h] = base;
   if (aspect > 1.5) w = Math.round(h * Math.min(aspect, 2.2)); else if (aspect < 0.75) h = Math.round(w / Math.max(aspect, 0.5));
   return [Math.max(20, Math.min(w, 60)), Math.max(18, Math.min(h, 50))];
@@ -187,6 +192,18 @@ function compose(kind, W, H, rand, stamps, hasGym) {
     for (let i = 0; i < 3; i++) carve(4 + Math.floor(rand() * (W - 8)), 4 + Math.floor(rand() * (H - 8)), 2 + Math.floor(rand() * 3), 2 + Math.floor(rand() * 3));
     // scatter rock rubble on the floor
     for (let i = 0; i < W * H * 0.02; i++) { const x = 3 + Math.floor(rand() * (W - 6)), y = 3 + Math.floor(rand() * (H - 6)); if (floor.includes(g[y][x])) g[y][x] = pick(wall); }
+    return { g, warps, grass: null };
+  }
+  if (kind === "venue") {
+    // A tiled building interior: floor fill, wall border (thicker at top), scattered
+    // furniture/decor, and an entrance gap at the bottom-centre.
+    const wall = BLDG.wall, floor = BLDG.floor, decor = BLDG.decor;
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) g[y][x] = pick(floor);
+    for (let x = 0; x < W; x++) { g[0][x] = pick(wall); g[1][x] = pick(wall); g[H - 1][x] = pick(wall); }
+    for (let y = 0; y < H; y++) { g[y][0] = pick(wall); g[y][W - 1] = pick(wall); }
+    if (decor.length) for (let i = 0; i < W * H * 0.05; i++) { const x = 2 + Math.floor(rand() * (W - 4)), y = 3 + Math.floor(rand() * (H - 5)); g[y][x] = pick(decor); }
+    // clear a 2-wide entrance in the bottom wall
+    const ex = W >> 1; g[H - 1][ex] = pick(floor); g[H - 1][ex - 1] = pick(floor);
     return { g, warps, grass: null };
   }
   if (kind === "water") {
@@ -292,6 +309,30 @@ async function main() {
       }
     } catch (e) { console.warn("  ! cave sample failed:", e.message); }
   }
+
+  // Sample a real building interior (floor/wall/decor) for venue rooms.
+  const needVenue = targets.some((t) => t.kind === "venue");
+  if (needVenue) {
+    const byId = new Map(layouts.map((l) => [l.id, l]));
+    for (const dir of ["ViridianCity_PokemonCenter_1F", "PewterCity_PokemonCenter_1F", "CeladonCity_DepartmentStore_1F"]) {
+      try {
+        const mj = await fetchJson(`${FR}/data/maps/${dir}/map.json`); if (!mj?.layout) continue;
+        const bl = byId.get(mj.layout); if (!bl) continue;
+        const bw = bl.width, bh = bl.height;
+        const bblock = new Uint16Array((await fetchBuf(`${FR}/${bl.blockdata_filepath}`)).buffer.slice(0));
+        const bprim = await loadTileset(bl.primary_tileset, true);
+        const bsec = bl.secondary_tileset ? await loadTileset(bl.secondary_tileset, false) : prim;
+        const freq = new Map(), bord = new Map();
+        for (let r = 0; r < bh; r++) for (let c = 0; c < bw; c++) { const id = bblock[r * bw + c] & 0x3FF; freq.set(id, (freq.get(id) || 0) + 1); if (r === 0 || c === 0 || r === bh - 1 || c === bw - 1) bord.set(id, (bord.get(id) || 0) + 1); }
+        const wall = [...bord].sort((a, b) => b[1] - a[1]).slice(0, 2).map(([id]) => id);
+        const ranked = [...freq].filter(([id]) => !wall.includes(id)).sort((a, b) => b[1] - a[1]).map(([id]) => id);
+        const floor = ranked.slice(0, 2), decor = ranked.slice(2, 7);
+        BLDG = { prim: bprim, sec: bsec, floor: floor.length ? floor : [T.sand2], wall: wall.length ? wall : [T.rock], decor };
+        console.log(`  venue tiles: ${dir} floor=${BLDG.floor} wall=${BLDG.wall} decor=${BLDG.decor}`);
+        break;
+      } catch (e) { /* try next */ }
+    }
+  }
   // Load every secondary tileset a stamp needs, so building metatiles render.
   const secCache = new Map();
   for (const st of Object.values(stamps)) if (st.sec && !secCache.has(st.sec)) secCache.set(st.sec, await loadTileset(st.sec, false));
@@ -309,8 +350,8 @@ async function main() {
       const { g, warps, grass } = compose(t.kind, W, H, rand, stamps, t.hasGym);
       const OW = W * 16, OH = H * 16, png = new PNG({ width: OW, height: OH }); png.data.fill(0);
       // caves use the real cave tilesets; towns use the building-stamp secondary; else General.
-      const usePrim = t.kind === "cave" && CAVE.prim ? CAVE.prim : prim;
-      const sec = t.kind === "cave" && CAVE.sec ? CAVE.sec : t.kind === "town" ? (secCache.get(stamps.center?.sec) || anySec) : anySec;
+      const usePrim = t.kind === "cave" && CAVE.prim ? CAVE.prim : t.kind === "venue" && BLDG.prim ? BLDG.prim : prim;
+      const sec = t.kind === "cave" && CAVE.sec ? CAVE.sec : t.kind === "venue" && BLDG.sec ? BLDG.sec : t.kind === "town" ? (secCache.get(stamps.center?.sec) || anySec) : anySec;
       for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) drawMetatile(png.data, OW, x * 16, y * 16, g[y][x], usePrim, sec);
       reclimate(png.data, t.climate);
       const b64 = PNG.sync.write(png).toString("base64");
