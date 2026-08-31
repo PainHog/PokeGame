@@ -9,6 +9,8 @@
  * at runtime.
  */
 
+import { NAMED_AVATARS } from "./avatars.mjs";
+
 export const PM = {};
 
 /** The eighteen canonical Pokémon types (plus a stray/typeless bucket). */
@@ -455,9 +457,19 @@ PM.variedTrainerPool = [
   "sailor", "picnicker", "kindler", "parasol_lady", "collector", "painter",
 ];
 function hashName(s = "") { let h = 0; for (let i = 0; i < s.length; i++) h = (Math.imul(h, 31) + s.charCodeAt(i)) >>> 0; return h; }
-/** The sprite path for a trainer/NPC of the given name. Named characters get
- *  their exact sprite; anyone else gets a stable, distinct colourful class. */
+// Real character portraits, if `npm run avatars` has vendored them (empty by
+// default). Keyed by lowercase character name; matched as a whole word so a
+// townsperson named "Willow" never picks up Will's portrait. Longest keys first
+// so e.g. "crasher wake" wins over a hypothetical "wake".
+const AVATAR_KEYS = Object.keys(NAMED_AVATARS).sort((a, b) => b.length - a.length);
+/** The sprite path for a trainer/NPC of the given name. A named character gets
+ *  its real portrait (if vendored) or its exact class sprite; anyone else gets a
+ *  stable, distinct colourful class. */
 PM.npcSpriteFor = function npcSpriteFor(name = "") {
+  const nl = name.toLowerCase();
+  for (const key of AVATAR_KEYS) {
+    if (new RegExp(`\\b${key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`).test(nl)) return `${PM.npcSpriteBase}${NAMED_AVATARS[key]}`;
+  }
   for (const [re, key] of PM.npcSpriteMatch) if (re.test(name)) return `${PM.npcSpriteBase}${key}.png`;
   const pool = PM.variedTrainerPool;
   return `${PM.npcSpriteBase}${pool[hashName(name) % pool.length]}.png`;
