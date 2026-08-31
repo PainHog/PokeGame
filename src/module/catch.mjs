@@ -124,6 +124,12 @@ export async function attemptCatch({
   if (!species) return ui.notifications?.warn("Pokémon Masters: unknown species.");
 
   trainer ??= resolveTrainer();
+  // You can't just catch a Pokémon that already belongs to a trainer — that
+  // would be stealing (see stealPokemon). Guards the wild-only capture path.
+  const targetOwner = token?.actor?.system?.trainer;
+  if (targetOwner && targetOwner !== trainer?.uuid) {
+    return ui.notifications?.warn("That's someone else's Pokémon — you can't catch it!");
+  }
   ballName ??= await pickBall(trainer);
 
   const catchRate = species.system.catchRate ?? 45;
@@ -264,6 +270,34 @@ export function registerCatchHooks() {
   });
 
   game.pokemonMasters = Object.assign(game.pokemonMasters ?? {}, {
-    catch: { attempt: attemptCatch, compute: computeCatch, throwAtTarget }
+    catch: { attempt: attemptCatch, compute: computeCatch, throwAtTarget, steal: stealPokemon }
   });
+}
+
+/**
+ * Steal a Pokémon that belongs to another trainer — a villain's move. Transfers
+ * ownership to the thief, flags it stolen, tips villainy vs. League reputation,
+ * and alerts the police (a `pmCrimeCommitted` hook that Officer Jenny hears).
+ */
+export async function stealPokemon(thief, target = null) {
+  thief ??= resolveTrainer();
+  const actor = target?.actor ?? target ?? [...(game.user.targets ?? [])][0]?.actor;
+  if (!thief || actor?.type !== "pokemon") return ui.notifications?.warn("Target a Pokémon to steal.");
+  const owner = actor.system.trainer;
+  if (!owner || owner === thief.uuid) return ui.notifications?.warn("That Pokémon isn't owned by another trainer.");
+  if (!game.user.isGM && !actor.isOwner) return ui.notifications?.warn("You don't have permission to take that Pokémon (ask your GM).");
+
+  await actor.update({ "system.trainer": thief.uuid });
+  await actor.setFlag("pokemon-masters", "stolen", true);
+  await addToParty(thief, actor);
+  await ChatMessage.create({
+    speaker: { alias: "⚠ Crime Reported" },
+    content: `<div class="pm-encounter-card"><h3>😈 ${thief.name} stole ${actor.name}!</h3><p>A theft has been reported — Officer Jenny is on the case.</p></div>`
+  });
+  // Best-effort reputation swing (villainy up, League down) if the org API is present.
+  try {
+    await game.pokemonMasters?.orgs?.adjustReputation?.(thief, "rocket", 20);
+    await game.pokemonMasters?.orgs?.adjustReputation?.(thief, "league", -30);
+  } catch (err) { /* org API optional */ }
+  Hooks.callAll("pmCrimeCommitted", { trainer: thief, kind: "theft", actor });
 }

@@ -273,4 +273,19 @@ export function registerServicesApi() {
     event.preventDefault();
     nurseJoy();
   });
+
+  // A committed crime (e.g. a theft) can bring the police down on the culprit.
+  Hooks.on("pmCrimeCommitted", async ({ trainer }) => {
+    if (!trainer?.isOwner || Math.random() >= 0.5) return;
+    const { simulateBattle, teamOf } = await import("./npc.mjs");
+    const { generateFoeTeam } = await import("./events.mjs");
+    const myTeam = await teamOf(trainer);
+    if (!myTeam.length) return;
+    const level = Math.max(...myTeam.map((m) => m.level ?? 5)) + 2;
+    const foes = await generateFoeTeam(2, level);
+    const { winner } = simulateBattle(myTeam.map((m) => ({ ...m, hp: { value: m.stats.hp, max: m.stats.hp } })), foes);
+    let msg = "You slipped away before the police arrived…";
+    if (winner !== "A") { const fine = level * 30; await trainer.update({ "system.money": Math.max(0, (trainer.system.money ?? 0) - fine) }); msg = `The police caught up and fined you ₽${fine}!`; }
+    await ChatMessage.create({ speaker: { alias: "Officer Jenny" }, content: `<div class="pm-encounter-card"><h3>🚓 The police gave chase!</h3><p>${msg}</p></div>` });
+  });
 }
