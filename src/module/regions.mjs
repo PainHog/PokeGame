@@ -530,7 +530,10 @@ export class ZoneTransitBehaviorType extends foundry.data.regionBehaviors.Region
         if (this.enterInterior) {
           await actor.setFlag("pokemon-masters", "returnScene", { name: token.parent?.name, x: token.x, y: token.y + 260 });
         }
-        await crossScene(token, actor, destScene, this.destX, this.destY);
+        // An authentic interior declares its own entry mat; fall back to the
+        // door's baked coords for the placeholder rooms.
+        const entry = destScene.getFlag?.("pokemon-masters", "entry");
+        await crossScene(token, actor, destScene, entry?.x ?? this.destX, entry?.y ?? this.destY);
       } else if (this.destX || this.destY) {
         await token.update({ x: this.destX, y: this.destY });
       }
@@ -542,8 +545,10 @@ export class ZoneTransitBehaviorType extends foundry.data.regionBehaviors.Region
 export async function crossScene(token, actor, destScene, x, y) {
   const source = token.toObject();
   delete source._id;
-  source.x = x || 0;
-  source.y = y || 0;
+  // Clamp the arrival point inside the destination scene (interiors are small).
+  const gs = destScene.grid?.size ?? 100;
+  source.x = Math.max(0, Math.min(x || 0, Math.max(0, (destScene.width ?? gs) - gs)));
+  source.y = Math.max(0, Math.min(y || 0, Math.max(0, (destScene.height ?? gs) - gs)));
   await destScene.createEmbeddedDocuments("Token", [source]);
   if (token.parent && token.id) await token.parent.deleteEmbeddedDocuments("Token", [token.id]);
 

@@ -171,7 +171,7 @@ async function verifyMaps() {
   const byName = Object.fromEntries(scenes.map((s) => [s.name, s]));
   // Building interiors are reached through door tiles and return dynamically, so
   // they sit OUTSIDE the overworld travel graph — exclude them and their doors.
-  const isInterior = (s) => s.regions.some((r) => r.name === "Counter");
+  const isInterior = (s) => s.regions.some((r) => r.behaviors?.[0]?.system?.returnDoor || r.name === "Counter");
   const linksOf = (s) => s.regions
     .filter((r) => { const b = r.behaviors[0]; return b?.type.endsWith("zoneTransit") && !b.system.enterInterior && !b.system.returnDoor; })
     .map((r) => r.behaviors[0].system.destinationSceneName).filter(Boolean);

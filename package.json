@@ -20,7 +20,8 @@
     "emeraldmaps": "node scripts/build-emerald-maps.mjs",
     "tiledmaps": "node scripts/build-tiled-maps.mjs",
     "seviimaps": "node scripts/build-sevii-maps.mjs",
-    "hoenncaves": "node scripts/build-hoenn-caves.mjs"
+    "hoenncaves": "node scripts/build-hoenn-caves.mjs",
+    "interiors": "node scripts/build-interiors.mjs"
   },
   "devDependencies": {
     "@foundryvtt/foundryvtt-cli": "^3.0.4",

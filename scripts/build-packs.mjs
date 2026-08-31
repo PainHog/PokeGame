@@ -1568,12 +1568,35 @@ async function buildScenes() {
   const gymInteriors = new Map(); // leader name -> gym info (deduped)
   async function makeInterior(name, kind, gym) {
     const key = slug(name);
-    await fs.writeFile(path.join(mapsDir, `${key}.svg`), interiorSvg(kind, name));
-    const cx = INT_W / 2;
     const svc = kind === "center" ? { kind: "center", healOnEnter: true, announce: true }
       : kind === "gym" ? { kind: "gym", announce: true, leader: gym.leader, gymRegion: gym.region, gymIndex: gym.gymIndex, gymType: gym.type, badge: gym.badge }
       : kind === "house" ? { kind: "house", announce: false }
       : { kind, announce: true };
+
+    // Authentic Gen-3 interior (real Center/Mart/House/Gym art), if rendered.
+    const art = INT[kind === "gym" ? "gym-interior" : key];
+    if (art) {
+      const g = art.grid, w = art.w * g, h = art.h * g;
+      const src = `systems/pokemon-masters/assets/maps/${kind === "gym" ? "gym-interior" : key}.webp`;
+      // Entry: one tile above the door, so the player arrives on the entrance mat.
+      const entry = { x: art.exit.x * g, y: Math.max(0, art.exit.y - 1) * g };
+      const regions = [region("Indoors", "rgba(0,0,0,0)", 0, 0, w, h, "safeZone", { kind: "indoor", announce: false })];
+      // Service counter across the top third (walk up from the door to use it).
+      if (kind !== "house") regions.push(region("Counter", INT_TRIM[kind] ?? "#8a6a3a", g, g, w - 2 * g, Math.max(3, Math.round(art.h * 0.4)) * g, "safeZone", svc));
+      regions.push(region("Exit", "#ffd94a", Math.max(0, art.exit.x - 1) * g, art.exit.y * g, 2 * g, g, "zoneTransit", { returnDoor: true, announce: false, destX: 0, destY: 0 }));
+      return {
+        _id: stableId("scene", key), name, width: w, height: h, padding: 0.25,
+        background: { src }, backgroundColor: "#000000", grid: { type: 1, size: g },
+        tokenVision: false, fog: { exploration: false },
+        environment: { globalLight: { enabled: true }, darknessLevel: 0 },
+        flags: { "pokemon-masters": { region: "", mapSrc: src, authentic: true, entry } },
+        regions
+      };
+    }
+
+    // Fallback: the stylised placeholder room.
+    await fs.writeFile(path.join(mapsDir, `${key}.svg`), interiorSvg(kind, name));
+    const cx = INT_W / 2;
     const regions = [
       region("Indoors", KIND_FILL.venue, 40, 130, INT_W - 80, INT_H - 200, "safeZone", { kind: "indoor", announce: false }),
       region("Counter", INT_TRIM[kind] ?? "#8a6a3a", cx - 260, 230, 520, 260, "safeZone", svc),
@@ -1593,6 +1616,11 @@ async function buildScenes() {
   for (const f of authFiles) {
     try { Object.assign(AUTH, JSON.parse(fsSync.readFileSync(path.join(mapsDir, f), "utf8"))); } catch { /* skip bad file */ }
   }
+  // Authentic building interiors (from `npm run interiors`), keyed by interior slug
+  // (+ "gym-interior" shared by every gym). When present, makeInterior renders the
+  // real Center/Mart/House/Gym art instead of the placeholder room.
+  let INT = {};
+  try { INT = JSON.parse(fsSync.readFileSync(path.join(mapsDir, "gba-interiors.json"), "utf8")); } catch { /* not rendered */ }
   const authName = {}; for (const m of Object.values(AUTH)) authName[m.name] = m; // by scene name
   // Match a scene to its authentic art by slug only. Region renderers key their
   // entries to our scene slugs (gba-hoenn's "Hoenn Route 101" → "hoenn-route-101"),

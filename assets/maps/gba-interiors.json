@@ -1,0 +1,62 @@
+{
+ "pok-mon-center": {
+  "name": "Pokémon Center",
+  "kind": "center",
+  "w": 15,
+  "h": 10,
+  "grid": 32,
+  "exit": {
+   "x": 6,
+   "y": 8
+  },
+  "source": "ViridianCity_PokemonCenter_1F"
+ },
+ "pok-mart": {
+  "name": "Poké Mart",
+  "kind": "mart",
+  "w": 11,
+  "h": 9,
+  "grid": 32,
+  "exit": {
+   "x": 3,
+   "y": 7
+  },
+  "source": "ViridianCity_Mart"
+ },
+ "house": {
+  "name": "House",
+  "kind": "house",
+  "w": 13,
+  "h": 10,
+  "grid": 32,
+  "exit": {
+   "x": 3,
+   "y": 9
+  },
+  "source": "PalletTown_PlayersHouse_1F"
+ },
+ "police-station": {
+  "name": "Police Station",
+  "kind": "police",
+  "w": 11,
+  "h": 9,
+  "grid": 32,
+  "exit": {
+   "x": 3,
+   "y": 7
+  },
+  "source": "ViridianCity_House"
+ },
+ "gym-interior": {
+  "name": "Gym",
+  "kind": "gym",
+  "w": 20,
+  "h": 24,
+  "grid": 32,
+  "exit": {
+   "x": 16,
+   "y": 22
+  },
+  "source": "ViridianCity_Gym"
+ }
+}
