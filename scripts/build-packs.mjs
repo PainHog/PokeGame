@@ -15,20 +15,32 @@
  */
 
 import { promises as fs } from "node:fs";
+import fsSync from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { Dex } from "@pkmn/dex";
 import { Sprites } from "@pkmn/img";
 import { compilePack } from "@foundryvtt/foundryvtt-cli";
 
-/** Animated Pokémon Showdown sprite URL for a species (loaded by the Foundry client). */
-function spriteFor(name) {
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const ROOT = path.resolve(__dirname, "..");
+
+// Locally-bundled sprites (assets/sprites/<num>.<ext>), if they've been fetched
+// with `npm run sprites`. Keyed by National Dex number. Loaded synchronously so
+// the build stays offline-friendly.
+let SPRITE_INDEX = {};
+try { SPRITE_INDEX = JSON.parse(fsSync.readFileSync(path.join(ROOT, "assets", "sprites", "index.json"), "utf8")); } catch { /* not fetched yet */ }
+
+/**
+ * Sprite path for a species: a locally-bundled file when available (no external
+ * host needed), otherwise the animated Showdown URL as a graceful fallback.
+ */
+function spriteFor(name, num) {
+  const file = SPRITE_INDEX[num];
+  if (file) return `systems/pokemon-masters/assets/sprites/${file}`;
   try { return Sprites.getPokemon(name, { gen: "ani" }).url; }
   catch { return "icons/svg/mystery-man.svg"; }
 }
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const ROOT = path.resolve(__dirname, "..");
 const SRC = path.join(ROOT, "src", "packs");
 const OUT = path.join(ROOT, "packs");
 
@@ -264,7 +276,7 @@ async function buildSpecies() {
       }
     } catch { /* some formes have no learnset */ }
 
-    const sprite = spriteFor(s.name);
+    const sprite = spriteFor(s.name, s.num);
     docs.push({
       _id: stableId("species", s.id),
       name: s.name,

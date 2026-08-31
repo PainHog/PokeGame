@@ -6,6 +6,7 @@
   "description": "Foundry VTT system: Pokémon Masters",
   "scripts": {
     "build": "node scripts/build-packs.mjs",
+    "sprites": "node scripts/fetch-sprites.mjs",
     "verify": "node scripts/verify.mjs",
     "smoke": "node scripts/smoke.mjs",
     "check": "node scripts/build-packs.mjs && node scripts/verify.mjs && node scripts/smoke.mjs",
