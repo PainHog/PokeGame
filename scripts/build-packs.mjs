@@ -560,6 +560,43 @@ const REGION_MAPS = {
     "Cave of Origin": { kind: "cave", habitat: "cave" }, "Sky Pillar": { kind: "cave", habitat: "cave" },
     "Battle Frontier": { kind: "venue", island: true },
     "Hoenn Victory Road": { kind: "cave", habitat: "cave" }, "Hoenn Pokémon League": { kind: "town" }
+  },
+  sinnoh: {
+    "Twinleaf Town": { kind: "town" }, "Sandgem Town": { kind: "town" },
+    "Jubilife City": { kind: "town" }, "Oreburgh City": { kind: "town" },
+    "Floaroma Town": { kind: "town" }, "Eterna City": { kind: "town" },
+    "Hearthome City": { kind: "town" }, "Solaceon Town": { kind: "town" },
+    "Veilstone City": { kind: "town" }, "Pastoria City": { kind: "town" },
+    "Celestic Town": { kind: "town" }, "Canalave City": { kind: "town" },
+    "Snowpoint City": { kind: "town" }, "Sunyshore City": { kind: "town", island: true },
+    "Fight Area": { kind: "town", island: true }, "Survival Area": { kind: "town", island: true },
+    "Resort Area": { kind: "town", island: true },
+    "Route 201": { kind: "route", habitat: "grass" }, "Route 202": { kind: "route", habitat: "grass" },
+    "Route 203": { kind: "route", habitat: "grass" }, "Route 204": { kind: "route", habitat: "grass" },
+    "Route 205": { kind: "route", habitat: "grass" }, "Route 206": { kind: "route", habitat: "grass" },
+    "Route 207": { kind: "route", habitat: "mountain" }, "Route 208": { kind: "route", habitat: "grass" },
+    "Route 209": { kind: "route", habitat: "grass" }, "Route 210": { kind: "route", habitat: "grass" },
+    "Route 211": { kind: "route", habitat: "mountain" }, "Route 212": { kind: "route", habitat: "grass" },
+    "Route 213": { kind: "route", habitat: "water" }, "Route 214": { kind: "route", habitat: "grass" },
+    "Route 215": { kind: "route", habitat: "grass" }, "Route 216": { kind: "route", habitat: "mountain" },
+    "Route 217": { kind: "route", habitat: "mountain" }, "Route 218": { kind: "ocean", habitat: "water" },
+    "Route 219": { kind: "ocean", habitat: "water" }, "Route 220": { kind: "ocean", habitat: "water" },
+    "Route 221": { kind: "route", habitat: "grass" }, "Route 222": { kind: "route", habitat: "water" },
+    "Route 223": { kind: "ocean", habitat: "water" }, "Route 224": { kind: "ocean", habitat: "water" },
+    "Route 225": { kind: "route", habitat: "grass" }, "Route 226": { kind: "route", habitat: "mountain" },
+    "Route 227": { kind: "route", habitat: "mountain" }, "Route 228": { kind: "route", habitat: "sand" },
+    "Route 229": { kind: "route", habitat: "grass" }, "Route 230": { kind: "ocean", habitat: "water" },
+    "Lake Verity": { kind: "ocean", habitat: "water" }, "Oreburgh Gate": { kind: "cave", habitat: "cave" },
+    "Oreburgh Mine": { kind: "cave", habitat: "cave" }, "Ravaged Path": { kind: "cave", habitat: "cave" },
+    "Valley Windworks": { kind: "venue" }, "Eterna Forest": { kind: "forest", habitat: "forest" },
+    "Old Chateau": { kind: "venue" }, "Wayward Cave": { kind: "cave", habitat: "cave" },
+    "Mount Coronet": { kind: "cave", habitat: "mountain" }, "Spear Pillar": { kind: "cave", habitat: "mountain" },
+    "Lost Tower": { kind: "venue" }, "Solaceon Ruins": { kind: "cave", habitat: "cave" },
+    "Great Marsh": { kind: "venue" }, "Pokémon Mansion": { kind: "venue" },
+    "Iron Island": { kind: "cave", habitat: "cave", island: true }, "Lake Valor": { kind: "ocean", habitat: "water" },
+    "Lake Acuity": { kind: "ocean", habitat: "water" }, "Snowpoint Temple": { kind: "cave", habitat: "cave" },
+    "Stark Mountain": { kind: "cave", habitat: "mountain" }, "Sinnoh Battle Tower": { kind: "venue", island: true },
+    "Sinnoh Victory Road": { kind: "cave", habitat: "cave" }, "Sinnoh Pokémon League": { kind: "town" }
   }
 };
 
@@ -702,6 +739,46 @@ const REGION_CONNECTIONS = {
     ["Route 131", "south", "Sky Pillar"], ["Pacifidlog Town", "west", "Route 132"],
     ["Route 132", "west", "Route 133"], ["Route 133", "west", "Route 134"],
     ["Route 134", "north", "Slateport City"], ["Lilycove City", "north", "Battle Frontier"]
+  ],
+  sinnoh: [
+    ["Twinleaf Town", "north", "Route 201"], ["Route 201", "west", "Lake Verity"],
+    ["Route 201", "east", "Sandgem Town"], ["Sandgem Town", "north", "Route 202"],
+    ["Route 202", "north", "Jubilife City"], ["Jubilife City", "east", "Route 203"],
+    ["Route 203", "east", "Oreburgh Gate"], ["Oreburgh Gate", "south", "Oreburgh City"],
+    ["Oreburgh City", "south", "Oreburgh Mine"], ["Jubilife City", "north", "Route 204"],
+    ["Route 204", "north", "Ravaged Path"], ["Route 204", "north", "Floaroma Town"],
+    ["Floaroma Town", "east", "Route 205"], ["Route 205", "west", "Valley Windworks"],
+    ["Route 205", "north", "Eterna Forest"], ["Eterna Forest", "north", "Old Chateau"],
+    ["Eterna Forest", "east", "Eterna City"], ["Oreburgh City", "north", "Route 207"],
+    ["Route 207", "north", "Route 206"], ["Route 206", "north", "Eterna City"],
+    ["Route 206", "east", "Wayward Cave"], ["Eterna City", "east", "Route 211"],
+    ["Route 211", "east", "Mount Coronet"], ["Mount Coronet", "east", "Celestic Town"],
+    ["Mount Coronet", "north", "Spear Pillar"], ["Hearthome City", "north", "Route 208"],
+    ["Route 208", "north", "Mount Coronet"], ["Hearthome City", "east", "Route 209"],
+    ["Route 209", "east", "Lost Tower"], ["Route 209", "north", "Solaceon Town"],
+    ["Solaceon Town", "east", "Solaceon Ruins"], ["Solaceon Town", "south", "Route 210"],
+    ["Route 210", "north", "Celestic Town"], ["Route 210", "south", "Route 215"],
+    ["Route 215", "west", "Veilstone City"], ["Hearthome City", "south", "Route 212"],
+    ["Route 212", "south", "Pastoria City"], ["Pastoria City", "west", "Great Marsh"],
+    ["Route 212", "east", "Pokémon Mansion"], ["Pastoria City", "east", "Route 213"],
+    ["Route 213", "east", "Lake Valor"], ["Veilstone City", "south", "Route 214"],
+    ["Route 214", "south", "Lake Valor"], ["Lake Valor", "east", "Route 222"],
+    ["Route 222", "east", "Sunyshore City"], ["Sunyshore City", "east", "Route 223"],
+    ["Route 223", "north", "Sinnoh Victory Road"], ["Sinnoh Victory Road", "north", "Sinnoh Pokémon League"],
+    ["Sinnoh Pokémon League", "north", "Route 224"], ["Jubilife City", "west", "Route 218"],
+    ["Route 218", "west", "Canalave City"], ["Canalave City", "west", "Iron Island"],
+    ["Sandgem Town", "south", "Route 219"], ["Route 219", "south", "Route 220"],
+    ["Route 220", "west", "Route 221"], ["Celestic Town", "north", "Route 211"],
+    ["Route 216", "north", "Route 217"], ["Route 217", "north", "Snowpoint City"],
+    ["Route 216", "south", "Mount Coronet"], ["Route 217", "east", "Lake Acuity"],
+    ["Snowpoint City", "north", "Snowpoint Temple"],
+    // The Battle Zone in the far north, reached by boat from Snowpoint after the League.
+    ["Snowpoint City", "ship", "Fight Area"], ["Fight Area", "north", "Route 225"],
+    ["Route 225", "north", "Route 226"], ["Route 226", "north", "Route 227"],
+    ["Route 227", "north", "Stark Mountain"], ["Fight Area", "east", "Survival Area"],
+    ["Survival Area", "east", "Route 228"], ["Route 228", "south", "Route 229"],
+    ["Route 229", "east", "Resort Area"], ["Resort Area", "east", "Sinnoh Battle Tower"],
+    ["Route 230", "north", "Resort Area"]
   ]
 };
 
@@ -713,7 +790,9 @@ const INTER_REGION = [
   // Alola is reachable only by sea — a cruise from Vermilion Harbor to Hau'oli City.
   ["kanto", "Vermilion City", "ship", "alola", "Hau'oli City", "S.S. Ticket"],
   // Hoenn by sea — the S.S. Tidal ferry runs from Olivine (Johto) to Slateport.
-  ["johto", "Olivine City", "ship", "hoenn", "Slateport City", "S.S. Ticket"]
+  ["johto", "Olivine City", "ship", "hoenn", "Slateport City", "S.S. Ticket"],
+  // Sinnoh by sea — a ferry from Lilycove (Hoenn) to the port of Canalave City.
+  ["hoenn", "Lilycove City", "ship", "sinnoh", "Canalave City", "S.S. Ticket"]
 ];
 
 const OPPOSITE = { north: "south", south: "north", east: "west", west: "east" };

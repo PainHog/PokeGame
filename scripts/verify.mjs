@@ -111,7 +111,16 @@ const CANON_ADJACENCY = [
   ["Mauville City", "Hoenn Route 117"], ["Hoenn Route 117", "Verdanturf Town"], ["Hoenn Route 112", "Lavaridge Town"],
   ["Hoenn Route 113", "Fallarbor Town"], ["Hoenn Route 119", "Fortree City"], ["Hoenn Route 121", "Lilycove City"],
   ["Hoenn Route 124", "Mossdeep City"], ["Hoenn Route 126", "Sootopolis City"], ["Hoenn Route 128", "Ever Grande City"],
-  ["Hoenn Route 131", "Pacifidlog Town"], ["Ever Grande City", "Hoenn Victory Road"], ["Hoenn Victory Road", "Hoenn Pokémon League"]
+  ["Hoenn Route 131", "Pacifidlog Town"], ["Ever Grande City", "Hoenn Victory Road"], ["Hoenn Victory Road", "Hoenn Pokémon League"],
+  // Sinnoh — spiralling around Mt. Coronet (Bulbapedia-sourced).
+  ["Lilycove City", "Canalave City"], // cross-region ferry
+  ["Twinleaf Town", "Sinnoh Route 201"], ["Sinnoh Route 201", "Sandgem Town"], ["Sandgem Town", "Sinnoh Route 202"],
+  ["Sinnoh Route 202", "Jubilife City"], ["Jubilife City", "Sinnoh Route 204"], ["Sinnoh Route 204", "Floaroma Town"],
+  ["Floaroma Town", "Sinnoh Route 205"], ["Eterna Forest", "Eterna City"], ["Hearthome City", "Sinnoh Route 209"],
+  ["Sinnoh Route 209", "Solaceon Town"], ["Hearthome City", "Sinnoh Route 212"], ["Sinnoh Route 212", "Pastoria City"],
+  ["Sinnoh Route 215", "Veilstone City"], ["Jubilife City", "Sinnoh Route 218"], ["Sinnoh Route 218", "Canalave City"],
+  ["Sinnoh Route 217", "Snowpoint City"], ["Sunyshore City", "Sinnoh Route 223"], ["Sinnoh Route 223", "Sinnoh Victory Road"],
+  ["Sinnoh Victory Road", "Sinnoh Pokémon League"], ["Snowpoint City", "Fight Area"], ["Fight Area", "Survival Area"]
 ];
 
 async function verifyMaps() {
