@@ -109,22 +109,26 @@ export async function populateScene(scene) {
   if (!scene || !canPlace()) return;
   if (scene.getFlag(FLAG, "populated")) return;
   const w = scene.width, h = scene.height, cx = w / 2, cy = h / 2;
-  const isTown = !!scene.regions?.find((r) => r.name === "Poké Center");
+  const counter = scene.regions?.find((r) => r.name === "Counter"); // a building interior
+  const isTown = !counter && !!scene.regions?.find((r) => r.name === "Poké Center");
   const isRoute = !!scene.regions?.find((r) => r.name === "Wild Area");
   try {
-    if (isTown) {
-      // Service NPCs stand at the doors of their buildings (Center / Mart / Police).
-      await placeNpc(scene, "Nurse Joy", { role: "nurse" }, cx - 400, cy + 120);
-      await placeNpc(scene, "Mart Clerk", { role: "clerk" }, cx, cy + 120);
-      await placeNpc(scene, "Officer Jenny", { role: "officer" }, cx + 320, cy + 120);
-      // Gym cities: stand the leader at the gym door, clickable to battle.
-      const gymRegion = scene.regions?.find((r) => r.name === "Gym");
-      const gymBeh = gymRegion?.behaviors?.find((b) => b.type === "safeZone");
-      const gsys = gymBeh?.system ?? {};
-      if (gsys.leader) {
-        await placeNpc(scene, gsys.leader, { role: "gym", gymRegion: gsys.gymRegion, gymIndex: gsys.gymIndex }, cx + 620, cy + 120);
-      }
-      // Flavour residents scattered around the town.
+    if (counter) {
+      // Building interior — the service NPC stands behind the counter.
+      const sys = counter.behaviors?.find((b) => b.type === "safeZone")?.system ?? {};
+      const nx = w / 2, ny = 175;
+      if (sys.kind === "center") await placeNpc(scene, "Nurse Joy", { role: "nurse" }, nx, ny);
+      else if (sys.kind === "mart") await placeNpc(scene, "Mart Clerk", { role: "clerk" }, nx, ny);
+      else if (sys.kind === "police") await placeNpc(scene, "Officer Jenny", { role: "officer" }, nx, ny);
+      else if (sys.kind === "gym" && sys.leader) await placeNpc(scene, sys.leader, { role: "gym", gymRegion: sys.gymRegion, gymIndex: sys.gymIndex }, nx, ny);
+    } else if (isTown) {
+      // The service NPCs & the gym leader now live INSIDE their buildings, so make
+      // sure those interiors are imported (the door tiles warp the player in).
+      await ensureScene("Pokémon Center"); await ensureScene("Poké Mart"); await ensureScene("Police Station");
+      const gymDoor = scene.regions?.find((r) => r.name === "Gym");
+      const gymDest = gymDoor?.behaviors?.find((b) => b.type === "zoneTransit")?.system?.destinationSceneName;
+      if (gymDest) await ensureScene(gymDest);
+      // Flavour residents wander the town.
       const spots = [[w * 0.20, h * 0.28], [w * 0.80, h * 0.30], [w * 0.24, h * 0.74], [w * 0.76, h * 0.72], [w * 0.5, h * 0.82]];
       for (let i = 0; i < TOWNSFOLK.length; i++) {
         const [name, flavor] = TOWNSFOLK[i];

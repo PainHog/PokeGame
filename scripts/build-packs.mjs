@@ -1328,6 +1328,29 @@ function mapSvg(map) {
   return p.join("\n");
 }
 
+// Building interiors are a fixed small room: a service counter up top, an exit
+// door at the bottom. The player walks in through the building's door tile.
+const INT_W = 1600, INT_H = 1100;
+const INT_FLOOR = { center: "#f6e9f0", mart: "#e8f1fb", police: "#e9eef6", gym: "#efe7ff" };
+const INT_TRIM = { center: "#e0554f", mart: "#4f7fd0", police: "#2f5aa8", gym: "#7b2ff7" };
+function interiorSvg(kind, title) {
+  const floor = INT_FLOOR[kind] ?? "#efe6da", trim = INT_TRIM[kind] ?? "#8a6a3a";
+  const cx = INT_W / 2;
+  const p = [`<svg xmlns="http://www.w3.org/2000/svg" width="${INT_W}" height="${INT_H}" viewBox="0 0 ${INT_W} ${INT_H}">`];
+  p.push(`<rect width="${INT_W}" height="${INT_H}" fill="${floor}"/>`);
+  for (let gx = 0; gx <= INT_W; gx += 100) p.push(`<line x1="${gx}" y1="0" x2="${gx}" y2="${INT_H}" stroke="#00000010" stroke-width="2"/>`);
+  for (let gy = 0; gy <= INT_H; gy += 100) p.push(`<line x1="0" y1="${gy}" x2="${INT_W}" y2="${gy}" stroke="#00000010" stroke-width="2"/>`);
+  p.push(`<rect x="0" y="0" width="${INT_W}" height="120" fill="${trim}"/>`);              // back wall
+  p.push(`<rect x="${cx - 260}" y="230" width="520" height="150" rx="12" fill="#c9a06a" stroke="#8a6a3a" stroke-width="6"/>`); // counter
+  p.push(`<text x="${cx}" y="200" font-family="Arial" font-size="34" font-weight="bold" fill="#fff" text-anchor="middle">${xml(title)}</text>`);
+  p.push(`<text x="${cx}" y="470" font-family="Arial" font-size="24" fill="#555" text-anchor="middle">Step up to the counter</text>`);
+  p.push(`<rect x="${cx - 90}" y="${INT_H - 150}" width="180" height="150" rx="8" fill="#3a2f2a"/>`);  // exit door
+  p.push(`<rect x="${cx - 70}" y="${INT_H - 200}" width="140" height="40" rx="8" fill="#ffd94a" stroke="#b28a00" stroke-width="3"/>`);
+  p.push(`<text x="${cx}" y="${INT_H - 210}" font-family="Arial" font-size="26" font-weight="bold" fill="#12324f" text-anchor="middle">▼ Exit</text>`);
+  p.push("</svg>");
+  return p.join("\n");
+}
+
 async function buildScenes() {
   const mapsDir = path.join(ROOT, "assets", "maps");
   await fs.mkdir(mapsDir, { recursive: true });
@@ -1340,6 +1363,35 @@ async function buildScenes() {
     visibility: 0, locked: false
   });
 
+  const sceneDoc = (name, key, w, h, regions) => ({
+    _id: stableId("scene", key), name, width: w, height: h, padding: 0.25,
+    background: { src: `systems/pokemon-masters/assets/maps/${key}.webp` },
+    backgroundColor: "#000000", grid: { type: 1, size: 100 },
+    tokenVision: false, fog: { exploration: false },
+    environment: { globalLight: { enabled: true }, darknessLevel: 0 },
+    // Interiors have no wild encounters, so no encounter-region tag.
+    flags: { "pokemon-masters": { region: "" } },
+    regions
+  });
+
+  // Build one building-interior scene (counter service + exit door). `gym` carries
+  // the leader metadata for a gym interior; the 3 service interiors are shared.
+  const gymInteriors = new Map(); // leader name -> gym info (deduped)
+  async function makeInterior(name, kind, gym) {
+    const key = slug(name);
+    await fs.writeFile(path.join(mapsDir, `${key}.svg`), interiorSvg(kind, name));
+    const cx = INT_W / 2;
+    const svc = kind === "center" ? { kind: "center", healOnEnter: true, announce: true }
+      : kind === "gym" ? { kind: "gym", announce: true, leader: gym.leader, gymRegion: gym.region, gymIndex: gym.gymIndex, gymType: gym.type, badge: gym.badge }
+      : { kind, announce: true };
+    const regions = [
+      region("Indoors", KIND_FILL.venue, 40, 130, INT_W - 80, INT_H - 200, "safeZone", { kind: "indoor", announce: false }),
+      region("Counter", INT_TRIM[kind] ?? "#8a6a3a", cx - 260, 230, 520, 260, "safeZone", svc),
+      region("Exit", "#ffd94a", cx - 100, INT_H - 160, 200, 160, "zoneTransit", { returnDoor: true, announce: false, destX: 0, destY: 0 }),
+    ];
+    return sceneDoc(name, key, INT_W, INT_H, regions);
+  }
+
   const scenes = [];
   for (const map of allMaps()) {
     const w = map.w ?? 2400;
@@ -1348,14 +1400,18 @@ async function buildScenes() {
     await fs.writeFile(path.join(mapsDir, `${map.key}.svg`), mapSvg(map));
     const regions = [];
     if (map.kind === "town") {
+      // The building tiles are DOORS now — stepping on one walks you into the
+      // building's interior (a separate scene). The interior's exit brings you
+      // back to the town, just below the door.
+      const door = (name, color, x, dest) => region(name, color, x, h / 2 - 120, 200, 200, "zoneTransit",
+        { enterInterior: true, destinationSceneName: dest, destX: INT_W / 2, destY: INT_H - 320, announce: false });
       regions.push(region("Town", KIND_FILL.town, 120, 120, w - 240, h - 240, "safeZone", { kind: "town", announce: false }));
-      regions.push(region("Poké Center", "#e0554f", w / 2 - 500, h / 2 - 120, 200, 200, "safeZone", { kind: "center", healOnEnter: true }));
-      regions.push(region("Poké Mart", "#4f7fd0", w / 2 - 100, h / 2 - 120, 200, 200, "safeZone", { kind: "mart" }));
-      regions.push(region("Police Station", "#2f5aa8", w / 2 + 220, h / 2 - 120, 200, 200, "safeZone", { kind: "police", announce: true }));
+      regions.push(door("Poké Center", "#e0554f", w / 2 - 500, "Pokémon Center"));
+      regions.push(door("Poké Mart", "#4f7fd0", w / 2 - 100, "Poké Mart"));
+      regions.push(door("Police Station", "#2f5aa8", w / 2 + 220, "Police Station"));
       if (map.gym) {
-        regions.push(region("Gym", "#7b2ff7", w / 2 + 520, h / 2 - 120, 200, 200, "safeZone", {
-          kind: "gym", announce: true, leader: map.gym.leader, gymRegion: map.gym.region, gymIndex: map.gym.gymIndex, gymType: map.gym.type, badge: map.gym.badge,
-        }));
+        regions.push(door("Gym", "#7b2ff7", w / 2 + 520, `${map.gym.leader}'s Gym`));
+        gymInteriors.set(map.gym.leader, map.gym);
       }
     } else if (map.habitat) {
       // A wild zone: its encounter category is the map's real habitat, never a
@@ -1405,6 +1461,14 @@ async function buildScenes() {
       regions
     });
   }
+
+  // Building interiors: 3 shared service scenes (every town's doors point here)
+  // plus one per gym (so each shows its own leader).
+  for (const [nm, kind] of [["Pokémon Center", "center"], ["Poké Mart", "mart"], ["Police Station", "police"]]) {
+    scenes.push(await makeInterior(nm, kind));
+  }
+  for (const gym of gymInteriors.values()) scenes.push(await makeInterior(`${gym.leader}'s Gym`, "gym", gym));
+
   // Surface any gym whose city isn't a town map (e.g. Alola trial sites) — those
   // leaders get no gym building placed, so the mismatch is visible, not silent.
   const townNames = new Set(scenes.filter((s) => s.regions?.some((r) => r.name === "Poké Center")).map((s) => s.name));

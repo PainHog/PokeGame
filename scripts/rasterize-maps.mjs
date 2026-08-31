@@ -45,8 +45,10 @@ async function main() {
   const page = await browser.newPage();
   console.log(`Rasterizing ${svgs.length} maps → WebP (≤${MAX_DIM}px)…`);
 
-  let done = 0, bytes = 0;
+  let done = 0, bytes = 0, skipped = 0;
   for (const f of svgs) {
+    const dest = path.join(MAPS, f.replace(/\.svg$/, ".webp"));
+    if (existsSync(dest)) { skipped++; continue; } // incremental — delete a .webp to force a re-render
     const svg = await fs.readFile(path.join(MAPS, f), "utf8");
     const b64 = Buffer.from(svg).toString("base64");
     try {
@@ -62,7 +64,7 @@ async function main() {
         return c.toDataURL("image/webp", QUALITY);
       }, { b64, MAX_DIM, QUALITY });
       const buf = Buffer.from(url.split(",")[1], "base64");
-      await fs.writeFile(path.join(MAPS, f.replace(/\.svg$/, ".webp")), buf);
+      await fs.writeFile(dest, buf);
       bytes += buf.length; done++;
     } catch (err) {
       console.warn(`  ! failed ${f}: ${err.message}`);
@@ -70,7 +72,7 @@ async function main() {
     if (done % 50 === 0) process.stdout.write(`\r  ${done}/${svgs.length}`);
   }
   await browser.close();
-  console.log(`\nDone — ${done} WebP maps, ${(bytes / 1024 / 1024).toFixed(1)} MB total.`);
+  console.log(`\nDone — ${done} new WebP maps (${skipped} already present), ${(bytes / 1024 / 1024).toFixed(1)} MB added.`);
 }
 
 main().catch((err) => { console.error(err); process.exitCode = 1; });

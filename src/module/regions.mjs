@@ -483,7 +483,12 @@ export class ZoneTransitBehaviorType extends foundry.data.regionBehaviors.Region
       destinationSceneName: new fields.StringField({ required: false, blank: true, initial: "" }),
       destinationScene: new fields.DocumentUUIDField({ type: "Scene", required: false, nullable: true, initial: null }),
       /** Gear item the trainer must carry to pass (e.g. "S.S. Ticket" for a ship). */
-      requiredItem: new fields.StringField({ required: false, blank: true, initial: "" })
+      requiredItem: new fields.StringField({ required: false, blank: true, initial: "" }),
+      /** This door walks the player INTO a building interior — remember where they
+       *  came from so the interior's exit can send them back. */
+      enterInterior: new fields.BooleanField({ initial: false }),
+      /** This door is a building interior's EXIT — return to the remembered scene. */
+      returnDoor: new fields.BooleanField({ initial: false })
     };
   }
 
@@ -500,14 +505,30 @@ export class ZoneTransitBehaviorType extends foundry.data.regionBehaviors.Region
       }
       if (!isResponsible(token)) return;
 
-      // Resolve the destination scene (by name first, then UUID).
+      // Interior exit: walk back out to the town you entered from.
+      if (this.returnDoor) {
+        const ret = actor.getFlag("pokemon-masters", "returnScene");
+        const back = ret?.name ? game.scenes?.getName(ret.name) : null;
+        if (back && back !== token.parent) await crossScene(token, actor, back, ret.x || 0, ret.y || 0);
+        return;
+      }
+
+      // Resolve the destination scene (by name first, then UUID); import an
+      // interior on demand if it isn't in the world yet.
       let destScene = this.destinationSceneName ? game.scenes?.getName(this.destinationSceneName) : null;
       if (!destScene && this.destinationScene) destScene = await fromUuid(this.destinationScene);
+      if (!destScene && this.enterInterior && this.destinationSceneName) {
+        destScene = await game.pokemonMasters?.placement?.ensureScene?.(this.destinationSceneName);
+      }
 
       if (destScene && destScene !== token.parent) {
         if (this.requiredItem && !actor.items.some((i) => i.type === "gear" && i.name.toLowerCase() === this.requiredItem.toLowerCase())) {
           ui.notifications?.warn(`You need a ${this.requiredItem} to board.`);
           return;
+        }
+        // Remember the town + a spot just outside the door for the trip back.
+        if (this.enterInterior) {
+          await actor.setFlag("pokemon-masters", "returnScene", { name: token.parent?.name, x: token.x, y: token.y + 260 });
         }
         await crossScene(token, actor, destScene, this.destX, this.destY);
       } else if (this.destX || this.destY) {

@@ -167,11 +167,17 @@ const CANON_ADJACENCY = [
 async function verifyMaps() {
   const scenes = await loadPack("scenes");
   const byName = Object.fromEntries(scenes.map((s) => [s.name, s]));
-  const linksOf = (s) => s.regions.filter((r) => r.behaviors[0]?.type.endsWith("zoneTransit")).map((r) => r.behaviors[0].system.destinationSceneName);
+  // Building interiors are reached through door tiles and return dynamically, so
+  // they sit OUTSIDE the overworld travel graph — exclude them and their doors.
+  const isInterior = (s) => s.regions.some((r) => r.name === "Counter");
+  const linksOf = (s) => s.regions
+    .filter((r) => { const b = r.behaviors[0]; return b?.type.endsWith("zoneTransit") && !b.system.enterInterior && !b.system.returnDoor; })
+    .map((r) => r.behaviors[0].system.destinationSceneName).filter(Boolean);
   const connected = (a, b) => byName[a] && linksOf(byName[a]).includes(b);
 
-  // Bidirectional + no dangling.
+  // Bidirectional + no dangling (overworld only).
   for (const s of scenes) {
+    if (isInterior(s)) continue;
     for (const dest of linksOf(s)) {
       if (!byName[dest]) flag(`map: ${s.name} links to missing scene "${dest}"`);
       else if (!connected(dest, s.name)) flag(`map: ${s.name} → ${dest} is one-way (no return link)`);
@@ -181,13 +187,13 @@ async function verifyMaps() {
   for (const [a, b] of CANON_ADJACENCY) {
     if (!connected(a, b) || !connected(b, a)) flag(`map: canonical link ${a} ↔ ${b} is missing`);
   }
-  // Full connectivity from Pallet Town.
+  // Full connectivity from Pallet Town (interiors excluded — they hang off towns).
   const seen = new Set(["Pallet Town"]);
   const queue = ["Pallet Town"];
   while (queue.length) {
     for (const d of linksOf(byName[queue.shift()] ?? { regions: [] })) if (byName[d] && !seen.has(d)) { seen.add(d); queue.push(d); }
   }
-  for (const s of scenes) if (!seen.has(s.name)) flag(`map: ${s.name} is unreachable from Pallet Town`);
+  for (const s of scenes) if (!isInterior(s) && !seen.has(s.name)) flag(`map: ${s.name} is unreachable from Pallet Town`);
   return { total: scenes.length };
 }
 
