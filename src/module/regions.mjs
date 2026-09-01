@@ -509,62 +509,76 @@ export class ZoneTransitBehaviorType extends foundry.data.regionBehaviors.Region
     [EVENTS.TOKEN_MOVE_IN]: async function (event) {
       const { token, actor } = trainerFromEvent(event);
       if (!actor) return;
-
       if (this.announce && this.zoneName && isResponsible(token)) {
         await ChatMessage.create({
           speaker: { alias: "World" },
           content: `<p><strong>${token.name}</strong> entered <strong>${this.zoneName}</strong>.</p>`
         });
       }
-      if (!isResponsible(token)) return;
-
-      // Interior exit: walk back out to the town you entered from.
-      if (this.returnDoor) {
-        const ret = actor.getFlag("pokemon-masters", "returnScene");
-        const back = ret?.name ? game.scenes?.getName(ret.name) : null;
-        if (back && back !== token.parent) await crossScene(token, actor, back, ret.x || 0, ret.y || 0);
-        return;
-      }
-
-      // Resolve the destination scene (by name first, then UUID); import an
-      // interior on demand if it isn't in the world yet.
-      let destScene = this.destinationSceneName ? game.scenes?.getName(this.destinationSceneName) : null;
-      if (!destScene && this.destinationScene) destScene = await fromUuid(this.destinationScene);
-      // Import the destination on demand — the world imports as you travel, so an
-      // edge exit (not just an interior door) must pull in the adjacent map if it
-      // isn't in the world yet. Otherwise a fresh region's routes are unreachable.
-      if (!destScene && this.destinationSceneName) {
-        destScene = await game.pokemonMasters?.placement?.ensureScene?.(this.destinationSceneName);
-      }
-
-      if (destScene && destScene !== token.parent) {
-        if (this.requiredItem && !actor.items.some((i) => i.type === "gear" && i.name.toLowerCase() === this.requiredItem.toLowerCase())) {
-          ui.notifications?.warn(`You need a ${this.requiredItem} to board.`);
-          return;
-        }
-        // Open water: you can't step onto a sea route/lake without a party Pokémon
-        // that knows the field move (Surf).
-        if (this.requiredMove) {
-          const moveName = CONFIG.PM?.fieldMoves?.[this.requiredMove] ?? this.requiredMove;
-          const partyKnows = game.pokemonMasters?.tms?.partyKnows;
-          if (partyKnows && !(await partyKnows(actor, moveName))) {
-            if (isResponsible(token)) ui.notifications?.warn(`You need a Pokémon that knows ${moveName} to cross the water.`);
-            return;
-          }
-        }
-        // Remember the town + a spot just outside the door for the trip back.
-        if (this.enterInterior) {
-          await actor.setFlag("pokemon-masters", "returnScene", { name: token.parent?.name, x: token.x, y: token.y + 260 });
-        }
-        // An authentic interior declares its own entry mat; fall back to the
-        // door's baked coords for the placeholder rooms.
-        const entry = destScene.getFlag?.("pokemon-masters", "entry");
-        await crossScene(token, actor, destScene, entry?.x ?? this.destX, entry?.y ?? this.destY);
-      } else if (this.destX || this.destY) {
-        await token.update({ x: this.destX, y: this.destY });
-      }
+      await performTransit(this, token, actor);
     }
   };
+}
+
+/**
+ * Do a zone transition for `sys` (a ZoneTransit behavior's data). Called both
+ * from the region event AND from the movement hook (moveToken), because in v14
+ * region events don't fire reliably for a region sitting on the scene edge —
+ * the movement hook is the dependable trigger. The teleport guard makes it
+ * idempotent, so whichever path runs first wins and the other no-ops.
+ */
+export async function performTransit(sys, token, actor) {
+  try {
+    if (!sys || !token || !actor || justTeleported(actor.id) || !isResponsible(token)) return;
+
+    // Interior exit: walk back out to the town you entered from.
+    if (sys.returnDoor) {
+      const ret = actor.getFlag("pokemon-masters", "returnScene");
+      const back = ret?.name ? game.scenes?.getName(ret.name) : null;
+      if (back && back !== token.parent) await crossScene(token, actor, back, ret.x || 0, ret.y || 0);
+      return;
+    }
+
+    let destScene = sys.destinationSceneName ? game.scenes?.getName(sys.destinationSceneName) : null;
+    if (!destScene && sys.destinationScene) destScene = await fromUuid(sys.destinationScene);
+    if (!destScene && sys.destinationSceneName) destScene = await game.pokemonMasters?.placement?.ensureScene?.(sys.destinationSceneName);
+
+    if (destScene && destScene !== token.parent) {
+      if (sys.requiredItem && !actor.items.some((i) => i.type === "gear" && i.name.toLowerCase() === sys.requiredItem.toLowerCase())) {
+        ui.notifications?.warn(`You need a ${sys.requiredItem} to board.`);
+        return;
+      }
+      if (sys.requiredMove) {
+        const moveName = CONFIG.PM?.fieldMoves?.[sys.requiredMove] ?? sys.requiredMove;
+        const partyKnows = game.pokemonMasters?.tms?.partyKnows;
+        if (partyKnows && !(await partyKnows(actor, moveName))) {
+          ui.notifications?.warn(`You need a Pokémon that knows ${moveName} to cross the water.`);
+          return;
+        }
+      }
+      if (sys.enterInterior) await actor.setFlag("pokemon-masters", "returnScene", { name: token.parent?.name, x: token.x, y: token.y + 260 });
+      const entry = destScene.getFlag?.("pokemon-masters", "entry");
+      await crossScene(token, actor, destScene, entry?.x ?? sys.destX, entry?.y ?? sys.destY);
+    } else if (sys.destX || sys.destY) {
+      await token.update({ x: sys.destX, y: sys.destY });
+    }
+  } catch (err) { console.warn("Pokémon Masters | transit failed", err); }
+}
+
+/** Find the ZoneTransit behavior data of a region whose rectangle contains the
+ *  token's centre (used by the movement hook to trigger transitions in v14). */
+export function findTransit(scene, tokenDoc) {
+  const gs = scene?.grid?.size || 100;
+  const cx = tokenDoc.x + gs / 2, cy = tokenDoc.y + gs / 2;
+  for (const region of scene?.regions ?? []) {
+    const inside = (region.shapes ?? []).some((s) => cx >= s.x && cx < s.x + s.width && cy >= s.y && cy < s.y + s.height);
+    if (!inside) continue;
+    for (const b of region.behaviors ?? []) {
+      if (b.disabled || !b.type?.endsWith?.("zoneTransit")) continue;
+      return b.system ?? b;
+    }
+  }
+  return null;
 }
 
 /** Move a token to another Scene at (x, y) and bring its owner(s) along. */
