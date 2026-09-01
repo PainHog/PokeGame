@@ -1589,7 +1589,7 @@ async function buildScenes() {
   const mapBackground = (key) => ({ background: { src: mapSrc(key) }, backgroundColor: "#000000" });
 
   const sceneDoc = (name, key, w, h, regions) => ({
-    _id: stableId("scene", key), name, width: w, height: h, padding: 0.25,
+    _id: stableId("scene", key), name, width: w, height: h, padding: 0,
     ...mapBackground(key), grid: { type: 1, size: 100 },
     tokenVision: false, fog: { exploration: false },
     environment: { globalLight: { enabled: true }, darknessLevel: 0 },
@@ -1632,7 +1632,7 @@ async function buildScenes() {
         collision = punchCollision(art.collision, regions, g, entryTile, column);
       }
       return {
-        _id: stableId("scene", key), name, width: w, height: h, padding: 0.25,
+        _id: stableId("scene", key), name, width: w, height: h, padding: 0,
         background: { src }, backgroundColor: "#000000", grid: { type: 1, size: g },
         tokenVision: false, fog: { exploration: false },
         environment: { globalLight: { enabled: true }, darknessLevel: 0 },
@@ -1799,7 +1799,7 @@ async function buildScenes() {
     scenes.push({
       _id: stableId("scene", map.key),
       name: map.name,
-      width: w, height: h, padding: 0.25,
+      width: w, height: h, padding: 0,
       ...mapBackground(map.key),
       grid: { type: 1, size: gridSize },
       tokenVision: false,

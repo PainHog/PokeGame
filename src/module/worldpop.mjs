@@ -408,7 +408,7 @@ export function registerWorldPop() {
   });
 
   // Populate a scene the moment it's imported into the world.
-  Hooks.on("createScene", (scene) => { if (canPlace()) { healSceneBackground(scene); populateScene(scene); } });
+  Hooks.on("createScene", (scene) => { if (canPlace()) { healSceneBackground(scene); healScenePadding(scene); populateScene(scene); } });
 
   // registerWorldPop() is itself called during the "ready" hook, so a nested
   // Hooks.once("ready") would never fire (it's not in the running snapshot).
@@ -456,15 +456,33 @@ async function healSceneBackground(s) {
   } catch (err) { console.warn("Pokémon Masters | could not heal scene", s?.name, err); return false; }
 }
 
-/** Heal every imported scene's map background on load (responsible client only). */
+/**
+ * Snap a scene to zero padding. Older packs baked scenes with 0.25 padding, which
+ * shifts the map INSIDE the token/region coordinate space (~5-6 tiles on a town) —
+ * so exit regions, the collision grid and spawn points (all authored in map-origin
+ * coordinates) land offset from where tokens actually walk. That is why the player
+ * spawns "4 squares north" and every edge transition reads as "none". Our scenes
+ * now ship padding 0; migrate any scene imported from an older pack to match.
+ */
+async function healScenePadding(s) {
+  const flags = s.flags?.[FLAG] ?? {};
+  if (!("mapSrc" in flags) && !("region" in flags)) return false;   // only our scenes
+  if ((s.padding ?? 0) === 0) return false;
+  try { await s.update({ padding: 0 }); return true; }
+  catch (err) { console.warn("Pokémon Masters | could not fix scene padding", s?.name, err); return false; }
+}
+
+/** Heal every imported scene's map background + padding on load (responsible client only). */
 async function healSceneBackgrounds() {
   if (!canPlace()) return 0;
-  let fixed = 0;
-  for (const s of game.scenes ?? []) if (await healSceneBackground(s)) fixed++;
-  if (fixed) {
-    ui.notifications?.info(`Pokémon Masters: refreshed ${fixed} map background(s).`);
-    try { if (canvas?.ready) await canvas.draw(); } catch (err) { /* redraw is best-effort */ }
+  let fixed = 0, repadded = 0;
+  for (const s of game.scenes ?? []) {
+    if (await healSceneBackground(s)) fixed++;
+    if (await healScenePadding(s)) repadded++;
   }
+  if (fixed) ui.notifications?.info(`Pokémon Masters: refreshed ${fixed} map background(s).`);
+  if (repadded) ui.notifications?.info(`Pokémon Masters: aligned ${repadded} map(s) so exits and spawns line up.`);
+  if (fixed || repadded) { try { if (canvas?.ready) await canvas.draw(); } catch (err) { /* redraw is best-effort */ } }
   return fixed;
 }
 
