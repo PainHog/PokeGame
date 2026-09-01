@@ -569,9 +569,9 @@ export async function performTransit(sys, token, actor) {
 
 /** Find the ZoneTransit behavior data of a region whose rectangle contains the
  *  token's centre (used by the movement hook to trigger transitions in v14). */
-export function findTransit(scene, tokenDoc) {
+export function findTransit(scene, tokenDoc, x = tokenDoc.x, y = tokenDoc.y) {
   const gs = scene?.grid?.size || 100;
-  const cx = tokenDoc.x + gs / 2, cy = tokenDoc.y + gs / 2;
+  const cx = x + gs / 2, cy = y + gs / 2;
   for (const region of scene?.regions ?? []) {
     const inside = (region.shapes ?? []).some((s) => cx >= s.x && cx < s.x + s.width && cy >= s.y && cy < s.y + s.height);
     if (!inside) continue;

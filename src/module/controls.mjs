@@ -104,20 +104,49 @@ function healTokenRotation() {
   } catch { /* ignore */ }
 }
 
-/** After a move completes, fire the zone transition for the region the token
- *  landed in — the reliable trigger for doors AND scene-edge exits in v14. */
-function onMoved(doc) {
+// The updateToken hooks below are the RELIABLE path (they fire for every
+// movement method in v14 with x/y in `change`), independent of the movement
+// pipeline. preMoveToken above is a best-effort clean block; these guarantee it.
+const lastPos = new Map();   // token id → {x,y} before its current move
+
+/** Stash the pre-move position so we can bounce an illegal move back. */
+function onPreUpdate(doc, change) {
+  if (change.x === undefined && change.y === undefined) return;
+  if (doc.actor?.type !== "trainer") return;
+  lastPos.set(doc.id, { x: doc.x, y: doc.y });
+}
+
+/** After a move lands: bounce back if it went off-map / onto a solid tile, else
+ *  fire the zone transition for whatever region the token is now in. */
+async function onUpdate(doc, change, options, userId) {
   try {
-    const actor = doc.actor;
-    if (actor?.type !== "trainer" || !doc.parent) return;
-    const sys = findTransit(doc.parent, doc);
-    if (sys) performTransit(sys, doc, actor);
-  } catch { /* ignore */ }
+    if (change.x === undefined && change.y === undefined) return;
+    if (options?.pmBounce) return;                    // our own bounce-back
+    if (doc.actor?.type !== "trainer" || userId !== game.user?.id || !doc.parent) return;
+    const scene = doc.parent, gs = scene.grid?.size || 32;
+    // The document position can lag during animated movement — trust `change`.
+    const nx = change.x ?? doc.x, ny = change.y ?? doc.y;
+    const tx = Math.round(nx / gs), ty = Math.round(ny / gs);
+    const W = Math.round((scene.width || 0) / gs), H = Math.round((scene.height || 0) / gs);
+    const off = tx < 0 || ty < 0 || tx >= W || ty >= H;
+    const col = scene.getFlag?.("pokemon-masters", "collision");
+    const solid = !off && !!col?.rows?.length && col.rows[ty]?.[tx] === "1";
+    if (off || solid) {
+      const back = lastPos.get(doc.id);
+      console.log(`Pokémon Masters | blocked move to (${tx},${ty}) [off=${off} solid=${solid}] — bounce to`, back);
+      if (back) await doc.update({ x: back.x, y: back.y }, { pmBounce: true, animate: false });
+      return;
+    }
+    const sys = findTransit(scene, doc, nx, ny);
+    console.log(`Pokémon Masters | moved to (${tx},${ty}); transit here:`, sys ? (sys.destinationSceneName || (sys.returnDoor ? "return-door" : "interior")) : "none");
+    if (sys) await performTransit(sys, doc, doc.actor);
+  } catch (err) { console.warn("Pokémon Masters | move handler error", err); }
 }
 
 export function registerControls() {
-  Hooks.on("preMoveToken", onPreMove);
-  Hooks.on("moveToken", onMoved);
+  Hooks.on("preMoveToken", onPreMove);        // best-effort clean block + autoRotate off
+  Hooks.on("preUpdateToken", onPreUpdate);    // stash pre-move position
+  Hooks.on("updateToken", onUpdate);          // reliable: bounce off-map/solid + fire transit
   Hooks.on("canvasReady", healTokenRotation);
   const dirs = [
     { id: "moveUp", key: "KeyW", label: "Up", dx: 0, dy: -1 },
