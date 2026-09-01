@@ -79,11 +79,29 @@ function destTile(scene, movement, doc) {
 function onPreMove(doc, movement) {
   try {
     if (doc.actor?.type !== "trainer") return;
+    // v13.333 auto-rotates a token toward its travel direction (default on). Our
+    // overworld sprites bake facing INTO the art (via the texture swap), so any
+    // rotation lays the character on its side — turn it off, and hide the drag
+    // ruler on these keyboard steps.
+    try { movement.autoRotate = false; movement.showRuler = false; } catch { /* read-only fields */ }
     const scene = doc.parent;
     const d = destTile(scene, movement, doc);
     if (!d) return;
     if (!passable(scene, d.tx, d.ty)) return false;   // off-map or solid → block
   } catch { /* never block on error */ }
+}
+
+/** Reset any already-rotated player token upright + lock its rotation, so tokens
+ *  placed before the auto-rotate fix (or freshly spawned) sit straight. */
+function healTokenRotation() {
+  try {
+    for (const t of canvas?.tokens?.placeables ?? []) {
+      const d = t.document;
+      if (t.actor?.type === "trainer" && d?.isOwner && (d.rotation !== 0 || !d.lockRotation)) {
+        d.update({ rotation: 0, lockRotation: true }, { animate: false }).catch(() => {});
+      }
+    }
+  } catch { /* ignore */ }
 }
 
 /** After a move completes, fire the zone transition for the region the token
@@ -100,6 +118,7 @@ function onMoved(doc) {
 export function registerControls() {
   Hooks.on("preMoveToken", onPreMove);
   Hooks.on("moveToken", onMoved);
+  Hooks.on("canvasReady", healTokenRotation);
   const dirs = [
     { id: "moveUp", key: "KeyW", label: "Up", dx: 0, dy: -1 },
     { id: "moveDown", key: "KeyS", label: "Down", dx: 0, dy: 1 },

@@ -560,7 +560,9 @@ export async function performTransit(sys, token, actor) {
       const entry = destScene.getFlag?.("pokemon-masters", "entry");
       await crossScene(token, actor, destScene, entry?.x ?? sys.destX, entry?.y ?? sys.destY);
     } else if (sys.destX || sys.destY) {
-      await token.update({ x: sys.destX, y: sys.destY });
+      // A deliberate same-scene warp must jump, not walk — v13.341 animates a
+      // plain update({x,y}) as a walk across the whole map otherwise.
+      await token.update({ x: sys.destX, y: sys.destY }, { teleport: true, animation: { duration: 0 } });
     }
   } catch (err) { console.warn("Pokémon Masters | transit failed", err); }
 }
