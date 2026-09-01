@@ -231,7 +231,16 @@ function classify(scene) {
   else if (/route|road|path|pass|bridge|way|avenue|street|trail|approach|outskirts/.test(n)) kind = "route";
   const w = scene.width || 2400, h = scene.height || 1600;
   const hasGym = (scene.regions ?? []).some((r) => (r.behaviors?.[0]?.system?.destinationSceneName || "").endsWith("Gym"));
-  return { name: scene.name, region: pm.region || "misc", kind, climate, aspect: w / h, hasGym, authentic: !!pm.authentic };
+  // Which edges have a way out — the border art needs an opening there or the
+  // map looks sealed even though the exit tiles are walkable.
+  const edges = new Set();
+  for (const r of regions) {
+    const b = r.behaviors?.[0]; const sh = r.shapes?.[0];
+    if (!sh || !b?.type?.endsWith("zoneTransit") || b.system.enterInterior || b.system.returnDoor) continue;
+    if (sh.width >= sh.height) edges.add(sh.y < h / 2 ? "north" : "south");
+    else edges.add(sh.x < w / 2 ? "west" : "east");
+  }
+  return { name: scene.name, region: pm.region || "misc", kind, climate, aspect: w / h, hasGym, authentic: !!pm.authentic, exitEdges: [...edges] };
 }
 
 /* pick tile dimensions (in metatiles) from kind + aspect */
@@ -253,10 +262,20 @@ function stampInto(grid, stamp, gx, gy) {
     const y = gy + r, x = gx + c; if (grid[y] && grid[y][x] !== undefined) grid[y][x] = stamp.grid[r][c];
   }
 }
-function compose(kind, W, H, rand, stamps, hasGym) {
+function compose(kind, W, H, rand, stamps, hasGym, exitEdges = []) {
   const g = Array.from({ length: H }, () => new Array(W).fill(T.grass));
   const warps = [];
   const grassPatches = [];
+  // Carve a visible opening through the border on each edge that has an exit, so
+  // the map doesn't look walled off (the exit tiles are walkable regardless, but
+  // players read a solid border as "no way out"). `fill` is a walkable tile.
+  const carveOpenings = (fill) => {
+    const HALF = 3, DEPTH = 3;
+    for (const e of exitEdges) {
+      if (e === "north" || e === "south") { const cx = W >> 1; for (let d = 0; d < DEPTH; d++) { const yy = e === "north" ? d : H - 1 - d; for (let x = cx - HALF; x < cx + HALF; x++) if (g[yy] && g[yy][x] !== undefined) g[yy][x] = fill; } }
+      else { const cy = H >> 1; for (let d = 0; d < DEPTH; d++) { const xx = e === "west" ? d : W - 1 - d; for (let y = cy - HALF; y < cy + HALF; y++) if (g[y] && g[y][xx] !== undefined) g[y][xx] = fill; } }
+    }
+  };
   // Collision bookkeeping: building stamps mark their whole footprint blocked,
   // then punch their door tile back walkable. Everything else is classified by
   // tile id (trees/rock/water impassable; cave = non-floor impassable).
@@ -292,6 +311,7 @@ function compose(kind, W, H, rand, stamps, hasGym) {
     for (let i = 0; i < 3; i++) carve(4 + Math.floor(rand() * (W - 8)), 4 + Math.floor(rand() * (H - 8)), 2 + Math.floor(rand() * 3), 2 + Math.floor(rand() * 3));
     // scatter rock rubble on the floor
     for (let i = 0; i < W * H * 0.02; i++) { const x = 3 + Math.floor(rand() * (W - 6)), y = 3 + Math.floor(rand() * (H - 6)); if (floor.includes(g[y][x])) g[y][x] = pick(wall); }
+    carveOpenings(pick(floor));                          // walkable mouth at each exit
     return { g, warps, grass: null, collision: buildCollision() };
   }
   // NOTE: kind === "venue" never reaches compose(); venues render a real FireRed
@@ -303,6 +323,7 @@ function compose(kind, W, H, rand, stamps, hasGym) {
   }
   // grass-based kinds: field / route / forest / town — rock/tree wall border
   border(kind === "forest" ? T.tree : T.rock);
+  carveOpenings(T.grass);                                // open the border where exits are
   if (kind === "forest") {
     // dense canopy with grass clearings
     for (let y = 2; y < H - 2; y++) for (let x = 2; x < W - 2; x++) if (rand() < 0.55) g[y][x] = (rand() < 0.5 ? T.tree : T.tree2);
@@ -445,7 +466,7 @@ async function main() {
         usePrim = VENUE.building; sec = iv.sec;
       } else {
         [W, H] = dimsFor(t.kind, t.aspect);
-        ({ g, warps, grass, collision } = compose(t.kind, W, H, rng(t.name), stamps, t.hasGym));
+        ({ g, warps, grass, collision } = compose(t.kind, W, H, rng(t.name), stamps, t.hasGym, t.exitEdges));
         // caves use the real cave tilesets; towns the building-stamp secondary; else General.
         usePrim = t.kind === "cave" && CAVE.prim ? CAVE.prim : prim;
         sec = t.kind === "cave" && CAVE.sec ? CAVE.sec : t.kind === "town" ? (secCache.get(stamps.center?.sec) || anySec) : anySec;
