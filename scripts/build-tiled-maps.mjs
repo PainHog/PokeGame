@@ -171,16 +171,34 @@ async function extractStamps(layouts) {
     for (const wv of mapJson.warp_events ?? []) {
       for (const [name, re] of Object.entries(kinds)) {
         if (stamps[name] || !re.test(wv.dest_map || "")) continue;
-        // Crop a block whose bottom-centre is the door tile at (wv.x, wv.y).
-        const bw = name === "mart" && /DepartmentStore/i.test(wv.dest_map) ? 4 : name === "center" ? 4 : name === "gym" ? 5 : 4;
-        // House was cropped to bh=3, which clipped the top row of the green roof.
-        // Capture the FULL roof with bh=4 (door row stays the bottom row, bh-1).
-        const bh = name === "center" || name === "mart" ? 4 : name === "gym" ? 5 : 4;
-        const x0 = wv.x - (bw >> 1), y0 = wv.y - (bh - 1);
-        if (x0 < 0 || y0 < 0 || x0 + bw > w || y0 + bh > h) continue;
+        // The warp (wv.x, wv.y) is the door tile at the building's base; the
+        // building rises above it. Buildings come in different sizes (Center 6×5,
+        // house 4×4, gym 6×6, Mart 4×4), so instead of a fixed crop we trim to the
+        // building's real footprint using the collision bits: roof/walls are solid
+        // ((block>>10)&0x3 != 0), the surrounding ground is passable. This captures
+        // each building whole — no clipped roofs, no stray ground rows.
+        const solid = (bx, by) => bx >= 0 && by >= 0 && bx < w && by < h && (((block[by * w + bx] >> 10) & 0x3) !== 0);
+        // Flood-fill the building: the connected block of solid (roof/wall) tiles
+        // reachable from just above the door. This captures the whole building and
+        // ONLY the building — detached fences, signs and flowers nearby are not
+        // connected, so they can't bloat the crop.
+        const R = 4, UP = 6;
+        const seen = new Set(), stack = [];
+        for (let sx = wv.x - 1; sx <= wv.x + 1; sx++) if (solid(sx, wv.y - 1)) stack.push([sx, wv.y - 1]);
+        let minx = wv.x, maxx = wv.x, miny = wv.y - 1;
+        while (stack.length) {
+          const [bx, by] = stack.pop(), k = bx + "," + by;
+          if (seen.has(k)) continue;
+          if (bx < wv.x - R || bx > wv.x + R || by < wv.y - UP || by >= wv.y || !solid(bx, by)) continue;
+          seen.add(k); minx = Math.min(minx, bx); maxx = Math.max(maxx, bx); miny = Math.min(miny, by);
+          stack.push([bx - 1, by], [bx + 1, by], [bx, by - 1], [bx, by + 1]);
+        }
+        const x0 = minx, x1 = maxx, y0 = miny, y1 = wv.y;               // door row = y1
+        const bw = x1 - x0 + 1, bh = y1 - y0 + 1;
+        if (bw < 2 || bh < 2 || bw > 8) continue;
         const grid = [];
         for (let r = 0; r < bh; r++) { const row = []; for (let c = 0; c < bw; c++) row.push(block[(y0 + r) * w + (x0 + c)] & 0x3FF); grid.push(row); }
-        stamps[name] = { grid, bw, bh, door: [bw >> 1, bh - 1], sec: layout.secondary_tileset };
+        stamps[name] = { grid, bw, bh, door: [wv.x - x0, bh - 1], sec: layout.secondary_tileset };
       }
     }
   }
