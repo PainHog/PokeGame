@@ -123,6 +123,7 @@ async function organizeActor(actor, options, userId) {
 export async function organizeMyActors() {
   try {
     // (folder creation is not a Foundry permission — any user may create folders)
+    if (!game.actors) return;                    // actors aren't loaded until "ready"
 
     // With a GM online only the GM sweeps; GM-less, each client sweeps its own.
     const gm = game.users?.activeGM;
@@ -156,6 +157,8 @@ export function registerWorldHooks() {
   Hooks.on("updateActor", (actor, changes, options, userId) => {
     if (actor.type === "pokemon" && changes.system?.trainer) organizeActor(actor, options, userId);
   });
-  // Catch up on anything the createActor hook missed once the system is ready.
-  organizeMyActors();
+  // Catch up on anything the createActor hook missed. registerWorldHooks runs at
+  // "init" (before game.actors exists), so defer the sweep to "ready".
+  if (game.ready) organizeMyActors();
+  else Hooks.once("ready", () => organizeMyActors());
 }
