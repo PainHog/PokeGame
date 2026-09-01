@@ -530,7 +530,10 @@ export class ZoneTransitBehaviorType extends foundry.data.regionBehaviors.Region
       // interior on demand if it isn't in the world yet.
       let destScene = this.destinationSceneName ? game.scenes?.getName(this.destinationSceneName) : null;
       if (!destScene && this.destinationScene) destScene = await fromUuid(this.destinationScene);
-      if (!destScene && this.enterInterior && this.destinationSceneName) {
+      // Import the destination on demand — the world imports as you travel, so an
+      // edge exit (not just an interior door) must pull in the adjacent map if it
+      // isn't in the world yet. Otherwise a fresh region's routes are unreachable.
+      if (!destScene && this.destinationSceneName) {
         destScene = await game.pokemonMasters?.placement?.ensureScene?.(this.destinationSceneName);
       }
 
