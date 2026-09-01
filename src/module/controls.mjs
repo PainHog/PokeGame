@@ -79,7 +79,24 @@ function release(dir) {
   if (!held.length) stopLoop();
 }
 
+/** Block any trainer-token move onto an impassable tile or off the map — enforced
+ *  for EVERY movement method (arrow keys, drag, our WASD, macros), not just our
+ *  own step loop, so you can't walk through buildings/trees or into the black. */
+function enforceCollision(tokenDoc, change) {
+  try {
+    if (change.x === undefined && change.y === undefined) return;   // not a move
+    if (tokenDoc.actor?.type !== "trainer") return;                 // only player characters
+    const scene = tokenDoc.parent; const gs = scene?.grid?.size || 32;
+    const W = Math.round((scene?.width || 0) / gs), H = Math.round((scene?.height || 0) / gs);
+    const tx = Math.round((change.x ?? tokenDoc.x) / gs), ty = Math.round((change.y ?? tokenDoc.y) / gs);
+    if (tx < 0 || ty < 0 || tx >= W || ty >= H) return false;       // off the map (black padding)
+    const col = scene?.getFlag?.("pokemon-masters", "collision");
+    if (col?.rows?.length && col.rows[ty]?.[tx] === "1") return false;  // solid tile
+  } catch { /* never block movement on an error */ }
+}
+
 export function registerControls() {
+  Hooks.on("preUpdateToken", enforceCollision);
   const dirs = [
     { id: "moveUp", key: "KeyW", label: "Up", dx: 0, dy: -1 },
     { id: "moveDown", key: "KeyS", label: "Down", dx: 0, dy: 1 },

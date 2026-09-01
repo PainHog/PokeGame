@@ -1718,14 +1718,15 @@ async function buildScenes() {
         if (auth.grass) regions.push(region("Wild Area", "rgba(0,0,0,0.1)", auth.grass.x * gridSize, auth.grass.y * gridSize, auth.grass.w * gridSize, auth.grass.h * gridSize, "wildTile", wild));
         else if (map.kind === "cave") regions.push(region("Wild Area", "rgba(0,0,0,0.1)", 0, 0, w, h, "wildTile", wild));
       }
-      // Doors at the real warp tiles (a 2×2-tile pad so they're easy to step on).
+      // A door trigger sits exactly on its warp tile (1×1), so entering lines up
+      // with the drawn doorway instead of a 2-tile pad offset down-and-right.
       const seen = new Set();
       for (const wv of auth.warps ?? []) {
         const dest = destInterior(wv.dest, map);
         if (!dest) continue;
         const dx = wv.x * gridSize, dy = wv.y * gridSize, k = `${dx},${dy}`;
         if (seen.has(k)) continue; seen.add(k);
-        regions.push(doorTo(dest === "Pokémon Center" ? "Poké Center" : dest.endsWith("Gym") ? "Gym" : dest, "#e0554f", dx, dy, gridSize * 2, dest));
+        regions.push(doorTo(dest === "Pokémon Center" ? "Poké Center" : dest.endsWith("Gym") ? "Gym" : dest, "#e0554f", dx, dy, gridSize, dest));
         if (dest.endsWith("Gym") && map.gym) gymInteriors.set(map.gym.leader, map.gym);
       }
       // A leader whose "city" is a trial site / mountain (Verdant Cavern, Glaseado
