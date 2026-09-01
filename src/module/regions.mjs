@@ -587,14 +587,37 @@ export function findTransit(scene, tokenDoc, x = tokenDoc.x, y = tokenDoc.y) {
   return null;
 }
 
+/** The nearest in-bounds, non-solid tile position (pixels) to an intended arrival
+ *  point — so crossing over never drops the player onto a tree/rock/wall where
+ *  they'd be stuck. Spirals outward from the requested tile through the scene's
+ *  collision grid; falls back to the clamped point if the whole grid is solid. */
+export function nearestWalkable(scene, px, py) {
+  const gs = scene?.grid?.size ?? 100;
+  const W = Math.round((scene?.width ?? gs) / gs), H = Math.round((scene?.height ?? gs) / gs);
+  const col = scene?.getFlag?.("pokemon-masters", "collision");
+  const clamp = (t, max) => Math.max(0, Math.min(t, max - 1));
+  const tx0 = clamp(Math.round((px || 0) / gs), W), ty0 = clamp(Math.round((py || 0) / gs), H);
+  const solid = (x, y) => x < 0 || y < 0 || x >= W || y >= H || (!!col?.rows?.length && col.rows[y]?.[x] === "1");
+  if (!solid(tx0, ty0)) return { x: tx0 * gs, y: ty0 * gs };
+  for (let r = 1; r < Math.max(W, H); r++) {
+    for (let dx = -r; dx <= r; dx++) for (let dy = -r; dy <= r; dy++) {
+      if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue;   // ring at radius r
+      const x = tx0 + dx, y = ty0 + dy;
+      if (!solid(x, y)) return { x: x * gs, y: y * gs };
+    }
+  }
+  return { x: tx0 * gs, y: ty0 * gs };
+}
+
 /** Move a token to another Scene at (x, y) and bring its owner(s) along. */
 export async function crossScene(token, actor, destScene, x, y) {
   const source = token.toObject();
   delete source._id;
-  // Clamp the arrival point inside the destination scene (interiors are small).
-  const gs = destScene.grid?.size ?? 100;
-  source.x = Math.max(0, Math.min(x || 0, Math.max(0, (destScene.width ?? gs) - gs)));
-  source.y = Math.max(0, Math.min(y || 0, Math.max(0, (destScene.height ?? gs) - gs)));
+  // Land on the nearest walkable tile to the intended arrival — never on a wall,
+  // and always inside the destination (interiors are small).
+  const spot = nearestWalkable(destScene, x, y);
+  source.x = spot.x;
+  source.y = spot.y;
   await destScene.createEmbeddedDocuments("Token", [source]);
   guardTeleport(actor?.id);   // don't let the arrival tile bounce them straight back
   // Delete only if the token still exists — a racing transit may have removed it.
