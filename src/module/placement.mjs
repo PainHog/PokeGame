@@ -96,6 +96,13 @@ export async function spawnTrainerAt(trainer, region) {
   const townName = PM.startTowns?.[region] ?? "Pallet Town";
   const scene = await ensureScene(townName);
   if (!scene) return;
+  // Clear any existing token (e.g. left on the default start map) so relocating to
+  // the chosen region doesn't leave a duplicate behind.
+  for (const s of game.scenes ?? []) {
+    if (s.id === scene.id) continue;
+    const strays = s.tokens.filter((t) => t.actorId === trainer.id).map((t) => t.id);
+    if (strays.length) await s.deleteEmbeddedDocuments("Token", strays).catch(() => {});
+  }
   await placeToken(scene, trainer, { linked: true });
   await trainer.setFlag(FLAG, "spawned", true);
   // Pull the trainer's owner(s) to their new home town.
@@ -143,9 +150,11 @@ export function registerPlacementApi() {
       else if (data.kind === "sendOut") await sendOut(doc, { sceneId: data.sceneId });
     } catch (err) { console.warn("Pokémon Masters | GM placement request failed", err); }
   });
-  // When a trainer receives their starter, the GM client spawns them on the map.
+  // Choosing a starter is a deliberate "begin your journey in <region>" — always
+  // (re)home the trainer to that region's start town, even if they were already
+  // placed on the default map, so a non-Kanto pick actually ports them there.
   Hooks.on("pmStarterChosen", ({ trainer, region }) => {
-    if (trainer && !trainer.getFlag(FLAG, "spawned")) spawnTrainerAt(trainer, region);
+    if (trainer) spawnTrainerAt(trainer, region);
   });
   // A fainted Pokémon is recalled from the field automatically.
   Hooks.on("pmPokemonFainted", ({ target }) => {
