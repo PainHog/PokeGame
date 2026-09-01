@@ -56,6 +56,18 @@ async function loadTileset(g, primary) {
   return { tiles, metatiles, palettes, tilesPerRow: tiles.width >> 3 };
 }
 function tilePixel(ts, tileId, x, y) { const tr = Math.floor(tileId / ts.tilesPerRow), tc = tileId % ts.tilesPerRow; return ts.tiles.idx[(tr * 8 + y) * ts.tiles.width + (tc * 8 + x)]; }
+/**
+ * Per-tile collision grid from the interior blockdata: collision field is bits
+ * 10-11 of each block entry ((block>>10)&0x3; nonzero = impassable — counters,
+ * walls, furniture). The real interiors already leave the entrance mat and a
+ * walkable path up to the counter open, so this is authentic. Returns
+ * { w, h, rows } with rows[ty][tx] === "1" for impassable tiles.
+ */
+function collisionGrid(block, w, h) {
+  const rows = [];
+  for (let r = 0; r < h; r++) { let s = ""; for (let c = 0; c < w; c++) s += ((block[r * w + c] >> 10) & 0x3) ? "1" : "0"; rows.push(s); }
+  return { w, h, rows };
+}
 function drawMetatile(out, ow, ox, oy, mtId, prim, sec) {
   const mtTs = mtId < NUM_METATILES_PRIMARY ? prim : sec, base = (mtId < NUM_METATILES_PRIMARY ? mtId : mtId - NUM_METATILES_PRIMARY) * 8;
   for (let layer = 0; layer < 2; layer++) for (let sub = 0; sub < 4; sub++) {
@@ -100,6 +112,7 @@ async function main() {
         const sec = layout.secondary_tileset ? await loadTs(layout.secondary_tileset, false) : { metatiles: new Uint16Array(0), palettes: {}, tiles: { idx: new Uint8Array(0), width: 0 }, tilesPerRow: 16 };
         const OW = w * 16, OH = h * 16, png = new PNG({ width: OW, height: OH }); png.data.fill(0);
         for (let r = 0; r < h; r++) for (let c = 0; c < w; c++) drawMetatile(png.data, OW, c * 16, r * 16, block[r * w + c] & 0x3FF, prim, sec);
+        const collision = collisionGrid(block, w, h);
         // Exit = the bottom-most warp (the door back outside).
         const warps = mapJson.warp_events ?? [];
         const exit = warps.length ? warps.reduce((a, b) => (b.y > a.y ? b : a)) : { x: Math.floor(w / 2), y: h - 1 };
@@ -107,7 +120,7 @@ async function main() {
         const url = await page.evaluate(async ({ b64, W, H, S }) => { const img = new Image(); img.src = "data:image/png;base64," + b64; await img.decode(); const cv = document.createElement("canvas"); cv.width = W * S; cv.height = H * S; const ctx = cv.getContext("2d"); ctx.imageSmoothingEnabled = false; ctx.drawImage(img, 0, 0, W * S, H * S); return cv.toDataURL("image/webp", 0.92); }, { b64, W: OW, H: OH, S: SCALE });
         const outSlug = kind === "gym" ? "gym-interior" : slug(ourName);
         await fs.writeFile(path.join(OUT, `${outSlug}.webp`), Buffer.from(url.split(",")[1], "base64"));
-        meta[outSlug] = { name: ourName, kind, w, h, grid: GRID, exit: { x: exit.x, y: exit.y }, source: dir };
+        meta[outSlug] = { name: ourName, kind, w, h, grid: GRID, exit: { x: exit.x, y: exit.y }, source: dir, collision };
         console.log(`  ✓ ${ourName.padEnd(16)} ${dir.padEnd(28)} ${OW * SCALE}×${OH * SCALE}  exit(${exit.x},${exit.y})`);
         ok++; done = true; break;
       } catch (e) { console.warn(`    · ${dir}: ${e.message}`); }

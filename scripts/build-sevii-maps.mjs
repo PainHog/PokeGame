@@ -22,7 +22,7 @@
  */
 
 import { promises as fs } from "node:fs";
-import { existsSync, readdirSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -140,6 +140,19 @@ function behaviour(mtId, prim, sec) {
   const ts = mtId < NUM_METATILES_PRIMARY ? prim : sec, local = mtId < NUM_METATILES_PRIMARY ? mtId : mtId - NUM_METATILES_PRIMARY;
   return (ts.attrs[local] ?? 0) & 0xFF;
 }
+/**
+ * Per-tile collision grid straight from the blockdata. Each block entry packs
+ * the metatile id in bits 0-9, the authentic game COLLISION in bits 10-11
+ * ((block>>10)&0x3; nonzero = impassable — buildings, trees, cliffs, water,
+ * cave walls) and the elevation in bits 12-15 (ignored). Returns { w, h, rows }
+ * with rows[ty][tx] === "1" for impassable tiles, matching the shape the
+ * movement handler (src/module/controls.mjs) reads.
+ */
+function collisionGrid(block, w, h) {
+  const rows = [];
+  for (let r = 0; r < h; r++) { let s = ""; for (let c = 0; c < w; c++) s += ((block[r * w + c] >> 10) & 0x3) ? "1" : "0"; rows.push(s); }
+  return { w, h, rows };
+}
 function drawMetatile(out, ow, ox, oy, mtId, prim, sec) {
   const mtTs = mtId < NUM_METATILES_PRIMARY ? prim : sec, base = (mtId < NUM_METATILES_PRIMARY ? mtId : mtId - NUM_METATILES_PRIMARY) * 8;
   for (let layer = 0; layer < 2; layer++) for (let sub = 0; sub < 4; sub++) {
@@ -167,13 +180,22 @@ async function main() {
   const entries = Object.entries(SCENES).filter(([n]) => !only.length || only.includes(n));
   const layouts = (await fetchJson(`${FR}/data/layouts/layouts.json`))?.layouts.filter(Boolean) ?? [];
   const byId = new Map(layouts.map((l) => [l.id, l]));
-  console.log(`Rendering ${entries.length} authentic Gen-3 Sevii/Kanto maps (×${SCALE})…`);
-  const exe = findChrome();
-  const browser = await chromium.launch(exe ? { executablePath: exe, args: ["--no-sandbox"] } : { args: ["--no-sandbox"] });
-  const page = await browser.newPage();
+  const outPath = path.join(OUT, "gba-sevii.json");
+  // Metadata-only mode (PM_META_ONLY=1): fetch ONLY each map's map.json +
+  // blockdata, inject the authentic `collision` grid into the EXISTING metadata,
+  // and leave every rendered webp untouched (no tileset load, no Chromium).
+  const metaOnly = process.env.PM_META_ONLY === "1";
+  console.log(`${metaOnly ? "Injecting collision into" : "Rendering"} ${entries.length} authentic Gen-3 Sevii/Kanto maps${metaOnly ? "" : ` (×${SCALE})`}…`);
+  let meta = {};
+  if (metaOnly) { try { meta = JSON.parse(readFileSync(outPath, "utf8")); } catch { /* start fresh */ } }
+  let browser = null, page = null;
   const tilesetCache = new Map();
   const loadTs = async (name, primary) => { if (!tilesetCache.has(name)) tilesetCache.set(name, await loadTileset(name, primary)); return tilesetCache.get(name); };
-  const meta = {};
+  if (!metaOnly) {
+    const exe = findChrome();
+    browser = await chromium.launch(exe ? { executablePath: exe, args: ["--no-sandbox"] } : { args: ["--no-sandbox"] });
+    page = await browser.newPage();
+  }
   const skipped = [];
   let ok = 0;
 
@@ -186,6 +208,15 @@ async function main() {
       if (!layout) { console.warn(`  ! no layout ${mapJson.layout} for ${dir}`); skipped.push([ourName, `layout ${mapJson.layout} missing`]); continue; }
       const w = layout.width, h = layout.height;
       const block = new Uint16Array((await fetchBuf(`${FR}/${layout.blockdata_filepath}`)).buffer.slice(0));
+      const collision = collisionGrid(block, w, h);
+      if (metaOnly) {
+        const k = key(ourName);
+        if (meta[k]) meta[k].collision = collision;
+        else meta[k] = { name: ourName, kind, w, h, grid: GRID, warps: [], connections: [], grass: null, collision };
+        console.log(`  · ${ourName.padEnd(18)} collision ${w}×${h}`);
+        ok++;
+        continue;
+      }
       const prim = await loadTs(layout.primary_tileset, true);
       const sec = layout.secondary_tileset ? await loadTs(layout.secondary_tileset, false) : { metatiles: new Uint16Array(0), attrs: new Uint32Array(0), palettes: {}, tiles: { idx: new Uint8Array(0), width: 0 }, tilesPerRow: 16 };
       const OW = w * 16, OH = h * 16, png = new PNG({ width: OW, height: OH });
@@ -203,7 +234,7 @@ async function main() {
       // Grass bounding box (a single wild-zone rectangle in grid units).
       let gb = null;
       if (grass.length) { const xs = grass.map((g) => g[0]), ys = grass.map((g) => g[1]); gb = { x: Math.min(...xs), y: Math.min(...ys), w: Math.max(...xs) - Math.min(...xs) + 1, h: Math.max(...ys) - Math.min(...ys) + 1 }; }
-      meta[key(ourName)] = { name: ourName, kind, w, h, grid: GRID, warps, connections: conns, grass: gb };
+      meta[key(ourName)] = { name: ourName, kind, w, h, grid: GRID, warps, connections: conns, grass: gb, collision };
 
       // Upscale ×SCALE (nearest) and encode WebP via Chromium.
       const b64 = PNG.sync.write(png).toString("base64");
@@ -218,9 +249,9 @@ async function main() {
       ok++;
     } catch (e) { console.warn(`  ! ${ourName}: ${e.message}`); skipped.push([ourName, e.message]); }
   }
-  await browser.close();
-  await fs.writeFile(path.join(OUT, "gba-sevii.json"), JSON.stringify(meta, null, 1));
-  console.log(`Done — ${ok}/${entries.length} rendered. Wrote assets/maps/gba-sevii.json.`);
+  if (browser) await browser.close();
+  await fs.writeFile(outPath, JSON.stringify(meta, null, 1));
+  console.log(`Done — ${ok}/${entries.length} ${metaOnly ? "collision grids injected" : "rendered"}. Wrote assets/maps/gba-sevii.json.`);
   if (skipped.length) { console.log("Skipped:"); for (const [n, why] of skipped) console.log(`  - ${n}: ${why}`); }
 }
 main().catch((e) => { console.error(e); process.exitCode = 1; });

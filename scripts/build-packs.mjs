@@ -1236,7 +1236,12 @@ function allMaps() {
 }
 const DIMS = Object.fromEntries(allMaps().map((m) => [m.name, [m.w, m.h]]));
 
-const edgeRect = (e, w, h) => ({ north: [w / 2 - 150, 0, 300, 120], south: [w / 2 - 150, h - 120, 300, 120], east: [w - 120, h / 2 - 150, 120, 300], west: [0, h / 2 - 150, 120, 300] }[e]);
+// Edge-exit triggers span the FULL edge (~3 tiles / 96px deep), so a player
+// reaching the border anywhere — not just its centre — fires the zone transition
+// instead of walking into the black padding. This also means the punch-openings
+// step (which clears every zoneTransit rect) opens the whole border edge that
+// carries an exit, so the tree/cliff wall never traps the player at a corner.
+const edgeRect = (e, w, h) => ({ north: [0, 0, w, 96], south: [0, h - 96, w, 96], east: [w - 96, 0, 96, h], west: [0, 0, 96, h] }[e]);
 const arriveEntry = (e, w, h) => ({ north: [w / 2, h - 320], south: [w / 2, 320], east: [320, h / 2], west: [w - 320, h / 2] }[e]);
 const edgeLabelPos = (e, w, h) => ({ north: [w / 2, 150], south: [w / 2, h - 150], east: [w - 220, h / 2], west: [220, h / 2] }[e]);
 const dockRect = (w, h, i = 0) => [w - 360 - i * 340, h - 360, 300, 300];
@@ -1530,6 +1535,37 @@ function interiorSvg(kind, title) {
   return p.join("\n");
 }
 
+/**
+ * Punch guaranteed-walkable openings into a collision grid so it can never trap
+ * the player. Every `zoneTransit` region on the scene (edge exits, building
+ * doors, and the interior return-door) has the tiles under its rectangle cleared
+ * to "0" and WIDENED by 1 tile so the approach is walkable too; a 3×3 area around
+ * the spawn tile is also cleared. Region rectangles are in scene pixels, so we
+ * divide x/y/width/height by `gridSize` to get tiles. `extraClears` is a list of
+ * [tx,ty] tiles to force walkable (e.g. an interior's entrance→counter column).
+ * Returns a NEW { w, h, rows } — the source grid is never mutated.
+ */
+function punchCollision(collision, regions, gridSize, spawnTile, extraClears = []) {
+  const { w, h } = collision;
+  const grid = collision.rows.map((r) => r.split(""));
+  const clear = (tx, ty) => { if (tx >= 0 && ty >= 0 && tx < w && ty < h && grid[ty]) grid[ty][tx] = "0"; };
+  const clearPxRect = (px, py, pw, ph, pad = 1) => {
+    const t0x = Math.floor(px / gridSize) - pad, t0y = Math.floor(py / gridSize) - pad;
+    const t1x = Math.floor((px + pw - 1) / gridSize) + pad, t1y = Math.floor((py + ph - 1) / gridSize) + pad;
+    for (let ty = t0y; ty <= t1y; ty++) for (let tx = t0x; tx <= t1x; tx++) clear(tx, ty);
+  };
+  for (const r of regions ?? []) {
+    if (r.behaviors?.[0]?.type !== "zoneTransit") continue;   // exits + doors + return-door
+    const s = r.shapes?.[0]; if (!s) continue;
+    clearPxRect(s.x, s.y, s.width, s.height, 1);
+  }
+  // Spawn safety: a 3×3 walkable pocket around the spawn tile (scene centre by default).
+  const sx = spawnTile ? spawnTile[0] : Math.floor(w / 2), sy = spawnTile ? spawnTile[1] : Math.floor(h / 2);
+  for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) clear(sx + dx, sy + dy);
+  for (const [tx, ty] of extraClears) clear(tx, ty);
+  return { w, h, rows: grid.map((r) => r.join("")) };
+}
+
 async function buildScenes() {
   const mapsDir = path.join(ROOT, "assets", "maps");
   await fs.mkdir(mapsDir, { recursive: true });
@@ -1580,16 +1616,27 @@ async function buildScenes() {
       const src = `systems/pokemon-masters/assets/maps/${kind === "gym" ? "gym-interior" : key}.webp`;
       // Entry: one tile above the door, so the player arrives on the entrance mat.
       const entry = { x: art.exit.x * g, y: Math.max(0, art.exit.y - 1) * g };
+      const counterH = Math.max(3, Math.round(art.h * 0.4));
       const regions = [region("Indoors", "rgba(0,0,0,0)", 0, 0, w, h, "safeZone", { kind: "indoor", announce: false })];
       // Service counter across the top third (walk up from the door to use it).
-      if (kind !== "house") regions.push(region("Counter", INT_TRIM[kind] ?? "#8a6a3a", g, g, w - 2 * g, Math.max(3, Math.round(art.h * 0.4)) * g, "safeZone", svc));
+      if (kind !== "house") regions.push(region("Counter", INT_TRIM[kind] ?? "#8a6a3a", g, g, w - 2 * g, counterH * g, "safeZone", svc));
       regions.push(region("Exit", "#ffd94a", Math.max(0, art.exit.x - 1) * g, art.exit.y * g, 2 * g, g, "zoneTransit", { returnDoor: true, announce: false, destX: 0, destY: 0 }));
+      // Collision from the real interior block bits, with the exit mat and a
+      // straight walkable column from the entrance up to the counter kept clear.
+      let collision = null;
+      if (art.collision) {
+        const entryTile = [art.exit.x, Math.max(0, art.exit.y - 1)];
+        const column = [];
+        for (let ty = art.exit.y; ty >= counterH + 1; ty--) column.push([art.exit.x, ty]);
+        column.push(entryTile);
+        collision = punchCollision(art.collision, regions, g, entryTile, column);
+      }
       return {
         _id: stableId("scene", key), name, width: w, height: h, padding: 0.25,
         background: { src }, backgroundColor: "#000000", grid: { type: 1, size: g },
         tokenVision: false, fog: { exploration: false },
         environment: { globalLight: { enabled: true }, darknessLevel: 0 },
-        flags: { "pokemon-masters": { region: "", mapSrc: src, authentic: true, entry } },
+        flags: { "pokemon-masters": { region: "", mapSrc: src, authentic: true, entry, ...(collision ? { collision } : {}) } },
         regions
       };
     }
@@ -1737,6 +1784,11 @@ async function buildScenes() {
         }));
       }
     }
+    // Authentic/tiled art carries a per-tile collision grid; store it on the
+    // scene, first punching walkable openings under every exit/door region + the
+    // spawn so collision can never soft-lock the player (see punchCollision).
+    const pmFlags = { region: map.region, mapSrc: mapSrc(map.key), authentic: !!auth };
+    if (auth?.collision) pmFlags.collision = punchCollision(auth.collision, regions, gridSize);
     scenes.push({
       _id: stableId("scene", map.key),
       name: map.name,
@@ -1746,7 +1798,7 @@ async function buildScenes() {
       tokenVision: false,
       fog: { exploration: false },
       environment: { globalLight: { enabled: true }, darknessLevel: 0 },
-      flags: { "pokemon-masters": { region: map.region, mapSrc: mapSrc(map.key), authentic: !!auth } },
+      flags: { "pokemon-masters": pmFlags },
       regions
     });
   }

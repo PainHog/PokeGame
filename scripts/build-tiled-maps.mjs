@@ -85,8 +85,25 @@ const T = {
   tree: 36, tree2: 5, sand: 209, sand2: 208, water: 49, water2: 50,
   rock: 120, rockLight: 118,
 };
+// Terrain metatile ids that block movement in composed maps: trees, rock/cliff
+// walls and open water. Grass (1/8/16), tall grass (13), flowers (4), sand
+// (208/209) and the sandy path are all walkable; building-stamp footprints and
+// cave/venue walls are handled separately in compose()/main().
+const IMPASSABLE = new Set([T.tree, T.tree2, T.rock, T.rockLight, T.water, T.water2]);
 // Cave floor/wall metatile ids are sampled from a real cave map at runtime.
 let CAVE = { prim: null, sec: null, floor: [T.sand], wall: [T.rock] };
+
+/**
+ * Per-tile collision grid from real blockdata (used for venue interiors, which
+ * render a genuine FireRed indoor map verbatim). Collision is bits 10-11 of each
+ * block entry ((block>>10)&0x3; nonzero = impassable — walls, counters,
+ * furniture). Returns { w, h, rows } with rows[ty][tx] === "1" for impassable.
+ */
+function collisionGridFromBlock(block, w, h) {
+  const rows = [];
+  for (let r = 0; r < h; r++) { let s = ""; for (let c = 0; c < w; c++) s += ((block[r * w + c] >> 10) & 0x3) ? "1" : "0"; rows.push(s); }
+  return { w, h, rows };
+}
 
 /* ------------------------------------------------------------------ *
  *  Venue interiors — real FireRed indoor maps rendered directly       *
@@ -156,7 +173,9 @@ async function extractStamps(layouts) {
         if (stamps[name] || !re.test(wv.dest_map || "")) continue;
         // Crop a block whose bottom-centre is the door tile at (wv.x, wv.y).
         const bw = name === "mart" && /DepartmentStore/i.test(wv.dest_map) ? 4 : name === "center" ? 4 : name === "gym" ? 5 : 4;
-        const bh = name === "center" || name === "mart" ? 4 : name === "gym" ? 5 : 3;
+        // House was cropped to bh=3, which clipped the top row of the green roof.
+        // Capture the FULL roof with bh=4 (door row stays the bottom row, bh-1).
+        const bh = name === "center" || name === "mart" ? 4 : name === "gym" ? 5 : 4;
         const x0 = wv.x - (bw >> 1), y0 = wv.y - (bh - 1);
         if (x0 < 0 || y0 < 0 || x0 + bw > w || y0 + bh > h) continue;
         const grid = [];
@@ -220,6 +239,28 @@ function compose(kind, W, H, rand, stamps, hasGym) {
   const g = Array.from({ length: H }, () => new Array(W).fill(T.grass));
   const warps = [];
   const grassPatches = [];
+  // Collision bookkeeping: building stamps mark their whole footprint blocked,
+  // then punch their door tile back walkable. Everything else is classified by
+  // tile id (trees/rock/water impassable; cave = non-floor impassable).
+  const blockedStamp = new Set();   // "x,y" cells covered by a building stamp
+  const doorCells = new Set();      // "x,y" door tiles kept walkable
+  const buildCollision = () => {
+    const rows = [];
+    for (let y = 0; y < H; y++) {
+      let s = "";
+      for (let x = 0; x < W; x++) {
+        const kk = `${x},${y}`;
+        let blocked;
+        if (doorCells.has(kk)) blocked = false;
+        else if (blockedStamp.has(kk)) blocked = true;
+        else if (kind === "cave") blocked = !CAVE.floor.includes(g[y][x]);
+        else blocked = IMPASSABLE.has(g[y][x]);
+        s += blocked ? "1" : "0";
+      }
+      rows.push(s);
+    }
+    return { w: W, h: H, rows };
+  };
   const border = (id) => { for (let x = 0; x < W; x++) { g[0][x] = id; g[1][x] = id; g[H - 1][x] = id; } for (let y = 0; y < H; y++) { g[y][0] = id; g[y][1] = id; g[y][W - 1] = id; } };
   const blob = (cx, cy, rad, id, prob = 0.8) => { for (let y = -rad; y <= rad; y++) for (let x = -rad; x <= rad; x++) { const gx = cx + x, gy = cy + y; if (gx < 2 || gy < 2 || gx >= W - 2 || gy >= H - 2) continue; if (x * x + y * y <= rad * rad && rand() < prob) g[gy][gx] = id; } };
 
@@ -233,14 +274,14 @@ function compose(kind, W, H, rand, stamps, hasGym) {
     for (let i = 0; i < 3; i++) carve(4 + Math.floor(rand() * (W - 8)), 4 + Math.floor(rand() * (H - 8)), 2 + Math.floor(rand() * 3), 2 + Math.floor(rand() * 3));
     // scatter rock rubble on the floor
     for (let i = 0; i < W * H * 0.02; i++) { const x = 3 + Math.floor(rand() * (W - 6)), y = 3 + Math.floor(rand() * (H - 6)); if (floor.includes(g[y][x])) g[y][x] = pick(wall); }
-    return { g, warps, grass: null };
+    return { g, warps, grass: null, collision: buildCollision() };
   }
   // NOTE: kind === "venue" never reaches compose(); venues render a real FireRed
   // interior map's blockdata directly in main() (see the VENUE registry).
   if (kind === "water") {
     for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) g[y][x] = (rand() < 0.5 ? T.water : T.water2);
     for (let i = 0; i < 3; i++) blob(4 + Math.floor(rand() * (W - 8)), 4 + Math.floor(rand() * (H - 8)), 2 + Math.floor(rand() * 2), T.sand, 0.9);
-    return { g, warps, grass: null };
+    return { g, warps, grass: null, collision: buildCollision() };
   }
   // grass-based kinds: field / route / forest / town — rock/tree wall border
   border(kind === "forest" ? T.tree : T.rock);
@@ -262,7 +303,7 @@ function compose(kind, W, H, rand, stamps, hasGym) {
     let minx = W, miny = H, maxx = 0, maxy = 0;
     for (let i = 0; i < patches; i++) { const cx = 4 + Math.floor(rand() * (W - 8)), cy = 4 + Math.floor(rand() * (H - 8)), r = 2 + Math.floor(rand() * 2); blob(cx, cy, r, T.tallgrass, 0.85); minx = Math.min(minx, cx - r); miny = Math.min(miny, cy - r); maxx = Math.max(maxx, cx + r); maxy = Math.max(maxy, cy + r); }
     const grass = { x: Math.max(1, minx), y: Math.max(1, miny), w: Math.min(W - 2, maxx - minx + 1), h: Math.min(H - 2, maxy - miny + 1) };
-    return { g, warps, grass };
+    return { g, warps, grass, collision: buildCollision() };
   }
 
   if (kind === "town") {
@@ -277,16 +318,19 @@ function compose(kind, W, H, rand, stamps, hasGym) {
       // clear a pavement pad under/around
       for (let r = -1; r <= stamp.bh; r++) for (let c = -1; c <= stamp.bw; c++) { const y = gy + r, x = gx + c; if (g[y] && g[y][x] !== undefined) g[y][x] = T.sand2; }
       stampInto(g, stamp, gx, gy);
+      // The whole building footprint is impassable (you can't walk through it)…
+      for (let r = 0; r < stamp.bh; r++) for (let c = 0; c < stamp.bw; c++) { const y = gy + r, x = gx + c; if (g[y] && g[y][x] !== undefined) blockedStamp.add(`${x},${y}`); }
       const dx = gx + stamp.door[0], dy = gy + stamp.door[1];
+      doorCells.add(`${dx},${dy}`);   // …except the door tile, which stays walkable
       const dest = type === "center" ? "MAP_TOWN_POKEMON_CENTER" : type === "mart" ? "MAP_TOWN_MART" : type === "gym" ? "MAP_TOWN_GYM" : "MAP_TOWN_HOUSE";
       warps.push({ x: dx, y: dy + 1, dest });
     });
     // a police station door (feature parity) at a free pavement tile
     warps.push({ x: 4, y: H - 4, dest: "MAP_TOWN_POLICE_STATION" });
     for (let c = -1; c <= 2; c++) if (g[H - 4] && g[H - 4][4 + c] !== undefined) g[H - 4][4 + c] = T.sand2;
-    return { g, warps, grass: null };
+    return { g, warps, grass: null, collision: buildCollision() };
   }
-  return { g, warps, grass: null };
+  return { g, warps, grass: null, collision: buildCollision() };
 }
 
 /* recolour the rendered RGBA in place for climate variety.
@@ -355,7 +399,9 @@ async function main() {
         const sec = secCacheV.get(iv.sec);
         const bd = new Uint16Array((await fetchBuf(`${FR}/${iv.bd}`)).buffer.slice(0));
         const grid = Array.from({ length: iv.h }, (_, y) => Array.from({ length: iv.w }, (_, x) => bd[y * iv.w + x] & 0x3FF));
-        VENUE.byKey[iv.key] = { grid, w: iv.w, h: iv.h, sec };
+        // Authentic interior collision straight from the block bits (walls,
+        // counters and furniture impassable; the walkable floor stays open).
+        VENUE.byKey[iv.key] = { grid, w: iv.w, h: iv.h, sec, collision: collisionGridFromBlock(bd, iv.w, iv.h) };
       } catch (e) { console.warn(`  ! venue interior ${iv.key}: ${e.message}`); }
     }
     console.log(`  venue interiors: ${Object.keys(VENUE.byKey).join(", ") || "(none)"}`);
@@ -372,16 +418,16 @@ async function main() {
   const byRegion = {}; let ok = 0;
   for (const t of targets) {
     try {
-      let W, H, g, warps, grass, usePrim, sec;
+      let W, H, g, warps, grass, usePrim, sec, collision;
       if (t.kind === "venue") {
         // Render a real FireRed interior map verbatim as the venue background.
         const iv = VENUE.byKey[VENUE_ART[t.name] || "lab"] || Object.values(VENUE.byKey)[0];
         if (!iv) throw new Error("no venue interior loaded");
-        g = iv.grid; W = iv.w; H = iv.h; warps = []; grass = null;
+        g = iv.grid; W = iv.w; H = iv.h; warps = []; grass = null; collision = iv.collision;
         usePrim = VENUE.building; sec = iv.sec;
       } else {
         [W, H] = dimsFor(t.kind, t.aspect);
-        ({ g, warps, grass } = compose(t.kind, W, H, rng(t.name), stamps, t.hasGym));
+        ({ g, warps, grass, collision } = compose(t.kind, W, H, rng(t.name), stamps, t.hasGym));
         // caves use the real cave tilesets; towns the building-stamp secondary; else General.
         usePrim = t.kind === "cave" && CAVE.prim ? CAVE.prim : prim;
         sec = t.kind === "cave" && CAVE.sec ? CAVE.sec : t.kind === "town" ? (secCache.get(stamps.center?.sec) || anySec) : anySec;
@@ -392,7 +438,7 @@ async function main() {
       const b64 = PNG.sync.write(png).toString("base64");
       const url = await page.evaluate(async ({ b64, W, H, S }) => { const img = new Image(); img.src = "data:image/png;base64," + b64; await img.decode(); const c = document.createElement("canvas"); c.width = W * S; c.height = H * S; const ctx = c.getContext("2d"); ctx.imageSmoothingEnabled = false; ctx.drawImage(img, 0, 0, W * S, H * S); return c.toDataURL("image/webp", 0.9); }, { b64, W: OW, H: OH, S: SCALE });
       await fs.writeFile(path.join(OUT, `${slug(t.name)}.webp`), Buffer.from(url.split(",")[1], "base64"));
-      (byRegion[t.region] = byRegion[t.region] || {})[slug(t.name)] = { name: t.name, kind: t.kind, w: W, h: H, grid: GRID, warps, connections: [], grass };
+      (byRegion[t.region] = byRegion[t.region] || {})[slug(t.name)] = { name: t.name, kind: t.kind, w: W, h: H, grid: GRID, warps, connections: [], grass, collision };
       ok++;
       if (ok % 25 === 0) console.log(`  …${ok}/${targets.length}`);
     } catch (e) { console.warn(`  ! ${t.name}: ${e.message}`); }
