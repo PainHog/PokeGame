@@ -530,6 +530,10 @@ export class ZoneTransitBehaviorType extends foundry.data.regionBehaviors.Region
 export async function performTransit(sys, token, actor) {
   try {
     if (!sys || !token || !actor || justTeleported(actor.id) || !isResponsible(token)) return;
+    // Claim the teleport guard SYNCHRONOUSLY, before any await — otherwise the
+    // region event and the movement hook both pass the check above and run the
+    // transition twice (double crossScene → "token does not exist" on the 2nd).
+    guardTeleport(actor.id);
 
     // Interior exit: walk back out to the town you entered from.
     if (sys.returnDoor) {
@@ -593,7 +597,10 @@ export async function crossScene(token, actor, destScene, x, y) {
   source.y = Math.max(0, Math.min(y || 0, Math.max(0, (destScene.height ?? gs) - gs)));
   await destScene.createEmbeddedDocuments("Token", [source]);
   guardTeleport(actor?.id);   // don't let the arrival tile bounce them straight back
-  if (token.parent && token.id) await token.parent.deleteEmbeddedDocuments("Token", [token.id]);
+  // Delete only if the token still exists — a racing transit may have removed it.
+  if (token.parent?.tokens?.get(token.id)) {
+    await token.parent.deleteEmbeddedDocuments("Token", [token.id]).catch(() => {});
+  }
 
   const ownerIds = (game.users?.contents ?? [])
     .filter((u) => !u.isGM && u.active && actor.testUserPermission(u, "OWNER"))

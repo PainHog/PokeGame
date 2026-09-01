@@ -13,7 +13,7 @@
  * Keybindings + these hooks are registered from the system `init` hook.
  */
 
-import { performTransit, findTransit } from "./regions.mjs";
+import { performTransit, findTransit, justTeleported } from "./regions.mjs";
 
 const STEP_MS = 130;
 const held = [];
@@ -28,6 +28,26 @@ function driverToken() {
     if (t) t.control({ releaseOthers: true });
   }
   return t && t.document?.isOwner ? t : null;
+}
+
+/** Which compass edge a tile (tx,ty) falls off of, given a W×H grid — or null. */
+function offEdge(tx, ty, W, H) {
+  if (ty < 0) return "north";
+  if (ty >= H) return "south";
+  if (tx < 0) return "west";
+  if (tx >= W) return "east";
+  return null;
+}
+
+/** A transit descriptor for this scene's edge exit in `dir`, or null. This is the
+ *  DETERMINISTIC edge-travel path: the scene stores its exits by compass direction
+ *  (flags.pokemon-masters.exits) at build time, so walking off an edge always
+ *  transits — no dependence on v14 region hit-testing, which misfires at scene
+ *  edges. performTransit still enforces requiredMove (Surf) and does the crossScene. */
+function edgeExitSys(scene, dir) {
+  const ex = scene?.getFlag?.("pokemon-masters", "exits")?.[dir];
+  if (!ex?.scene) return null;
+  return { destinationSceneName: ex.scene, destX: ex.x, destY: ex.y, requiredMove: ex.requiredMove || "" };
 }
 
 /** Is tile (tx,ty) inside the scene and not blocked by the collision grid? */
@@ -47,10 +67,22 @@ async function step() {
   if (!dir) return;
   const t = driverToken();
   if (!t) return;
+  // Don't act on a token that's mid-transition — it's about to be deleted and
+  // re-created on another scene; updating it now throws "does not exist".
+  if (justTeleported(t.actor?.id)) return;
   const scene = t.document.parent, gs = canvas?.grid?.size || 100;
+  if (!scene?.tokens?.get(t.document.id)) return;   // token already gone (transit)
   const tx = Math.round(t.document.x / gs) + dir.dx;
   const ty = Math.round(t.document.y / gs) + dir.dy;
-  if (!passable(scene, tx, ty)) return;
+  if (!passable(scene, tx, ty)) {
+    // Blocked because it's off the map? If that edge has an exit, travel through it
+    // (walk to the edge and keep pressing → next zone). Otherwise just stop.
+    const W = Math.round((scene?.width || 0) / gs), H = Math.round((scene?.height || 0) / gs);
+    const dir2 = offEdge(tx, ty, W, H);
+    const ex = dir2 && edgeExitSys(scene, dir2);
+    if (ex) { console.log(`Pokémon Masters | walked off ${dir2} edge → ${ex.destinationSceneName}`); await performTransit(ex, t.document, t.actor); }
+    return;
+  }
   stepping = true;
   try { await t.document.update({ x: tx * gs, y: ty * gs }, { animation: { duration: STEP_MS } }); }
   catch (err) { console.warn("Pokémon Masters | movement failed:", err); }
@@ -123,6 +155,7 @@ async function onUpdate(doc, change, options, userId) {
     if (change.x === undefined && change.y === undefined) return;
     if (options?.pmBounce) return;                    // our own bounce-back
     if (doc.actor?.type !== "trainer" || userId !== game.user?.id || !doc.parent) return;
+    if (justTeleported(doc.actor.id)) return;         // mid-transition; ignore
     const scene = doc.parent, gs = scene.grid?.size || 32;
     // The document position can lag during animated movement — trust `change`.
     const nx = change.x ?? doc.x, ny = change.y ?? doc.y;
@@ -132,13 +165,19 @@ async function onUpdate(doc, change, options, userId) {
     const col = scene.getFlag?.("pokemon-masters", "collision");
     const solid = !off && !!col?.rows?.length && col.rows[ty]?.[tx] === "1";
     if (off || solid) {
+      // Walked/dragged off an edge that leads somewhere → travel there instead of bouncing.
+      if (off) {
+        const dir = offEdge(tx, ty, W, H);
+        const ex = dir && edgeExitSys(scene, dir);
+        if (ex) { console.log(`Pokémon Masters | [${scene.name}] off ${dir} edge → ${ex.destinationSceneName}`); await performTransit(ex, doc, doc.actor); return; }
+      }
       const back = lastPos.get(doc.id);
-      console.log(`Pokémon Masters | blocked move to (${tx},${ty}) [off=${off} solid=${solid}] — bounce to`, back);
+      console.log(`Pokémon Masters | [${scene.name}] blocked move to (${tx},${ty}) of ${W}x${H} [off=${off} solid=${solid}] — bounce to`, back);
       if (back) await doc.update({ x: back.x, y: back.y }, { pmBounce: true, animate: false });
       return;
     }
     const sys = findTransit(scene, doc, nx, ny);
-    console.log(`Pokémon Masters | moved to (${tx},${ty}); transit here:`, sys ? (sys.destinationSceneName || (sys.returnDoor ? "return-door" : "interior")) : "none");
+    console.log(`Pokémon Masters | [${scene.name}] moved to (${tx},${ty}) of ${W}x${H}; transit here:`, sys ? (sys.destinationSceneName || (sys.returnDoor ? "return-door" : "interior")) : "none");
     if (sys) await performTransit(sys, doc, doc.actor);
   } catch (err) { console.warn("Pokémon Masters | move handler error", err); }
 }

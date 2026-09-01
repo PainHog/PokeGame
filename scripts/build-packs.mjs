@@ -1764,7 +1764,11 @@ async function buildScenes() {
 
     // Edge exits + ferries (shared): positioned on this scene's edges, landing the
     // player near the matching edge of the destination (authentic size if known).
+    // `edgeExits` also records each edge exit by compass direction so movement can
+    // transit deterministically when the player walks off that edge — the reliable
+    // path when v14 region hit-testing on a scene-edge region misfires.
     let shipIdx = 0;
+    const edgeExits = {};
     for (const ex of map.exits) {
       const [dw, dh] = dimsOf(ex.to);
       if (ex.ship) {
@@ -1783,12 +1787,14 @@ async function buildScenes() {
           zoneName: ex.to, destinationSceneName: ex.to, destX: ex2, destY: ey2, announce: true,
           requiredMove: destWater ? "surf" : ""
         }));
+        edgeExits[ex.edge] = { scene: ex.to, x: ex2, y: ey2, requiredMove: destWater ? "surf" : "" };
       }
     }
     // Authentic/tiled art carries a per-tile collision grid; store it on the
     // scene, first punching walkable openings under every exit/door region + the
     // spawn so collision can never soft-lock the player (see punchCollision).
     const pmFlags = { region: map.region, mapSrc: mapSrc(map.key), authentic: !!auth };
+    if (Object.keys(edgeExits).length) pmFlags.exits = edgeExits;
     if (auth?.collision) pmFlags.collision = punchCollision(auth.collision, regions, gridSize);
     scenes.push({
       _id: stableId("scene", map.key),
