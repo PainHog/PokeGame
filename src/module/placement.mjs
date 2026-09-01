@@ -135,9 +135,37 @@ export async function sendOut(pokemon, { sceneId = null } = {}) {
   return "sent";
 }
 
+/**
+ * On world load, bring this client to the scene holding their own trainer's
+ * token and pan to its exact position — so a player resumes right where they
+ * left off instead of on the default scene. Fail-soft: a brand-new player with
+ * no token yet (or a GM with no trainer) is simply left where they are.
+ */
+export async function pullToMyToken() {
+  try {
+    const isNpc = (a) => a.getFlag(FLAG, "isNpc");
+    const actor = (game.user.character?.type === "trainer" && !isNpc(game.user.character))
+      ? game.user.character
+      : (game.actors ?? []).find((a) => a.type === "trainer" && a.isOwner && !isNpc(a));
+    if (!actor) return;
+    // Find the scene that currently holds this trainer's token (their last spot).
+    let scene = null, tok = null;
+    for (const s of game.scenes ?? []) {
+      const t = s.tokens.find((td) => td.actorId === actor.id);
+      if (t) { scene = s; tok = t; break; }
+    }
+    if (!scene || !tok) return;
+    if (canvas?.scene?.id !== scene.id) await scene.view();
+    const gs = scene.grid?.size || 100;
+    await canvas?.animatePan?.({ x: tok.x + gs / 2, y: tok.y + gs / 2, scale: canvas.stage?.scale?.x ?? 1, duration: 250 });
+  } catch (err) { console.warn("Pokémon Masters | could not pull to last token", err); }
+}
+
 export function registerPlacementApi() {
+  // Resume each client at their trainer's last position once the world is ready.
+  Hooks.once("ready", () => { pullToMyToken(); });
   game.pokemonMasters = Object.assign(game.pokemonMasters ?? {}, {
-    placement: { ensureScene, placeToken, removeToken, spawnTrainerAt, sendOut, canPlace }
+    placement: { ensureScene, placeToken, removeToken, spawnTrainerAt, sendOut, canPlace, pullToMyToken }
   });
   // The active GM performs placements requested by players (who can't create
   // scenes/tokens themselves). Every client hears the socket; only the GM acts.
