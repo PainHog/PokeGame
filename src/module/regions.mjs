@@ -46,6 +46,12 @@ export function guardTeleport(actorId) { if (!actorId) return; recentlyTeleporte
  *  behaviours in other modules can skip the arrival tile too). */
 export function justTeleported(actorId) { return !!actorId && recentlyTeleported.has(actorId); }
 
+// A single cross-scene transit is in flight (scene is being drawn). Foundry
+// rejects a second scene switch while the first is still loading resources, so
+// the movement handler skips new transits until this clears.
+let transitBusy = false;
+export function transitInProgress() { return transitBusy; }
+
 /** Resolve the moving/entering actor from a region event, if it's a Trainer. */
 function trainerFromEvent(event) {
   const token = event?.data?.token;
@@ -530,6 +536,7 @@ export class ZoneTransitBehaviorType extends foundry.data.regionBehaviors.Region
 export async function performTransit(sys, token, actor) {
   try {
     if (!sys || !token || !actor || justTeleported(actor.id) || !isResponsible(token)) return;
+    if (transitBusy) return;                          // a scene switch is still loading
     // Claim the teleport guard SYNCHRONOUSLY, before any await — otherwise the
     // region event and the movement hook both pass the check above and run the
     // transition twice (double crossScene → "token does not exist" on the 2nd).
@@ -611,27 +618,37 @@ export function nearestWalkable(scene, px, py) {
 
 /** Move a token to another Scene at (x, y) and bring its owner(s) along. */
 export async function crossScene(token, actor, destScene, x, y) {
-  const source = token.toObject();
-  delete source._id;
-  // Land on the nearest walkable tile to the intended arrival — never on a wall,
-  // and always inside the destination (interiors are small).
-  const spot = nearestWalkable(destScene, x, y);
-  source.x = spot.x;
-  source.y = spot.y;
-  await destScene.createEmbeddedDocuments("Token", [source]);
-  guardTeleport(actor?.id);   // don't let the arrival tile bounce them straight back
-  // Delete only if the token still exists — a racing transit may have removed it.
-  if (token.parent?.tokens?.get(token.id)) {
-    await token.parent.deleteEmbeddedDocuments("Token", [token.id]).catch(() => {});
-  }
+  transitBusy = true;   // block further transits until this scene finishes loading
+  const safety = setTimeout(() => { transitBusy = false; }, 5000);   // never lock forever
+  try {
+    const source = token.toObject();
+    delete source._id;
+    // Land on the nearest walkable tile to the intended arrival — never on a wall,
+    // and always inside the destination (interiors are small).
+    const spot = nearestWalkable(destScene, x, y);
+    source.x = spot.x;
+    source.y = spot.y;
+    await destScene.createEmbeddedDocuments("Token", [source]);
+    guardTeleport(actor?.id);   // don't let the arrival tile bounce them straight back
+    // Delete only if the token still exists — a racing transit may have removed it.
+    if (token.parent?.tokens?.get(token.id)) {
+      await token.parent.deleteEmbeddedDocuments("Token", [token.id]).catch(() => {});
+    }
 
-  const ownerIds = (game.users?.contents ?? [])
-    .filter((u) => !u.isGM && u.active && actor.testUserPermission(u, "OWNER"))
-    .map((u) => u.id);
-  if (game.user.isGM && ownerIds.length) {
-    game.socket.emit("system.pokemon-masters", { action: "viewScene", sceneId: destScene.id, userIds: ownerIds });
+    const ownerIds = (game.users?.contents ?? [])
+      .filter((u) => !u.isGM && u.active && actor.testUserPermission(u, "OWNER"))
+      .map((u) => u.id);
+    if (game.user.isGM && ownerIds.length) {
+      game.socket.emit("system.pokemon-masters", { action: "viewScene", sceneId: destScene.id, userIds: ownerIds });
+    }
+    // Await the view so the busy lock stays set until the destination has actually
+    // drawn — Foundry rejects a second scene switch while one is still loading.
+    if (ownerIds.includes(game.user.id) || game.user.isGM) await destScene.view();
+  } finally {
+    // Small tail so the freshly-drawn arrival tile doesn't instantly re-transit.
+    clearTimeout(safety);
+    setTimeout(() => { transitBusy = false; }, 300);
   }
-  if (ownerIds.includes(game.user.id) || game.user.isGM) destScene.view();
 }
 
 /** Socket: pull a player to a destination scene when the GM moved their token. */

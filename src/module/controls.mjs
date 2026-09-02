@@ -13,7 +13,7 @@
  * Keybindings + these hooks are registered from the system `init` hook.
  */
 
-import { performTransit, findTransit, justTeleported } from "./regions.mjs";
+import { performTransit, findTransit, justTeleported, transitInProgress } from "./regions.mjs";
 
 const STEP_MS = 130;
 const held = [];
@@ -65,6 +65,7 @@ async function step() {
   if (stepping) return;
   const dir = held[held.length - 1];
   if (!dir) return;
+  if (transitInProgress()) return;                 // a scene switch is still loading
   const t = driverToken();
   if (!t) return;
   // Don't act on a token that's mid-transition — it's about to be deleted and
@@ -155,7 +156,7 @@ async function onUpdate(doc, change, options, userId) {
     if (change.x === undefined && change.y === undefined) return;
     if (options?.pmBounce) return;                    // our own bounce-back
     if (doc.actor?.type !== "trainer" || userId !== game.user?.id || !doc.parent) return;
-    if (justTeleported(doc.actor.id)) return;         // mid-transition; ignore
+    if (justTeleported(doc.actor.id) || transitInProgress()) return;   // mid-transition; ignore
     const scene = doc.parent, gs = scene.grid?.size || 32;
     // The document position can lag during animated movement — trust `change`.
     const nx = change.x ?? doc.x, ny = change.y ?? doc.y;
