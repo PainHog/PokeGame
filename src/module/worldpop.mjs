@@ -409,7 +409,7 @@ export function registerWorldPop() {
   game.settings.register(FLAG, "worldPopVersion", { scope: "world", config: false, type: Number, default: 0 });
   game.settings.register(FLAG, "sceneSyncVersion", { scope: "world", config: false, type: Number, default: 0 });
   game.pokemonMasters = Object.assign(game.pokemonMasters ?? {}, {
-    world: { populateScene, interactNpc, repopulate: repopulateWorld, rebuild: rebuildWorld },
+    world: { populateScene, interactNpc, repopulate: repopulateWorld, rebuild: rebuildWorld, syncScenes: reconcileScenes },
   });
 
   // Populate a scene the moment it's imported into the world.
