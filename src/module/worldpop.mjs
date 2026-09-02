@@ -538,25 +538,11 @@ async function reconcileScene(s) {
   // 3) Refresh the background for the (possibly resized) art.
   await healSceneBackground(s);
 
-  // 4) Snap any token now off the (possibly smaller) map back onto a walkable tile.
-  //    Re-check existence right before writing — a live transit may delete a token
-  //    (e.g. the player's) between snapshot and update, which would otherwise throw.
-  const moves = [];
-  for (const t of s.tokens) {
-    const w = nearestWalkable(s, t.x, t.y);
-    if (w.x !== t.x || w.y !== t.y) moves.push({ _id: t.id, x: w.x, y: w.y });
-  }
-  const liveMoves = moves.filter((m) => s.tokens.get(m._id));
-  // pmSync marks these as sync-driven so the movement hook ignores them and does
-  // not fire a transition (which would chain scene-to-scene during the sweep).
-  if (liveMoves.length) await s.updateEmbeddedDocuments("Token", liveMoves, { pmSync: true }).catch(() => {});
-
-  // 5) Re-place NPCs for the new layout — clear existing NPC tokens first so we
-  //    don't duplicate, then let populateScene stand them at the new spots.
-  const npcIds = s.tokens.filter((t) => t.actor?.getFlag(FLAG, "isNpc") && s.tokens.get(t.id)).map((t) => t.id);
-  if (npcIds.length) await s.deleteEmbeddedDocuments("Token", npcIds).catch(() => {});
-  await s.unsetFlag(FLAG, "populated").catch(() => {});
-  await populateScene(s);
+  // NOTE: deliberately no token writes here. Bulk-updating/deleting tokens during
+  // the sweep raced with live gameplay and Foundry logs each stale-id rejection at
+  // the socket layer (uncaught, unswallowable). The player's own token is snapped
+  // safely, one document at a time, by snapMyTokenInBounds() on load; NPCs keep
+  // their spots (a resized map may leave one slightly off, which is cosmetic).
   return true;
 }
 

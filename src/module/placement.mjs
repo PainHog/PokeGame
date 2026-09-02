@@ -9,6 +9,7 @@
  */
 
 import { PM } from "./config.mjs";
+import { nearestWalkable } from "./regions.mjs";
 
 const FLAG = "pokemon-masters";
 
@@ -155,6 +156,15 @@ export async function pullToMyToken() {
       if (t) { scene = s; tok = t; break; }
     }
     if (!scene || !tok) return;
+    // If a re-synced map shrank and left this token outside the new bounds (or on a
+    // wall), snap just this one token back onto a walkable tile — a single, guarded
+    // write, so it can't spam the stale-id errors a bulk sweep produced.
+    if (canPlace() && scene.tokens.get(tok.id)) {
+      const spot = nearestWalkable(scene, tok.x, tok.y);
+      if (spot.x !== tok.x || spot.y !== tok.y) {
+        await tok.update({ x: spot.x, y: spot.y }, { pmSync: true, animate: false }).catch(() => {});
+      }
+    }
     if (canvas?.scene?.id !== scene.id) await scene.view();
     const gs = scene.grid?.size || 100;
     await canvas?.animatePan?.({ x: tok.x + gs / 2, y: tok.y + gs / 2, scale: canvas.stage?.scale?.x ?? 1, duration: 250 });
