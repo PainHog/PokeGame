@@ -154,7 +154,7 @@ function onPreUpdate(doc, change) {
 async function onUpdate(doc, change, options, userId) {
   try {
     if (change.x === undefined && change.y === undefined) return;
-    if (options?.pmBounce) return;                    // our own bounce-back
+    if (options?.pmBounce || options?.pmSync) return;   // our own bounce-back / sync re-snap
     if (doc.actor?.type !== "trainer" || userId !== game.user?.id || !doc.parent) return;
     if (justTeleported(doc.actor.id) || transitInProgress()) return;   // mid-transition; ignore
     const scene = doc.parent, gs = scene.grid?.size || 32;

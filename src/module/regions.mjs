@@ -50,7 +50,13 @@ export function justTeleported(actorId) { return !!actorId && recentlyTeleported
 // rejects a second scene switch while the first is still loading resources, so
 // the movement handler skips new transits until this clears.
 let transitBusy = false;
-export function transitInProgress() { return transitBusy; }
+// True while the one-time scene-sync sweep is running. That sweep re-snaps tokens,
+// and each token move would otherwise fire the movement hook → a transit → the
+// next scene snaps the arrived token → another transit… a runaway chain. Suppress
+// all transits while it runs.
+let reconciling = false;
+export function transitInProgress() { return transitBusy || reconciling; }
+export function setReconciling(v) { reconciling = !!v; }
 
 /** Resolve the moving/entering actor from a region event, if it's a Trainer. */
 function trainerFromEvent(event) {
@@ -536,7 +542,7 @@ export class ZoneTransitBehaviorType extends foundry.data.regionBehaviors.Region
 export async function performTransit(sys, token, actor) {
   try {
     if (!sys || !token || !actor || justTeleported(actor.id) || !isResponsible(token)) return;
-    if (transitBusy) return;                          // a scene switch is still loading
+    if (transitBusy || reconciling) return;           // scene loading, or sync sweep running
     // Claim the teleport guard SYNCHRONOUSLY, before any await — otherwise the
     // region event and the movement hook both pass the check above and run the
     // transition twice (double crossScene → "token does not exist" on the 2nd).
@@ -616,6 +622,29 @@ export function nearestWalkable(scene, px, py) {
   return { x: tx0 * gs, y: ty0 * gs };
 }
 
+/** Is pixel (px,py) inside any zone-transit (exit/door) region on the scene? */
+function onExitTile(scene, px, py) {
+  return !!findTransit(scene, { x: px, y: py }, px, py);
+}
+
+/** From a walkable arrival spot that happens to sit on an exit/door tile, step
+ *  toward the scene centre until off every exit region — so the player doesn't
+ *  arrive standing on a trigger and get bounced straight back on their first step. */
+function clearOfExits(scene, spot) {
+  if (!onExitTile(scene, spot.x, spot.y)) return spot;
+  const gs = scene.grid?.size ?? 100;
+  const cx = (scene.width ?? gs) / 2, cy = (scene.height ?? gs) / 2;
+  let { x, y } = spot;
+  for (let i = 0; i < 40; i++) {
+    const dx = Math.sign(cx - (x + gs / 2)), dy = Math.sign(cy - (y + gs / 2));
+    if (!dx && !dy) break;
+    const w = nearestWalkable(scene, x + dx * gs, y + dy * gs);
+    x = w.x; y = w.y;
+    if (!onExitTile(scene, x, y)) break;
+  }
+  return { x, y };
+}
+
 /** Move a token to another Scene at (x, y) and bring its owner(s) along. */
 export async function crossScene(token, actor, destScene, x, y) {
   transitBusy = true;   // block further transits until this scene finishes loading
@@ -624,8 +653,9 @@ export async function crossScene(token, actor, destScene, x, y) {
     const source = token.toObject();
     delete source._id;
     // Land on the nearest walkable tile to the intended arrival — never on a wall,
-    // and always inside the destination (interiors are small).
-    const spot = nearestWalkable(destScene, x, y);
+    // and always inside the destination (interiors are small) — then step off any
+    // exit tile so the arrival can't immediately re-trigger a transition.
+    const spot = clearOfExits(destScene, nearestWalkable(destScene, x, y));
     source.x = spot.x;
     source.y = spot.y;
     await destScene.createEmbeddedDocuments("Token", [source]);

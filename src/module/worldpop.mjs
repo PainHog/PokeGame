@@ -17,7 +17,7 @@
 
 import { PM } from "./config.mjs";
 import { placeToken, canPlace, ensureScene } from "./placement.mjs";
-import { nearestWalkable } from "./regions.mjs";
+import { nearestWalkable, setReconciling } from "./regions.mjs";
 
 const FLAG = "pokemon-masters";
 const POP_VERSION = 2;
@@ -547,7 +547,9 @@ async function reconcileScene(s) {
     if (w.x !== t.x || w.y !== t.y) moves.push({ _id: t.id, x: w.x, y: w.y });
   }
   const liveMoves = moves.filter((m) => s.tokens.get(m._id));
-  if (liveMoves.length) await s.updateEmbeddedDocuments("Token", liveMoves).catch(() => {});
+  // pmSync marks these as sync-driven so the movement hook ignores them and does
+  // not fire a transition (which would chain scene-to-scene during the sweep).
+  if (liveMoves.length) await s.updateEmbeddedDocuments("Token", liveMoves, { pmSync: true }).catch(() => {});
 
   // 5) Re-place NPCs for the new layout — clear existing NPC tokens first so we
   //    don't duplicate, then let populateScene stand them at the new spots.
@@ -562,9 +564,12 @@ async function reconcileScene(s) {
 async function reconcileScenes() {
   if (!canPlace()) return 0;
   let n = 0;
-  for (const s of game.scenes ?? []) {
-    try { if (await reconcileScene(s)) n++; } catch (err) { console.warn("Pokémon Masters | reconcile failed", s?.name, err); }
-  }
+  setReconciling(true);   // suppress transits while the sweep re-snaps tokens
+  try {
+    for (const s of game.scenes ?? []) {
+      try { if (await reconcileScene(s)) n++; } catch (err) { console.warn("Pokémon Masters | reconcile failed", s?.name, err); }
+    }
+  } finally { setReconciling(false); }
   if (n) {
     ui.notifications?.info(`Pokémon Masters: synced ${n} map(s) to the latest layout — exits should line up now.`);
     try { if (canvas?.ready) await canvas.draw(); } catch (err) { /* redraw best-effort */ }
