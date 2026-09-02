@@ -55,8 +55,15 @@ let transitBusy = false;
 // next scene snaps the arrived token → another transit… a runaway chain. Suppress
 // all transits while it runs.
 let reconciling = false;
+let reconcileTimer = null;
 export function transitInProgress() { return transitBusy || reconciling; }
-export function setReconciling(v) { reconciling = !!v; }
+export function setReconciling(v) {
+  reconciling = !!v;
+  if (reconcileTimer) { clearTimeout(reconcileTimer); reconcileTimer = null; }
+  // Safety: never let the sweep flag stick (which would freeze all movement) —
+  // auto-clear after 30s even if the sweep never calls setReconciling(false).
+  if (v) reconcileTimer = setTimeout(() => { reconciling = false; }, 30000);
+}
 
 /** Resolve the moving/entering actor from a region event, if it's a Trainer. */
 function trainerFromEvent(event) {
@@ -647,8 +654,12 @@ function clearOfExits(scene, spot) {
 
 /** Move a token to another Scene at (x, y) and bring its owner(s) along. */
 export async function crossScene(token, actor, destScene, x, y) {
-  transitBusy = true;   // block further transits until this scene finishes loading
-  const safety = setTimeout(() => { transitBusy = false; }, 5000);   // never lock forever
+  // Brief cooldown so a second transit can't fire before this scene starts loading.
+  // Set UNCONDITIONALLY on its own timer so the lock ALWAYS clears — never tied to
+  // whether the work below finishes (a hung/awaited view once left it stuck true,
+  // which froze both movement and later transits while the announce still posted).
+  transitBusy = true;
+  setTimeout(() => { transitBusy = false; }, 1000);
   try {
     const source = token.toObject();
     delete source._id;
@@ -671,13 +682,12 @@ export async function crossScene(token, actor, destScene, x, y) {
     if (game.user.isGM && ownerIds.length) {
       game.socket.emit("system.pokemon-masters", { action: "viewScene", sceneId: destScene.id, userIds: ownerIds });
     }
-    // Await the view so the busy lock stays set until the destination has actually
-    // drawn — Foundry rejects a second scene switch while one is still loading.
-    if (ownerIds.includes(game.user.id) || game.user.isGM) await destScene.view();
-  } finally {
-    // Small tail so the freshly-drawn arrival tile doesn't instantly re-transit.
-    clearTimeout(safety);
-    setTimeout(() => { transitBusy = false; }, 300);
+    // Switch to the destination. NOT awaited — awaiting a view that Foundry defers
+    // ("cannot switch until resources finish loading") would hold work open; the
+    // cooldown above already spaces transits.
+    if (ownerIds.includes(game.user.id) || game.user.isGM) destScene.view().catch(() => {});
+  } catch (err) {
+    console.warn("Pokémon Masters | crossScene failed", err);
   }
 }
 

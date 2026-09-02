@@ -61,18 +61,22 @@ function passable(scene, tx, ty) {
   return !(row && row[tx] === "1");
 }
 
+let lastBail = "";
+function bail(reason) { if (reason !== lastBail) { console.log(`Pokémon Masters | move idle: ${reason}`); lastBail = reason; } }
+
 async function step() {
   if (stepping) return;
   const dir = held[held.length - 1];
   if (!dir) return;
-  if (transitInProgress()) return;                 // a scene switch is still loading
+  if (transitInProgress()) return bail("scene loading (transitInProgress)");
   const t = driverToken();
-  if (!t) return;
+  if (!t) return bail("no controllable trainer token (driverToken null)");
   // Don't act on a token that's mid-transition — it's about to be deleted and
   // re-created on another scene; updating it now throws "does not exist".
-  if (justTeleported(t.actor?.id)) return;
+  if (justTeleported(t.actor?.id)) return bail("just teleported (guard active)");
   const scene = t.document.parent, gs = canvas?.grid?.size || 100;
-  if (!scene?.tokens?.get(t.document.id)) return;   // token already gone (transit)
+  if (!scene?.tokens?.get(t.document.id)) return bail("token not on its scene");
+  lastBail = "";                                    // moving again — reset the notice
   const tx = Math.round(t.document.x / gs) + dir.dx;
   const ty = Math.round(t.document.y / gs) + dir.dy;
   if (!passable(scene, tx, ty)) {
