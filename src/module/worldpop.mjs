@@ -17,9 +17,13 @@
 
 import { PM } from "./config.mjs";
 import { placeToken, canPlace, ensureScene } from "./placement.mjs";
+import { nearestWalkable } from "./regions.mjs";
 
 const FLAG = "pokemon-masters";
 const POP_VERSION = 2;
+// Bump to force every world scene to re-sync its geometry/regions/flags with the
+// current compendium on next load (fixes worlds imported from an older pack).
+const SCENE_SYNC_VERSION = 1;
 
 const cache = new Map(); // actor name -> Actor
 
@@ -403,6 +407,7 @@ async function ensureRebuildMacro() {
 
 export function registerWorldPop() {
   game.settings.register(FLAG, "worldPopVersion", { scope: "world", config: false, type: Number, default: 0 });
+  game.settings.register(FLAG, "sceneSyncVersion", { scope: "world", config: false, type: Number, default: 0 });
   game.pokemonMasters = Object.assign(game.pokemonMasters ?? {}, {
     world: { populateScene, interactNpc, repopulate: repopulateWorld, rebuild: rebuildWorld },
   });
@@ -486,6 +491,84 @@ async function healSceneBackgrounds() {
   return fixed;
 }
 
+/**
+ * Bring a world scene imported from an OLDER pack up to date with the current
+ * compendium: its geometry (size/grid/padding), our positional flags (collision,
+ * exits, entry), the whole region set (edge exits, doors, collision openings) and
+ * the background. Older worlds have scenes whose size/regions predate later map
+ * rebuilds, so the new art no longer fills the scene and the exit regions sit at
+ * stale positions — you walk off the art into black with no exit. Flag-only
+ * migrations can't fix that; this re-syncs the actual geometry in place, keeping
+ * the scene id so placed tokens survive. Only touches OUR scenes.
+ */
+async function reconcileScene(s) {
+  const flags = s.flags?.[FLAG] ?? {};
+  if (!("mapSrc" in flags) && !("region" in flags)) return false;   // only our scenes
+  const pack = game.packs.get("pokemon-masters.scenes");
+  const entry = pack?.index?.find((e) => e.name === s.name);
+  if (!entry) return false;
+  let src;
+  try { src = (await pack.getDocument(entry._id))?.toObject(); } catch (err) { return false; }
+  if (!src) return false;
+
+  const pf = src.flags?.[FLAG] ?? {};
+  const sizeChanged = s.width !== src.width || s.height !== src.height
+    || (s.grid?.size ?? 0) !== (src.grid?.size ?? 0) || (s.padding ?? 0) !== (src.padding ?? 0);
+  const regionsDiffer = (s.regions?.size ?? s.regions?.length ?? 0) !== (src.regions?.length ?? 0);
+  if (!sizeChanged && !regionsDiffer) return false;                 // already current
+
+  // 1) Geometry + our positional flags (null clears a flag the new build dropped).
+  await s.update({
+    width: src.width, height: src.height,
+    "grid.size": src.grid?.size ?? s.grid?.size ?? 32,
+    padding: src.padding ?? 0,
+    "flags.pokemon-masters.collision": pf.collision ?? null,
+    "flags.pokemon-masters.exits": pf.exits ?? null,
+    "flags.pokemon-masters.entry": pf.entry ?? null,
+    "flags.pokemon-masters.region": pf.region ?? flags.region ?? null,
+    "flags.pokemon-masters.mapSrc": pf.mapSrc ?? flags.mapSrc ?? null
+  }).catch((err) => console.warn("Pokémon Masters | scene geometry update failed", s?.name, err));
+
+  // 2) Replace the region set so exits/doors/openings match the new geometry.
+  const oldIds = (s.regions ?? []).map((r) => r.id);
+  if (oldIds.length) await s.deleteEmbeddedDocuments("Region", oldIds).catch(() => {});
+  const regs = (src.regions ?? []).map((r) => { const o = foundry.utils.duplicate(r); delete o._id; return o; });
+  if (regs.length) await s.createEmbeddedDocuments("Region", regs).catch(() => {});
+
+  // 3) Refresh the background for the (possibly resized) art.
+  await healSceneBackground(s);
+
+  // 4) Snap any token now off the (possibly smaller) map back onto a walkable tile.
+  const moves = [];
+  for (const t of s.tokens) {
+    const w = nearestWalkable(s, t.x, t.y);
+    if (w.x !== t.x || w.y !== t.y) moves.push({ _id: t.id, x: w.x, y: w.y });
+  }
+  if (moves.length) await s.updateEmbeddedDocuments("Token", moves).catch(() => {});
+
+  // 5) Re-place NPCs for the new layout — clear existing NPC tokens first so we
+  //    don't duplicate, then let populateScene stand them at the new spots.
+  const npcIds = s.tokens.filter((t) => t.actor?.getFlag(FLAG, "isNpc")).map((t) => t.id);
+  if (npcIds.length) await s.deleteEmbeddedDocuments("Token", npcIds).catch(() => {});
+  await s.unsetFlag(FLAG, "populated").catch(() => {});
+  await populateScene(s);
+  return true;
+}
+
+/** Re-sync every imported world scene with the compendium (responsible client). */
+async function reconcileScenes() {
+  if (!canPlace()) return 0;
+  let n = 0;
+  for (const s of game.scenes ?? []) {
+    try { if (await reconcileScene(s)) n++; } catch (err) { console.warn("Pokémon Masters | reconcile failed", s?.name, err); }
+  }
+  if (n) {
+    ui.notifications?.info(`Pokémon Masters: synced ${n} map(s) to the latest layout — exits should line up now.`);
+    try { if (canvas?.ready) await canvas.draw(); } catch (err) { /* redraw best-effort */ }
+  }
+  return n;
+}
+
 async function initWorldPop() {
   if (!canPlace()) return;
   await ensureRebuildMacro();
@@ -493,6 +576,12 @@ async function initWorldPop() {
     // Refresh any stale map backgrounds from the compendium (e.g. right after a
     // system update) so old scenes render instead of showing a blank white grid.
     await healSceneBackgrounds();
+    // Re-sync scenes imported from an older pack (size/regions/exits/collision)
+    // so map-layout fixes reach worlds already in play, before we populate them.
+    if ((game.settings.get(FLAG, "sceneSyncVersion") ?? 0) < SCENE_SYNC_VERSION) {
+      await reconcileScenes();
+      await game.settings.set(FLAG, "sceneSyncVersion", SCENE_SYNC_VERSION);
+    }
     // Populate any already-imported scenes once per version.
     if ((game.settings.get(FLAG, "worldPopVersion") ?? 0) < POP_VERSION) {
       for (const scene of game.scenes ?? []) await populateScene(scene);
