@@ -65,6 +65,10 @@ export function setReconciling(v) {
   if (v) reconcileTimer = setTimeout(() => { reconciling = false; }, 30000);
 }
 
+// Last wild-encounter roll time per actor id (dedups the region event + movement
+// hook both driving a roll on the same step).
+const lastWildRoll = new Map();
+
 /** Resolve the moving/entering actor from a region event, if it's a Trainer. */
 function trainerFromEvent(event) {
   const token = event?.data?.token;
@@ -177,6 +181,11 @@ export class WildTileBehaviorType extends foundry.data.regionBehaviors.RegionBeh
     const { token, actor } = trainerFromEvent(event);
     if (!actor) return;
     if (!isResponsible(token)) return;
+    // Dedup: this now fires from BOTH the region event (when it fires at all) and
+    // the movement hook (wildStep), so ignore a second call within one step.
+    const now = Date.now();
+    if (now - (lastWildRoll.get(actor.id) || 0) < 200) return;
+    lastWildRoll.set(actor.id, now);
 
     // Repel burns a step and suppresses wild Pokémon (items/trainers still occur).
     let repelActive = false;
@@ -605,6 +614,25 @@ export function findTransit(scene, tokenDoc, x = tokenDoc.x, y = tokenDoc.y) {
     }
   }
   return null;
+}
+
+/** Fire a wild-tile roll (encounters / items / trainers) for a token standing at
+ *  (x,y). Driven from the movement hook because v14 does NOT fire region
+ *  tokenMove events during our keyboard-step token updates — so walking in grass
+ *  produced nothing. The per-actor cooldown in _roll dedups against any region
+ *  event that does still fire. */
+export function wildStep(scene, tokenDoc, x = tokenDoc.x, y = tokenDoc.y) {
+  const gs = scene?.grid?.size || 100;
+  const cx = x + gs / 2, cy = y + gs / 2;
+  for (const region of scene?.regions ?? []) {
+    const inside = (region.shapes ?? []).some((s) => cx >= s.x && cx < s.x + s.width && cy >= s.y && cy < s.y + s.height);
+    if (!inside) continue;
+    for (const b of region.behaviors ?? []) {
+      if (b.disabled || !b.type?.endsWith?.("wildTile") || !b.system) continue;
+      try { WildTileBehaviorType._roll.call(b.system, { data: { token: tokenDoc } }); } catch (err) { console.warn("Pokémon Masters | wild roll failed", err); }
+      return;
+    }
+  }
 }
 
 /** The nearest in-bounds, non-solid tile position (pixels) to an intended arrival

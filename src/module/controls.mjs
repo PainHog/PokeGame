@@ -13,7 +13,7 @@
  * Keybindings + these hooks are registered from the system `init` hook.
  */
 
-import { performTransit, findTransit, justTeleported, transitInProgress } from "./regions.mjs";
+import { performTransit, findTransit, justTeleported, transitInProgress, wildStep } from "./regions.mjs";
 
 const STEP_MS = 130;
 const held = [];
@@ -183,7 +183,10 @@ async function onUpdate(doc, change, options, userId) {
     }
     const sys = findTransit(scene, doc, nx, ny);
     console.log(`Pokémon Masters | [${scene.name}] moved to (${tx},${ty}) of ${W}x${H}; transit here:`, sys ? (sys.destinationSceneName || (sys.returnDoor ? "return-door" : "interior")) : "none");
-    if (sys) await performTransit(sys, doc, doc.actor);
+    if (sys) { await performTransit(sys, doc, doc.actor); return; }
+    // No zone here — this is a normal walking step. Roll for wild encounters /
+    // items / trainers (v14 doesn't fire region tokenMove events on our steps).
+    wildStep(scene, doc, nx, ny);
   } catch (err) { console.warn("Pokémon Masters | move handler error", err); }
 }
 
