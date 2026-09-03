@@ -117,24 +117,58 @@ export function registerTrainerChallenges() {
     if (("x" in changes) || ("y" in changes)) checkSpotting(tokenDoc);
   });
 
-  // The Accept button resolves the challenge as an auto-battle, then releases
-  // the one-at-a-time lock and marks the NPC defeated so it won't re-challenge.
+  // The Accept button opens the interactive on-map trainer battle (the same
+  // popup as wild battles): the player picks moves, the foe's team fights back,
+  // and victory pays prize money. The one-at-a-time lock is released when the
+  // battle ENDS (onWin/onLose, which the window also fires if it's abandoned) —
+  // not immediately — so a new challenge can't start mid-battle. Marking the NPC
+  // defeated (so it won't re-challenge) is deferred to a win. If the window can't
+  // open, fall back to the old auto-battle so the challenge still concludes.
   document.addEventListener("click", async (event) => {
     const btn = event.target?.closest?.(".pm-challenge-btn");
     if (!btn) return;
     event.preventDefault();
     btn.disabled = true;
+    let started = false;
     try {
       const npc = await fromUuid(btn.dataset.npc);
       const player = await fromUuid(btn.dataset.player);
       const npcActor = npc?.actor ?? npc;
       if (npcActor && player) {
-        await game.pokemonMasters?.npc?.autoBattle?.(npcActor, player);
-        for (const t of npcActor.getActiveTokens?.() ?? []) await t.document?.setFlag(FLAG, "defeated", true).catch(() => {});
-        if (npc?.setFlag) await npc.setFlag(FLAG, "defeated", true).catch(() => {});
+        const markDefeated = async () => {
+          try {
+            for (const t of npcActor.getActiveTokens?.() ?? []) await t.document?.setFlag(FLAG, "defeated", true).catch(() => {});
+            if (npc?.setFlag) await npc.setFlag(FLAG, "defeated", true).catch(() => {});
+          } catch (err) { /* soft */ }
+        };
+        // The player's token on the current scene (needed to place the battle).
+        const playerToken = player.getActiveTokens?.(false, true)?.[0]
+          ?? canvas?.scene?.tokens?.find((t) => t.actorId === player.id)
+          ?? null;
+        const foeParty = ((await npcActor.getParty?.()) ?? []).filter((p) => p?.type === "pokemon");
+        const level = foeParty.length ? Math.max(...foeParty.map((p) => p.system?.level ?? 5)) : 5;
+        const startTrainer = game.pokemonMasters?.wildBattle?.startTrainer;
+        if (startTrainer && playerToken && foeParty.length) {
+          started = await startTrainer(playerToken, {
+            foeName: npcActor.name,
+            foeImg: npcActor.img,
+            foeSources: foeParty,
+            prize: level * 30,
+            onWin: () => { markDefeated(); setLock(false); },
+            onLose: () => { setLock(false); }
+          });
+        }
+        // Fallback: window couldn't open (no token, no party, or a battle is
+        // already in progress) — resolve the old way, then release the lock.
+        if (!started) {
+          await game.pokemonMasters?.npc?.autoBattle?.(npcActor, player);
+          await markDefeated();
+        }
       }
+    } catch (err) {
+      console.warn("Pokémon Masters | trainer challenge failed", err);
     } finally {
-      setLock(false);
+      if (!started) setLock(false); // when the window opened, onWin/onLose owns the release
     }
   });
 

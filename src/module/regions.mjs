@@ -336,7 +336,7 @@ export class WildTileBehaviorType extends foundry.data.regionBehaviors.RegionBeh
 
   static async rollTrainer(token) {
     const trainer = token.actor;
-    // A wandering Trainer challenges the player: resolve it as a real auto-battle.
+    // A wandering Trainer challenges the player.
     const CLASSES = ["Youngster", "Lass", "Bug Catcher", "Hiker", "Beauty", "Ace Trainer", "Picnicker", "Camper"];
     const who = CLASSES[Math.floor(Math.random() * CLASSES.length)];
     if (trainer?.type !== "trainer") {
@@ -350,6 +350,17 @@ export class WildTileBehaviorType extends foundry.data.regionBehaviors.RegionBeh
     }
     const level = Math.max(...myTeam.map((m) => m.level ?? 5));
     const foes = await generateFoeTeam(Math.min(3, myTeam.length), level);
+
+    // Open the same on-map, turn-based popup as wild battles, against the
+    // generated foe team (materialized from {speciesName, level} specs). Lazily
+    // imported to avoid an import cycle (wildbattle → placement → regions).
+    const foeSources = foes.map((f) => ({ speciesName: f.name, level: f.level ?? level }));
+    const { startTrainerBattle } = await import("./wildbattle.mjs");
+    const started = await startTrainerBattle(token, { foeName: who, foeSources, prize: level * 20 });
+    if (started) return;
+
+    // Fallback: a battle's already open or the window couldn't be created —
+    // auto-resolve so the encounter still concludes.
     const { winner, log } = simulateBattle(myTeam.map((m) => ({ ...m, hp: { value: m.stats.hp, max: m.stats.hp } })), foes);
     const won = winner === "A";
     const prize = won ? level * 20 : 0;
