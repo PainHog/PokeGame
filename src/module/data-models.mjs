@@ -36,13 +36,32 @@ export class TrainerData extends foundry.abstract.TypeDataModel {
       vocation: new fields.StringField({
         required: true, blank: false, initial: "trainer", choices: PM.vocations
       }),
+      /** GM-run NPC trainer (rival, gym leader) that can auto-battle. */
+      isNpc: new fields.BooleanField({ initial: false }),
       level: new fields.NumberField({ required: true, integer: true, min: 1, initial: 1 }),
       money: new fields.NumberField({ required: true, integer: true, min: 0, initial: 3000 }),
       badges: new fields.ArrayField(new fields.StringField({ blank: false })),
       hometown: new fields.StringField({ required: false, blank: true }),
       biography: new fields.HTMLField({ required: false, blank: true }),
-      /** Owned Pokémon, referenced by Actor UUID (the party). */
-      party: new fields.ArrayField(new fields.DocumentUUIDField({ type: "Actor" }))
+      /** Owned Pokémon in the active party (Actor UUIDs, max 6 by convention). */
+      party: new fields.ArrayField(new fields.DocumentUUIDField({ type: "Actor" })),
+      /** Pokémon in PC storage (Actor UUIDs) — the overflow beyond the party. */
+      storage: new fields.ArrayField(new fields.DocumentUUIDField({ type: "Actor" })),
+      /** Up to two Pokémon left at the daycare (Actor UUIDs) for breeding. */
+      daycare: new fields.ArrayField(new fields.DocumentUUIDField({ type: "Actor" })),
+      /** Towns visited — the Fly destinations available to this trainer. */
+      flyPoints: new fields.ArrayField(new fields.StringField({ blank: false })),
+      /** Living Pokédex: species seen and caught (by name; regional forms count). */
+      pokedex: new fields.SchemaField({
+        seen: new fields.ArrayField(new fields.StringField({ blank: false })),
+        caught: new fields.ArrayField(new fields.StringField({ blank: false }))
+      }),
+      /** Organization memberships with rank (ladder index) and reputation. */
+      affiliations: new fields.ArrayField(new fields.SchemaField({
+        org: new fields.StringField({ required: true, blank: false }),
+        rank: new fields.NumberField({ required: true, integer: true, min: 0, initial: 0 }),
+        reputation: new fields.NumberField({ required: true, integer: true, min: 0, initial: 0 })
+      }))
     };
   }
 }
@@ -56,17 +75,72 @@ export class PokemonData extends foundry.abstract.TypeDataModel {
     return {
       species: new fields.SchemaField({
         name: new fields.StringField({ required: true, blank: true, initial: "" }),
-        num: new fields.NumberField({ required: true, integer: true, min: 0, initial: 0 })
+        num: new fields.NumberField({ required: true, integer: true, min: 0, initial: 0 }),
+        baseSpecies: new fields.StringField({ required: false, blank: true, initial: "" }),
+        forme: new fields.StringField({ required: false, blank: true, initial: "" })
+      }),
+      /** Region this species is native to (from its introduction generation). */
+      nativeRegion: new fields.StringField({ required: false, blank: true, initial: "" }),
+      /** Region of a regional variant (alola/galar/hisui/paldea), else empty. */
+      variantRegion: new fields.StringField({ required: false, blank: true, initial: "" }),
+      /** Encounter eligibility: every non-empty axis must match the tile context. */
+      requirements: new fields.SchemaField({
+        habitats: new fields.ArrayField(new fields.StringField({ blank: false })),
+        regions: new fields.ArrayField(new fields.StringField({ blank: false })),
+        methods: new fields.ArrayField(new fields.StringField({ blank: false })),
+        times: new fields.ArrayField(new fields.StringField({ blank: false }))
       }),
       types: new fields.ArrayField(new fields.StringField({ blank: false })),
       level: new fields.NumberField({ required: true, integer: true, min: 1, max: 100, initial: 5 }),
+      xp: new fields.NumberField({ required: true, integer: true, min: 0, initial: 0 }),
       nature: new fields.StringField({ required: true, blank: true, initial: "serious" }),
       gender: new fields.StringField({ required: false, blank: true, initial: "" }),
       shiny: new fields.BooleanField({ initial: false }),
+      status: new fields.StringField({ required: true, blank: false, initial: "none", choices: PM.statuses }),
+      toxicCounter: new fields.NumberField({ required: true, integer: true, min: 0, initial: 0 }),
+      heldItem: new fields.StringField({ required: false, blank: true, initial: "" }),
       rarity: new fields.StringField({ required: true, blank: false, initial: "common", choices: PM.rarities }),
+      /** Max that may exist in the world at once (0 = unlimited; legendaries = 1). */
+      populationCap: new fields.NumberField({ required: true, integer: true, min: 0, initial: 0 }),
+      /** Ultra Beast (drives Beast Ball). */
+      ultraBeast: new fields.BooleanField({ initial: false }),
+      /** Mega/Primal formes available to this species (name, item, stats, types, ability). */
+      megaData: new fields.ArrayField(new fields.ObjectField()),
+      /** Terastallization type (defaults to the primary type). */
+      teraType: new fields.StringField({ required: false, blank: true, initial: "" }),
+      /** Active battle gimmick that changes derived stats ("mega" | "dynamax" | ""). */
+      activeGimmick: new fields.StringField({ required: false, blank: true, initial: "" }),
+      /** Base stats to derive from while Mega-Evolved (the mega forme's base stats). */
+      megaBaseStats: new fields.ObjectField(),
       catchRate: new fields.NumberField({ required: true, integer: true, min: 1, max: 255, initial: 45 }),
       ability: new fields.StringField({ required: false, blank: true, initial: "" }),
       abilities: new fields.ArrayField(new fields.StringField({ blank: false })),
+      hiddenAbility: new fields.StringField({ required: false, blank: true, initial: "" }),
+      /** Breeding data. */
+      eggGroups: new fields.ArrayField(new fields.StringField({ blank: false })),
+      eggSpecies: new fields.StringField({ required: false, blank: true, initial: "" }),
+      genderless: new fields.BooleanField({ initial: false }),
+      femaleRate: new fields.NumberField({ required: true, min: 0, max: 1, initial: 0.5 }),
+      /** Individual Values (0–31 per stat). */
+      ivs: new fields.SchemaField({
+        hp: new fields.NumberField({ required: true, integer: true, min: 0, max: 31, initial: 0 }),
+        atk: new fields.NumberField({ required: true, integer: true, min: 0, max: 31, initial: 0 }),
+        def: new fields.NumberField({ required: true, integer: true, min: 0, max: 31, initial: 0 }),
+        spa: new fields.NumberField({ required: true, integer: true, min: 0, max: 31, initial: 0 }),
+        spd: new fields.NumberField({ required: true, integer: true, min: 0, max: 31, initial: 0 }),
+        spe: new fields.NumberField({ required: true, integer: true, min: 0, max: 31, initial: 0 })
+      }),
+      /** Effort Values (0–252 per stat) — factor into the stat calc. */
+      evs: new fields.SchemaField({
+        hp: new fields.NumberField({ required: true, integer: true, min: 0, max: 252, initial: 0 }),
+        atk: new fields.NumberField({ required: true, integer: true, min: 0, max: 252, initial: 0 }),
+        def: new fields.NumberField({ required: true, integer: true, min: 0, max: 252, initial: 0 }),
+        spa: new fields.NumberField({ required: true, integer: true, min: 0, max: 252, initial: 0 }),
+        spd: new fields.NumberField({ required: true, integer: true, min: 0, max: 252, initial: 0 }),
+        spe: new fields.NumberField({ required: true, integer: true, min: 0, max: 252, initial: 0 })
+      }),
+      /** Friendship (0–255), drives friendship evolutions. */
+      friendship: new fields.NumberField({ required: true, integer: true, min: 0, max: 255, initial: 70 }),
       baseStats: statBlock(1),
       /** Current HP. `max` is derived from base stats + level in prepareDerivedData. */
       hp: new fields.SchemaField({
@@ -94,23 +168,30 @@ export class PokemonData extends foundry.abstract.TypeDataModel {
     };
   }
 
-  /** Derive fighting stats from base stats and level (simplified Gen-style curve). */
+  /** Derive fighting stats from base stats, level, IVs, and nature (canon curve, EV=0). */
   prepareDerivedData() {
     const lvl = this.level ?? 1;
-    const b = this.baseStats;
-    const stat = (base) => Math.floor((2 * base * lvl) / 100) + 5;
-    const hpStat = (base) => Math.floor((2 * base * lvl) / 100) + lvl + 10;
+    // While Mega-Evolved, derive from the mega forme's base stats — so the boost
+    // survives re-derivation instead of being wiped on the next data prep.
+    const b = (this.activeGimmick === "mega" && this.megaBaseStats?.hp) ? this.megaBaseStats : this.baseStats;
+    const iv = this.ivs ?? {};
+    const ev = this.evs ?? {};
+    const nature = PM.natures[this.nature] ?? {};
+    const mod = (key) => (nature.plus === key ? 1.1 : nature.minus === key ? 0.9 : 1);
+    const point = (base, key) => Math.floor(((2 * base + (iv[key] ?? 0) + Math.floor((ev[key] ?? 0) / 4)) * lvl) / 100);
     this.stats = {
-      hp: hpStat(b.hp),
-      atk: stat(b.atk),
-      def: stat(b.def),
-      spa: stat(b.spa),
-      spd: stat(b.spd),
-      spe: stat(b.spe)
+      hp: point(b.hp, "hp") + lvl + 10,
+      atk: Math.floor((point(b.atk, "atk") + 5) * mod("atk")),
+      def: Math.floor((point(b.def, "def") + 5) * mod("def")),
+      spa: Math.floor((point(b.spa, "spa") + 5) * mod("spa")),
+      spd: Math.floor((point(b.spd, "spd") + 5) * mod("spd")),
+      spe: Math.floor((point(b.spe, "spe") + 5) * mod("spe"))
     };
     this.bst = b.hp + b.atk + b.def + b.spa + b.spd + b.spe;
-    // Keep the HP resource sensible without clobbering a set (e.g. damaged) value.
-    this.hp.max = this.stats.hp;
+    // Shedinja is the one exception to the HP formula — always exactly 1 HP.
+    if (this.species?.name === "Shedinja") this.stats.hp = 1;
+    // Dynamax doubles max HP for the duration.
+    this.hp.max = this.activeGimmick === "dynamax" ? this.stats.hp * 2 : this.stats.hp;
     if (this.hp.value === null) this.hp.value = this.hp.max;
     else this.hp.value = Math.min(this.hp.value, this.hp.max);
   }
@@ -135,6 +216,24 @@ export class MoveData extends foundry.abstract.TypeDataModel {
       pp: new fields.NumberField({ required: true, integer: true, min: 0, initial: 0 }),
       priority: new fields.NumberField({ required: true, integer: true, initial: 0 }),
       target: new fields.StringField({ required: false, blank: true, initial: "normal" }),
+      /** Status this move inflicts (Status moves) and its secondary chance. */
+      inflictStatus: new fields.StringField({ required: false, blank: true, initial: "" }),
+      secondaryStatus: new fields.StringField({ required: false, blank: true, initial: "" }),
+      secondaryChance: new fields.NumberField({ required: true, integer: true, min: 0, max: 100, initial: 0 }),
+      // Stat-stage changes and damage extras.
+      boosts: new fields.ObjectField({ required: false, nullable: true, initial: null }),
+      boostTarget: new fields.StringField({ required: false, blank: true, initial: "target" }),
+      secondaryBoosts: new fields.ObjectField({ required: false, nullable: true, initial: null }),
+      drain: new fields.NumberField({ required: true, min: 0, max: 1, initial: 0 }),
+      recoil: new fields.NumberField({ required: true, min: 0, max: 1, initial: 0 }),
+      healSelf: new fields.NumberField({ required: true, min: 0, max: 1, initial: 0 }),
+      flinchChance: new fields.NumberField({ required: true, integer: true, min: 0, max: 100, initial: 0 }),
+      multihit: new fields.ArrayField(new fields.NumberField({ integer: true, min: 1 }), { required: false, nullable: true, initial: null }),
+      contact: new fields.BooleanField({ initial: false }),
+      sideCondition: new fields.StringField({ required: false, blank: true, initial: "" }),
+      weather: new fields.StringField({ required: false, blank: true, initial: "" }),
+      terrain: new fields.StringField({ required: false, blank: true, initial: "" }),
+      confuseChance: new fields.NumberField({ required: true, integer: true, min: 0, max: 100, initial: 0 }),
       description: new fields.HTMLField({ required: false, blank: true })
     };
   }

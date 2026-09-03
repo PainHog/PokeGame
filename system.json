@@ -2,7 +2,7 @@
   "id": "pokemon-masters",
   "title": "Pokémon Masters",
   "description": "A trainer-driven Pokémon tabletop system for Foundry VTT. Players join a shared world as Trainers, roam tile/region-automated maps, and encounter, catch, and battle Pokémon. Pokédex, moves, abilities and items are compiled from an offline dataset (no external API required).",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "compatibility": {
     "minimum": "13",
     "verified": "14"
@@ -19,13 +19,14 @@
     { "name": "species", "label": "Pokédex", "path": "packs/species", "type": "Actor", "system": "pokemon-masters" },
     { "name": "moves", "label": "Moves", "path": "packs/moves", "type": "Item", "system": "pokemon-masters" },
     { "name": "abilities", "label": "Abilities", "path": "packs/abilities", "type": "Item", "system": "pokemon-masters" },
-    { "name": "gear", "label": "Items & Poké Balls", "path": "packs/gear", "type": "Item", "system": "pokemon-masters" }
+    { "name": "gear", "label": "Items & Poké Balls", "path": "packs/gear", "type": "Item", "system": "pokemon-masters" },
+    { "name": "scenes", "label": "Maps", "path": "packs/scenes", "type": "Scene" }
   ],
   "packFolders": [
     {
       "name": "Pokémon Masters",
       "sorting": "m",
-      "packs": ["species", "moves", "abilities", "gear"]
+      "packs": ["species", "moves", "abilities", "gear", "scenes"]
     }
   ],
   "documentTypes": {
@@ -39,8 +40,13 @@
       "gear": { "htmlFields": ["description"] }
     },
     "RegionBehavior": {
-      "encounter": {},
-      "zoneTransit": {}
+      "wildTile": {},
+      "safeZone": {},
+      "zoneTransit": {},
+      "venue": {},
+      "legendary": {},
+      "ambush": {},
+      "fieldGate": {}
     }
   },
   "grid": {

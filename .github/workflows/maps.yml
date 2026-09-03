@@ -1,0 +1,77 @@
+name: maps
+
+# Renders the game's map art on GitHub's runners — the fallback for anything the
+# build sandbox can't fetch or render. Exact decomp renders (FireRed/Emerald) plus
+# the GBA-tile composer for every other region, then a build + verify, then commits
+# the WebP + metadata back to this branch so the game stays self-contained.
+#
+# Runs automatically when a renderer script changes, and on demand from the Actions
+# tab (choose which renderer to run). Bot commits use GITHUB_TOKEN, which does not
+# retrigger other workflows.
+on:
+  push:
+    branches: [claude/pokemon-database-access-hsd6xh]
+    paths:
+      - scripts/build-gba-maps.mjs
+      - scripts/build-emerald-maps.mjs
+      - scripts/build-sevii-maps.mjs
+      - scripts/build-hoenn-caves.mjs
+      - scripts/build-tiled-maps.mjs
+      - scripts/build-interiors.mjs
+      - .github/workflows/maps.yml
+  workflow_dispatch:
+    inputs:
+      renderer:
+        description: Which renderer to run
+        type: choice
+        default: composer
+        options: [all, kanto, hoenn, sevii, hoenn-caves, interiors, composer]
+
+permissions:
+  contents: write
+
+jobs:
+  maps:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - uses: browser-actions/setup-chrome@v1
+        id: chrome
+      - name: Install deps
+        run: npm ci
+      - name: Render maps
+        env:
+          PM_CHROME: ${{ steps.chrome.outputs.chrome-path }}
+          RENDERER: ${{ github.event.inputs.renderer || 'composer' }}
+        run: |
+          set -e
+          run_exact() {
+            [ "$RENDERER" = "all" -o "$RENDERER" = "kanto" ]       && npm run gbamaps || true
+            [ "$RENDERER" = "all" -o "$RENDERER" = "hoenn" ]       && npm run emeraldmaps || true
+            [ "$RENDERER" = "all" -o "$RENDERER" = "sevii" ]       && npm run seviimaps || true
+            [ "$RENDERER" = "all" -o "$RENDERER" = "hoenn-caves" ] && npm run hoenncaves || true
+            [ "$RENDERER" = "all" -o "$RENDERER" = "interiors" ]   && npm run interiors || true
+          }
+          run_exact
+          # The composer reads the built scenes to know which maps still need art, so
+          # build first (exact renders light up), then compose the remainder.
+          if [ "$RENDERER" = "all" -o "$RENDERER" = "composer" ]; then
+            npm run build
+            npm run tiledmaps
+          fi
+      - name: Build + verify
+        run: npm run build && npm run verify && npm run smoke
+      - name: Commit rendered maps
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/maps
+          if git diff --cached --quiet; then
+            echo "No map changes to commit."
+          else
+            git commit -m "Render map art on runner (${{ github.event.inputs.renderer || 'composer' }})"
+            git push origin HEAD:${{ github.ref_name }}
+          fi

@@ -1,6 +1,9 @@
-<form class="pm-sheet pm-trainer">
+<div class="pm-sheet pm-trainer">
   <header class="pm-header">
-    <img class="pm-portrait" src="{{actor.img}}" data-edit="img" alt="{{actor.name}}">
+    <div class="pm-portrait-wrap">
+      <img class="pm-portrait" src="{{actor.img}}" data-edit="img" alt="{{actor.name}}">
+      <button type="button" class="pm-appearance-btn" data-action="appearance" data-tooltip="Change your look">👤 Look</button>
+    </div>
     <div class="pm-header-fields">
       <input type="text" name="name" value="{{actor.name}}" placeholder="Trainer name">
       <div class="pm-row">
@@ -15,11 +18,26 @@
       <label class="pm-inline">Hometown
         <input type="text" name="system.hometown" value="{{system.hometown}}" placeholder="—">
       </label>
+      {{#if vocationBlurb}}<p class="pm-vocation-blurb">{{vocationBlurb}}</p>{{/if}}
+      <div class="pm-dex-line">
+        <button type="button" class="pm-badge pm-dex-open" data-action="pokedex" data-tooltip="Open the Pokédex">📖 Pokédex</button>
+        <span>{{dex.caught}} caught · {{dex.seen}} seen</span>
+        <div class="pm-hptrack" style="flex:1"><div class="pm-hpfill" style="width: {{dex.pct}}%"></div></div>
+        <small>{{dex.pct}}% of {{dex.total}}</small>
+      </div>
     </div>
   </header>
 
   <section class="pm-section">
-    <h2>Party</h2>
+    <h2>Party
+      <span class="pm-toolbar">
+        <button type="button" class="pm-iconbtn" data-action="chooseStarter" data-tooltip="Choose a starter">⭐</button>
+        <button type="button" class="pm-iconbtn" data-action="fly" data-tooltip="Fly to a visited town">🕊️</button>
+        <button type="button" class="pm-iconbtn" data-action="tradeService" data-tooltip="Trade Pokémon">🔄</button>
+        <button type="button" class="pm-iconbtn" data-action="shop" data-tooltip="Poké Mart">🛒</button>
+        <button type="button" class="pm-iconbtn" data-action="battleChallenge" data-tooltip="Challenge a trainer to battle">⚔️</button>
+      </span>
+    </h2>
     {{#if party.length}}
       <ul class="pm-party">
         {{#each party as |mon|}}
@@ -28,6 +46,7 @@
             <span class="pm-party-name">{{mon.name}}</span>
             <span class="pm-badge">Lv {{mon.system.level}}</span>
             {{#each mon.system.types as |t|}}<span class="pm-type pm-type-{{pmLower t}}">{{t}}</span>{{/each}}
+            <button type="button" class="pm-iconbtn" data-action="deposit" data-uuid="{{mon.uuid}}" data-tooltip="Send to PC">📦</button>
           </li>
         {{/each}}
       </ul>
@@ -37,11 +56,68 @@
   </section>
 
   <section class="pm-section">
-    <h2>Badges</h2>
+    <h2>PC Storage</h2>
+    {{#if storage.length}}
+      <ul class="pm-storage">
+        {{#each storage as |mon|}}
+          <li class="pm-storage-member">
+            <img src="{{mon.img}}" alt="{{mon.name}}">
+            <span class="pm-party-name">{{mon.name}}</span>
+            <span class="pm-badge">Lv {{mon.system.level}}</span>
+            <button type="button" class="pm-usemove" data-action="withdraw" data-uuid="{{mon.uuid}}">Withdraw</button>
+          </li>
+        {{/each}}
+      </ul>
+    {{else}}
+      <p class="pm-empty">The PC is empty. Caught Pokémon overflow here when the party is full (6).</p>
+    {{/if}}
+  </section>
+
+  <section class="pm-section">
+    <h2>Daycare <button type="button" class="pm-iconbtn" data-action="collectEgg" data-tooltip="Collect egg">🥚</button></h2>
+    {{#if daycare.length}}
+      <ul class="pm-storage">
+        {{#each daycare as |mon|}}
+          <li class="pm-storage-member">
+            <img src="{{mon.img}}" alt="{{mon.name}}">
+            <span class="pm-party-name">{{mon.name}}</span>
+            <span class="pm-badge">Lv {{mon.system.level}}</span>
+            <button type="button" class="pm-usemove" data-action="daycareWithdraw" data-uuid="{{mon.uuid}}">Withdraw</button>
+          </li>
+        {{/each}}
+      </ul>
+    {{else}}
+      <p class="pm-empty">Leave two compatible Pokémon here (via <code>game.pokemonMasters.breeding.deposit</code>) to breed.</p>
+    {{/if}}
+  </section>
+
+  <section class="pm-section">
+    <h2>Organizations <button type="button" class="pm-iconbtn" data-action="joinOrg" data-tooltip="Join an organization">➕</button></h2>
+    {{#if affiliations.length}}
+      <ul class="pm-orgs">
+        {{#each affiliations as |a|}}
+          <li class="pm-org pm-org-{{a.align}}">
+            <div class="pm-org-head">
+              <strong>{{a.label}}</strong>
+              <span class="pm-badge">{{a.title}}</span>
+              <button type="button" class="pm-org-leave" data-action="leaveOrg" data-org="{{a.org}}" title="Leave">✕</button>
+            </div>
+            <div class="pm-hptrack"><div class="pm-hpfill" style="width: {{a.pct}}%"></div></div>
+            <small>{{#if a.isMax}}Max rank{{else}}{{a.reputation}} / {{a.need}} rep to next rank{{/if}}</small>
+          </li>
+        {{/each}}
+      </ul>
+    {{else}}
+      <p class="pm-empty">Not affiliated with any organization. Join the League, a Ranger Union, Team Rocket, and more.</p>
+    {{/if}}
+  </section>
+
+  <section class="pm-section">
+    <h2>Badges <small>· level cap {{levelCap}}</small></h2>
     {{#if system.badges.length}}
       <ul class="pm-badges">{{#each system.badges as |b|}}<li class="pm-badge">{{b}}</li>{{/each}}</ul>
     {{else}}
-      <p class="pm-empty">No badges yet.</p>
+      <p class="pm-empty">No badges yet. Beat gym leaders to earn them (and raise your level cap).</p>
     {{/if}}
   </section>
 
@@ -49,4 +125,4 @@
     <h2>Biography</h2>
     <textarea name="system.biography" rows="5">{{system.biography}}</textarea>
   </section>
-</form>
+</div>

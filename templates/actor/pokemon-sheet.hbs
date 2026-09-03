@@ -1,4 +1,4 @@
-<form class="pm-sheet pm-pokemon">
+<div class="pm-sheet pm-pokemon">
   <header class="pm-header">
     <img class="pm-portrait" src="{{actor.img}}" data-edit="img" alt="{{actor.name}}">
     <div class="pm-header-fields">
@@ -16,8 +16,10 @@
       </div>
       <div class="pm-row">
         <label>Ability <input type="text" name="system.ability" value="{{system.ability}}"></label>
+        <label>Held Item <input type="text" name="system.heldItem" value="{{system.heldItem}}" placeholder="—"></label>
         <label>Gender <input type="text" name="system.gender" value="{{system.gender}}" placeholder="—"></label>
-        <label>Catch rate <input type="number" name="system.catchRate" value="{{system.catchRate}}" min="1" max="255"></label>
+        <label>Nature <select name="system.nature">{{selectOptions natures selected=system.nature}}</select></label>
+        <label>Status <select name="system.status">{{selectOptions statuses selected=system.status}}</select></label>
       </div>
     </div>
   </header>
@@ -27,10 +29,14 @@
     <input type="number" name="system.hp.value" value="{{system.hp.value}}" min="0" max="{{system.hp.max}}">
     <span>/ {{system.hp.max}}</span>
     <div class="pm-hptrack"><div class="pm-hpfill" style="width: {{hpPct}}%"></div></div>
+    <button type="button" class="pm-iconbtn" data-action="sendOut" data-tooltip="Send out / recall on the map">🔴</button>
+    <button type="button" class="pm-iconbtn" data-action="useItem" data-tooltip="Use an item">🎒</button>
+    <button type="button" class="pm-iconbtn pm-gimmick-chip{{#if gimmick.active}} is-active{{/if}}" data-action="gimmick"
+      data-tooltip="{{#if gimmick.active}}{{gimmick.active}} active — click to revert{{else}}Battle gimmick{{/if}}">⚡</button>
   </section>
 
   <section class="pm-section">
-    <h2>Stats <small>(Lv {{system.level}})</small></h2>
+    <h2>Stats <small>(Lv {{system.level}} · {{system.xp}} XP)</small></h2>
     <table class="pm-stats">
       <thead><tr><th>HP</th><th>Atk</th><th>Def</th><th>Sp.A</th><th>Sp.D</th><th>Spe</th><th>BST</th></tr></thead>
       <tbody>
@@ -44,19 +50,39 @@
           <td>{{system.baseStats.spa}}</td><td>{{system.baseStats.spd}}</td><td>{{system.baseStats.spe}}</td>
           <td>base</td>
         </tr>
+        <tr class="pm-stat-base">
+          <td>{{system.ivs.hp}}</td><td>{{system.ivs.atk}}</td><td>{{system.ivs.def}}</td>
+          <td>{{system.ivs.spa}}</td><td>{{system.ivs.spd}}</td><td>{{system.ivs.spe}}</td>
+          <td>IV</td>
+        </tr>
       </tbody>
     </table>
   </section>
 
   <section class="pm-section">
+    <h2>Known Moves <button type="button" class="pm-iconbtn" data-action="teachMove" data-tooltip="Teach a TM / HM">📀</button></h2>
+    {{#if knownMoves.length}}
+      <ul class="pm-knownmoves">
+        {{#each knownMoves as |m|}}
+          <li>
+            <button type="button" class="pm-usemove" data-action="useMove" data-item-id="{{m.id}}">Use</button>
+            <span class="pm-type pm-type-{{pmLower m.system.moveType}}">{{m.system.moveType}}</span>
+            <strong>{{m.name}}</strong>
+            <small>{{m.system.category}}{{#if m.system.power}} · {{m.system.power}} pw{{/if}}</small>
+          </li>
+        {{/each}}
+      </ul>
+    {{else}}
+      <p class="pm-empty">No moves yet. Drag moves from the <em>Moves</em> compendium onto this Pokémon to teach them.</p>
+    {{/if}}
+  </section>
+
+  <section class="pm-section">
     <h2>Evolution</h2>
-    {{#if system.evolution.into.length}}
-      <p>Evolves into
-        {{#each system.evolution.into as |e|}}<strong>{{e}}</strong>{{#unless @last}}, {{/unless}}{{/each}}
-        {{#if system.evolution.level}}at <strong>Lv {{system.evolution.level}}</strong>{{/if}}
-        {{#if system.evolution.item}}using <strong>{{system.evolution.item}}</strong>{{/if}}
-        {{#if system.evolution.condition}}<em>({{system.evolution.condition}})</em>{{/if}}.
-      </p>
+    {{#if evolutions.length}}
+      <ul class="pm-movelist">
+        {{#each evolutions as |evo|}}<li>→ <strong>{{evo.name}}</strong> {{evo.requirement}}</li>{{/each}}
+      </ul>
     {{else}}
       <p class="pm-empty">Final stage{{#if system.evolution.from}} — evolves from {{system.evolution.from}}{{/if}}.</p>
     {{/if}}
@@ -83,4 +109,4 @@
     <h2>Notes</h2>
     <textarea name="system.notes" rows="3">{{system.notes}}</textarea>
   </section>
-</form>
+</div>

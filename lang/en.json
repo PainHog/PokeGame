@@ -10,31 +10,62 @@
       "gear": "Item / Gear"
     },
     "RegionBehavior": {
-      "pokemon-masters.encounter": "Wild Encounter (Pokémon Masters)",
-      "pokemon-masters.zoneTransit": "Zone Transit (Pokémon Masters)"
+      "pokemon-masters.wildTile": "Wild Tile (Pokémon Masters)",
+      "pokemon-masters.safeZone": "Safe Zone (Pokémon Masters)",
+      "pokemon-masters.zoneTransit": "Zone Transit (Pokémon Masters)",
+      "pokemon-masters.ambush": "Faction Ambush (Pokémon Masters)",
+      "pokemon-masters.fieldGate": "Field Move Gate (Pokémon Masters)"
     }
   },
   "PM": {
     "RegionBehavior": {
-      "Encounter": {
+      "WildTile": {
         "FIELDS": {
-          "category": { "label": "Encounter Table", "hint": "Which habitat table wild Pokémon are drawn from." },
-          "chance": { "label": "Encounter Chance (%)", "hint": "Chance to trigger a wild Pokémon on each qualifying step." },
-          "minLevel": { "label": "Minimum Level", "hint": "Lowest level a wild Pokémon can be (unless the row overrides it)." },
-          "maxLevel": { "label": "Maximum Level", "hint": "Highest level a wild Pokémon can be (unless the row overrides it)." },
+          "regionTag": { "label": "Region", "hint": "Override the Scene's region tag for this tile's encounter tables." },
+          "category": { "label": "Habitat", "hint": "Which habitat table wild Pokémon are drawn from." },
+          "chance": { "label": "Event Chance (%)", "hint": "Chance that any event is rolled on each qualifying step." },
           "onEveryStep": { "label": "Trigger On Every Step", "hint": "Roll while moving through the region, not only on entry." },
-          "useDefaultTable": { "label": "Use Default Table", "hint": "Use the built-in table for the chosen category instead of a custom one." },
+          "outcomes": { "label": "Outcome Weights", "hint": "Relative odds of a wild Pokémon, item, trainer, event, or nothing." },
+          "minLevel": { "label": "Minimum Level", "hint": "Lowest level a wild Pokémon can be (unless a table row overrides it)." },
+          "maxLevel": { "label": "Maximum Level", "hint": "Highest level a wild Pokémon can be (unless a table row overrides it)." },
+          "poolSource": { "label": "Candidate Pool", "hint": "By requirements (auto) computes eligible species from region + habitat + method; or use a region table or a custom table." },
           "table": { "label": "Custom Encounter Table" },
-          "announceOnly": { "label": "Announce Only", "hint": "Post a chat card instead of also spawning a wild token." }
+          "announceOnly": { "label": "Announce Only", "hint": "Post a chat card instead of also spawning a wild token." },
+          "eventMacro": { "label": "Event Macro", "hint": "Macro to run on a 'Special Event' outcome." }
+        }
+      },
+      "SafeZone": {
+        "FIELDS": {
+          "kind": { "label": "Zone Type", "hint": "Street, town, Pokémon Center, Poké Mart, or building interior." },
+          "healOnEnter": { "label": "Heal On Enter", "hint": "Pokémon Center: restore the entering trainer's party to full HP." },
+          "announce": { "label": "Announce Entry", "hint": "Post a chat message when a trainer enters." }
+        }
+      },
+      "FieldGate": {
+        "FIELDS": {
+          "move": { "label": "Required Field Move", "hint": "A party Pokémon must know this HM/field move to pass (Surf, Cut, Strength…)." },
+          "announce": { "label": "Announce Use", "hint": "Post a message when a Pokémon uses the field move to pass." }
+        }
+      },
+      "Ambush": {
+        "FIELDS": {
+          "faction": { "label": "Faction", "hint": "Which group ambushes the player (Team Rocket, wandering trainers…). Members of that faction are not ambushed." },
+          "chance": { "label": "Ambush Chance (%)", "hint": "Chance to trigger on a qualifying step." },
+          "onEveryStep": { "label": "Trigger On Every Step", "hint": "Roll while moving through, not only on entry." },
+          "npcUuid": { "label": "Specific NPC", "hint": "An exact NPC trainer to fight. Overrides the folder." },
+          "folder": { "label": "NPC Folder", "hint": "Name of an Actor folder of NPC trainers to draw a random opponent from." },
+          "mode": { "label": "Resolution", "hint": "Auto-resolve the battle, or just announce it for the GM to run." },
+          "moneyReward": { "label": "Prize Money", "hint": "Awarded to the player on a win." }
         }
       },
       "ZoneTransit": {
         "FIELDS": {
           "zoneName": { "label": "Zone Name", "hint": "Name announced when a trainer enters this region." },
           "announce": { "label": "Announce Entry", "hint": "Post a chat message when a trainer enters." },
-          "destX": { "label": "Destination X (px)", "hint": "Same-scene warp target. Leave 0 to disable." },
-          "destY": { "label": "Destination Y (px)", "hint": "Same-scene warp target. Leave 0 to disable." },
-          "destinationScene": { "label": "Destination Scene", "hint": "Scene to view on entry (GM side)." }
+          "destX": { "label": "Entry X (px)", "hint": "Where the token lands (destination scene, or same-scene warp)." },
+          "destY": { "label": "Entry Y (px)", "hint": "Where the token lands (destination scene, or same-scene warp)." },
+          "destinationSceneName": { "label": "Destination Scene (by name)", "hint": "Name of the scene to travel to — survives compendium import. Preferred over the UUID." },
+          "destinationScene": { "label": "Destination Scene (UUID)", "hint": "Fallback if no name is set." }
         }
       }
     }

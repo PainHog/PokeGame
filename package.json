@@ -6,12 +6,29 @@
   "description": "Foundry VTT system: Pokémon Masters",
   "scripts": {
     "build": "node scripts/build-packs.mjs",
+    "sprites": "node scripts/fetch-sprites.mjs",
+    "forms": "node scripts/fetch-form-sprites.mjs",
+    "verify": "node scripts/verify.mjs",
+    "smoke": "node scripts/smoke.mjs",
+    "check": "node scripts/build-packs.mjs && node scripts/verify.mjs && node scripts/smoke.mjs",
     "build:limit": "node scripts/build-packs.mjs --limit=60",
-    "clean": "node -e \"import('node:fs').then(fs=>{for(const d of ['packs','src/packs']){fs.rmSync(d,{recursive:true,force:true})}})\""
+    "clean": "node -e \"import('node:fs').then(fs=>{for(const d of ['packs','src/packs']){fs.rmSync(d,{recursive:true,force:true})}})\"",
+    "trainers": "node scripts/fetch-trainers.mjs",
+    "avatars": "node scripts/fetch-trainer-avatars.mjs",
+    "maps": "node scripts/rasterize-maps.mjs",
+    "gbamaps": "node scripts/build-gba-maps.mjs",
+    "emeraldmaps": "node scripts/build-emerald-maps.mjs",
+    "tiledmaps": "node scripts/build-tiled-maps.mjs",
+    "seviimaps": "node scripts/build-sevii-maps.mjs",
+    "hoenncaves": "node scripts/build-hoenn-caves.mjs",
+    "interiors": "node scripts/build-interiors.mjs"
   },
   "devDependencies": {
     "@foundryvtt/foundryvtt-cli": "^3.0.4",
     "@pkmn/data": "^0.10.11",
-    "@pkmn/dex": "^0.10.11"
+    "@pkmn/dex": "^0.10.11",
+    "@pkmn/img": "^0.3.4",
+    "playwright-core": "^1.62.1",
+    "pngjs": "^7.0.0"
   }
 }

@@ -1,0 +1,58 @@
+<div class="pm-pokedex">
+  <header class="pm-dex-head">
+    <div class="pm-dex-title">
+      <strong>Pokédex</strong>
+      <small>{{counts.caught}} caught · {{counts.seen}} seen · of {{counts.total}}</small>
+    </div>
+    <input type="text" name="pm-dex-search" value="{{query}}" placeholder="Search name, number, or type…" autocomplete="off">
+    <div class="pm-dex-filters">
+      <button type="button" class="pm-dex-filter{{#if (pmEq mode "all")}} on{{/if}}" data-action="setMode" data-mode="all">All</button>
+      <button type="button" class="pm-dex-filter{{#if (pmEq mode "caught")}} on{{/if}}" data-action="setMode" data-mode="caught">Caught</button>
+      <button type="button" class="pm-dex-filter{{#if (pmEq mode "seen")}} on{{/if}}" data-action="setMode" data-mode="seen">Seen</button>
+      <button type="button" class="pm-dex-filter{{#if (pmEq mode "undiscovered")}} on{{/if}}" data-action="setMode" data-mode="undiscovered">Missing</button>
+    </div>
+  </header>
+
+  <div class="pm-dex-body">
+    <ul class="pm-dex-list">
+      {{#each rows as |r|}}
+        <li class="pm-dex-row pm-dex-{{r.status}}{{#if (pmEq r.num ../detail.num)}} sel{{/if}}" data-action="pick" data-num="{{r.num}}">
+          <span class="pm-dex-num">#{{r.num}}</span>
+          <img class="pm-dex-sprite" src="{{r.img}}" alt="{{#if (pmEq r.status "undiscovered")}}?{{else}}{{r.name}}{{/if}}">
+          <span class="pm-dex-name">{{#if (pmEq r.status "undiscovered")}}—————{{else}}{{r.name}}{{/if}}</span>
+          <span class="pm-dex-dot pm-dex-dot-{{r.status}}" title="{{r.status}}"></span>
+        </li>
+      {{else}}
+        <li class="pm-empty">No Pokémon match your search.</li>
+      {{/each}}
+    </ul>
+
+    <section class="pm-dex-detail">
+      {{#if detail}}
+        {{#if detail.discovered}}
+          <img class="pm-dex-big" src="{{detail.img}}" alt="{{detail.name}}">
+          <h2>#{{detail.num}} {{detail.name}}</h2>
+          <div class="pm-typerow">{{#each detail.types as |t|}}<span class="pm-type pm-type-{{pmLower t}}">{{t}}</span>{{/each}}</div>
+          {{#if detail.rarity}}<p class="pm-badge">{{detail.rarity}}</p>{{/if}}
+          <table class="pm-stats">
+            <thead><tr><th>HP</th><th>Atk</th><th>Def</th><th>Sp.A</th><th>Sp.D</th><th>Spe</th><th>BST</th></tr></thead>
+            <tbody><tr class="pm-stat-derived">
+              <td>{{detail.baseStats.hp}}</td><td>{{detail.baseStats.atk}}</td><td>{{detail.baseStats.def}}</td>
+              <td>{{detail.baseStats.spa}}</td><td>{{detail.baseStats.spd}}</td><td>{{detail.baseStats.spe}}</td>
+              <td>{{detail.bst}}</td>
+            </tr></tbody>
+          </table>
+          {{#if detail.abilities.length}}
+            <p><strong>Abilities:</strong> {{#each detail.abilities as |a|}}<span class="pm-badge">{{a}}</span> {{/each}}</p>
+          {{/if}}
+        {{else}}
+          <img class="pm-dex-big pm-dex-unknown" src="{{detail.img}}" alt="?">
+          <h2>#{{detail.num}} —————</h2>
+          <p class="pm-empty">This Pokémon hasn't been discovered yet. Encounter one to reveal its data.</p>
+        {{/if}}
+      {{else}}
+        <p class="pm-empty">Select a Pokémon to view its data.</p>
+      {{/if}}
+    </section>
+  </div>
+</div>

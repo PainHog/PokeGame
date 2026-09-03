@@ -1,21 +1,47 @@
 /* Pokémon Masters — sheet styling */
 
 .pm-sheet {
-  --pm-accent: #cc0000;
-  --pm-ink: #1b1b1b;
+  --pm-accent: #e3350d;   /* Poké Ball red */
+  --pm-accent2: #3b6db3;  /* trainer blue */
+  --pm-ink: #26333f;
+  --pm-muted: #7b8794;
+  --pm-panel: #ffffff;
+  --pm-ground: #f4f7fb;
+  --pm-line: rgba(38, 51, 63, 0.10);
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  padding: 0.5rem;
+  gap: 0.6rem;
+  padding: 0.6rem;
   font-size: 13px;
+  color: var(--pm-ink);
+  background:
+    radial-gradient(circle at top right, rgba(59, 109, 179, 0.06), transparent 55%),
+    var(--pm-ground);
 }
 
+/* Force our own theme on every form control — never inherit Foundry's
+   light-on-dark defaults, which made dropdowns white text on a white box. */
 .pm-sheet input,
 .pm-sheet select,
-.pm-sheet textarea {
-  background: rgba(0, 0, 0, 0.03);
-  border: 1px solid rgba(0, 0, 0, 0.15);
+.pm-sheet textarea,
+.pm-sheet option {
+  background: #ffffff;
+  color: var(--pm-ink, #26333f);
+  border: 1px solid var(--pm-line, rgba(38, 51, 63, 0.18));
   border-radius: 4px;
+}
+.pm-sheet select option { background: #ffffff; color: var(--pm-ink, #26333f); }
+.pm-sheet select:focus, .pm-sheet input:focus, .pm-sheet textarea:focus { outline: 2px solid var(--pm-accent2, #3b6db3); }
+.pm-sheet a, .pm-sheet label, .pm-sheet span, .pm-sheet p, .pm-sheet h1, .pm-sheet h2, .pm-sheet h3, .pm-sheet td, .pm-sheet th, .pm-sheet small { color: var(--pm-ink, #26333f); }
+
+/* Paint the whole window so there's no raw-white (blinding) Foundry backdrop. */
+.pokemon-masters .window-content,
+.pm-pokedex-app .window-content {
+  background:
+    radial-gradient(circle at top right, rgba(59, 109, 179, 0.06), transparent 55%),
+    var(--pm-ground, #eef2f7);
+  color: var(--pm-ink, #26333f);
+  padding: 0;
 }
 
 .pm-header {
@@ -71,17 +97,36 @@
 }
 
 .pm-section {
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
-  padding-top: 0.4rem;
+  background: var(--pm-panel);
+  border: 1px solid var(--pm-line);
+  border-radius: 10px;
+  padding: 0.5rem 0.6rem;
+  box-shadow: 0 1px 2px rgba(38, 51, 63, 0.05);
 }
 
 .pm-section h2 {
-  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   border: none;
-  margin: 0 0 0.35rem;
+  margin: 0 0 0.4rem;
   color: var(--pm-accent);
+}
+
+/* Little Poké Ball bullet before each section title. */
+.pm-section h2::before {
+  content: "";
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+  background:
+    linear-gradient(#e3350d 0 50%, #fff 50% 100%);
+  border: 1.5px solid var(--pm-ink);
+  box-shadow: inset 0 0 0 1px #fff;
 }
 
 .pm-empty {
@@ -259,3 +304,184 @@
   margin: 0 0 4px;
   border: none;
 }
+
+.pm-catch-btn {
+  margin-top: 4px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.pm-wobble {
+  font-size: 1.3rem;
+  letter-spacing: 4px;
+  margin: 2px 0;
+}
+
+.pm-caught {
+  color: var(--pm-accent, #cc0000);
+  font-weight: 700;
+  margin: 4px 0 0;
+}
+
+.pm-broke {
+  color: #555;
+  font-style: italic;
+  margin: 4px 0 0;
+}
+
+.control-icon.pm-hud-catch {
+  font-size: 1.1rem;
+}
+
+/* Battle */
+.pm-battle-card {
+  border-left: 4px solid var(--pm-accent, #cc0000);
+  padding: 4px 10px;
+}
+.pm-battle-card h3 { margin: 0 0 4px; border: none; }
+.pm-faint { color: var(--pm-accent, #cc0000); font-weight: 700; margin: 4px 0 0; }
+.pm-battle-log { max-height: 220px; overflow-y: auto; margin: 4px 0 0; padding-left: 18px; font-size: .82rem; }
+.pm-battle-log li { margin: 1px 0; }
+
+.pm-knownmoves { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.pm-knownmoves li { display: flex; align-items: center; gap: 7px; }
+.pm-usemove {
+  cursor: pointer; font-weight: 700; font-size: .72rem;
+  padding: 2px 10px; border-radius: 5px;
+  background: var(--pm-accent, #cc0000); color: #fff; border: none;
+}
+.pm-usemove:hover { filter: brightness(1.1); }
+
+/* Compact icon toolbar — replaces crowded text-button rows. */
+.pm-toolbar { margin-left: auto; display: inline-flex; gap: 4px; }
+.pm-iconbtn {
+  margin-left: auto;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px; padding: 0; line-height: 1;
+  font-size: .82rem; cursor: pointer;
+  border: 1px solid var(--pm-line); border-radius: 50%;
+  background: var(--pm-ground); color: var(--pm-ink);
+  transition: transform .1s ease, background .1s ease, border-color .1s ease;
+}
+.pm-toolbar .pm-iconbtn { margin-left: 0; }
+.pm-iconbtn:hover { background: #fff; border-color: var(--pm-accent); transform: translateY(-1px); }
+.pm-iconbtn:active { transform: translateY(0); }
+
+/* The one gimmick chip: playful when armed, quiet when idle. */
+.pm-gimmick-chip.is-active {
+  background: linear-gradient(135deg, #7b2ff7, #f107a3);
+  border-color: transparent; color: #fff;
+  animation: pm-pulse 1.6s ease-in-out infinite;
+}
+@keyframes pm-pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(241,7,163,.5); } 50% { box-shadow: 0 0 0 4px rgba(241,7,163,0); } }
+.pm-battle-card.pm-gimmick { border-left-color: #7b2ff7; }
+
+/* Venue arrival card — themed, single friendly call-to-action. */
+.pm-venue-card { background: rgba(59, 109, 179, 0.06); border-color: var(--pm-accent2, #3b6db3); }
+.pm-venue-btn {
+  margin-top: 4px; cursor: pointer; font-weight: 700; font-size: .78rem;
+  padding: 4px 14px; border: none; border-radius: 999px; color: #fff;
+  background: linear-gradient(135deg, #3b6db3, #5b8fd6);
+}
+.pm-venue-btn:hover { filter: brightness(1.08); }
+
+/* Legendary encounter card — a rarer, golden shimmer. */
+.pm-legendary-card {
+  border-color: #d4af37;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.12), rgba(241, 7, 163, 0.06));
+}
+.pm-legendary-card h3 { color: #b8860b; }
+
+.pm-vocation-blurb { font-size: .82rem; color: var(--muted, #6d6560); font-style: italic; margin: 4px 0 0; }
+.pm-dex-line { display: flex; align-items: center; gap: 8px; margin-top: 6px; font-size: .78rem; }
+.pm-dex-line small { color: var(--muted, #6d6560); white-space: nowrap; }
+.pm-starter-btn, .pm-pc-btn {
+  float: right; cursor: pointer; font-size: .7rem; font-weight: 700;
+  padding: 2px 10px; border-radius: 5px; border: 1px solid var(--pm-accent, #cc0000);
+  background: transparent; color: var(--pm-accent, #cc0000);
+}
+.pm-starter-btn:hover, .pm-pc-btn:hover { background: var(--pm-accent, #cc0000); color: #fff; }
+
+/* Storage & organizations */
+.pm-storage { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.pm-storage-member { display: flex; align-items: center; gap: 6px; padding: 3px; border: 1px solid rgba(0,0,0,.1); border-radius: 5px; }
+.pm-storage-member img { width: 26px; height: 26px; object-fit: contain; }
+
+.pm-orgs { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.pm-org { border: 1px solid rgba(0,0,0,.12); border-left: 4px solid #888; border-radius: 6px; padding: 6px 9px; }
+.pm-org-good { border-left-color: #2f9463; }
+.pm-org-neutral { border-left-color: #5a6b86; }
+.pm-org-villain { border-left-color: #b02a37; }
+.pm-org-head { display: flex; align-items: center; gap: 8px; }
+.pm-org-head strong { flex: 1 1 auto; }
+.pm-org-leave { margin-left: auto; border: none; background: transparent; cursor: pointer; color: #999; font-weight: 700; }
+.pm-org .pm-hptrack { margin: 5px 0 3px; }
+.pm-org small { color: var(--muted, #6d6560); }
+
+/* Pokédex browser */
+.pm-pokedex { display: flex; flex-direction: column; height: 100%; gap: 8px; color: var(--pm-ink, #26333f); }
+.pm-pokedex .pm-dex-head { display: flex; flex-direction: column; gap: 6px; }
+.pm-dex-title { display: flex; align-items: baseline; gap: 10px; }
+.pm-dex-title small { color: var(--pm-muted, #7b8794); }
+.pm-pokedex input[name="pm-dex-search"] { width: 100%; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--pm-line, rgba(0,0,0,.12)); }
+.pm-dex-filters { display: flex; gap: 6px; }
+.pm-dex-filter { cursor: pointer; font-size: .72rem; font-weight: 700; padding: 3px 12px; border-radius: 999px; border: 1px solid var(--pm-line, rgba(0,0,0,.12)); background: var(--pm-ground, #f4f7fb); }
+.pm-dex-filter.on { background: var(--pm-accent, #e3350d); color: #fff; border-color: transparent; }
+.pm-dex-body { display: grid; grid-template-columns: 1fr 240px; gap: 10px; flex: 1; min-height: 0; }
+.pm-dex-list { list-style: none; margin: 0; padding: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; }
+.pm-dex-row { display: flex; align-items: center; gap: 8px; padding: 3px 6px; border-radius: 6px; cursor: pointer; }
+.pm-dex-row:hover { background: rgba(0,0,0,.05); }
+.pm-dex-row.sel { background: rgba(227,53,13,.10); outline: 1px solid var(--pm-accent, #e3350d); }
+.pm-dex-num { width: 46px; color: var(--pm-muted, #7b8794); font-size: .74rem; font-variant-numeric: tabular-nums; }
+.pm-dex-sprite { width: 40px; height: 40px; object-fit: contain; image-rendering: auto; }
+.pm-dex-name { flex: 1; font-weight: 600; }
+.pm-dex-undiscovered .pm-dex-sprite { filter: brightness(0) opacity(0.35); }
+.pm-dex-undiscovered .pm-dex-name { color: #aaa; letter-spacing: 2px; }
+.pm-dex-dot { width: 9px; height: 9px; border-radius: 50%; flex: 0 0 auto; }
+.pm-dex-dot-caught { background: #e3350d; }
+.pm-dex-dot-seen { background: #f0a020; }
+.pm-dex-dot-undiscovered { background: #ccc; }
+.pm-dex-detail { border-left: 1px solid var(--pm-line, rgba(0,0,0,.12)); padding-left: 10px; overflow-y: auto; text-align: center; }
+.pm-dex-detail h2 { margin: 4px 0; border: none; }
+.pm-dex-big { width: 120px; height: 120px; object-fit: contain; }
+.pm-dex-big.pm-dex-unknown { filter: brightness(0) opacity(0.3); }
+.pm-dex-detail .pm-typerow { justify-content: center; }
+.pm-dex-detail .pm-stats { margin: 8px 0; font-size: .74rem; }
+.pm-dex-open { cursor: pointer; border: none; }
+
+/* Overworld trainer challenge */
+.pm-challenge-card { border-color: #d4a017; background: rgba(212,160,23,.08); }
+.pm-challenge-btn { margin-top: 4px; cursor: pointer; font-weight: 700; font-size: .78rem; padding: 4px 14px; border: none; border-radius: 999px; color: #fff; background: linear-gradient(135deg, #d4a017, #e3350d); }
+.pm-challenge-btn:hover { filter: brightness(1.08); }
+.pm-challenge-btn:disabled { opacity: .5; cursor: default; }
+
+/* ---------------------------------------------------------------------------
+   Trainer appearance picker (choose your look + gender)
+   --------------------------------------------------------------------------- */
+.pm-portrait-wrap { position: relative; display: inline-block; }
+.pm-appearance-btn {
+  position: absolute; left: 50%; bottom: -6px; transform: translateX(-50%);
+  font-size: 11px; line-height: 1; padding: 3px 8px; white-space: nowrap;
+  border: 1px solid #b23; border-radius: 999px; cursor: pointer;
+  background: #e3350d; color: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.35);
+}
+.pm-appearance-btn:hover { background: #c02a08; }
+
+.pm-appearance { color: #202830; }
+.pm-gender-toggle { display: flex; gap: 16px; justify-content: center; margin: 4px 0 12px; }
+.pm-gender-toggle label { cursor: pointer; font-weight: 600; color: #202830; }
+.pm-avatar-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+  max-height: 320px; overflow-y: auto; padding: 4px;
+}
+.pm-avatar {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 6px 2px; border: 2px solid transparent; border-radius: 8px;
+  cursor: pointer; background: #f4f7fb;
+}
+.pm-avatar:hover { background: #e7eef8; }
+.pm-avatar img {
+  image-rendering: pixelated; width: 56px; height: 56px; object-fit: contain;
+}
+.pm-avatar span { font-size: 10px; color: #34404c; text-align: center; }
+.pm-avatar--selected { border-color: #e3350d; background: #fdece8; }

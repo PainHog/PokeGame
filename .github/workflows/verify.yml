@@ -1,0 +1,26 @@
+name: verify
+
+# Runs on every push / PR: builds the packs and cross-checks them against the
+# @pkmn source of truth and the canonical Kanto map graph. Fails on any lore
+# discrepancy so nothing inaccurate reaches players.
+on:
+  push:
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: npm ci
+      - name: Syntax check
+        run: for f in src/module/*.mjs src/pokemon-masters.mjs scripts/*.mjs; do node --check "$f"; done
+      - name: Build packs
+        run: npm run build
+      - name: Verify lore accuracy
+        run: npm run verify
+      - name: Pre-boot smoke test
+        run: npm run smoke

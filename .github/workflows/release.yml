@@ -1,0 +1,58 @@
+name: Release
+
+# Builds the full, installable system (compiled packs + generated maps + bundled
+# sprites) and publishes it as a GitHub Release asset, so the manifest URL in
+# system.json ("releases/latest/download/…") resolves to a ready-to-install ZIP.
+# Build artifacts are git-ignored; this workflow is what turns the source repo
+# into the distributable package.
+
+on:
+  push:
+    branches: ["main", "claude/pokemon-database-access-hsd6xh"]
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: npm ci
+
+      # Sprites are vendored in the repo (assets/sprites, assets/trainers), so the
+      # build is fully self-contained — no fetching from any external repo.
+      - name: Build compendium packs (+ maps)
+        run: npm run build
+      - name: Verify + smoke test
+        run: npm run verify && npm run smoke
+
+      # Stamp a unique, increasing version so Foundry's "Update" detects every
+      # new build (a fixed version string is why Update did nothing before).
+      - name: Stamp release version
+        run: |
+          VERSION="1.0.${{ github.run_number }}"
+          node -e "const fs=require('fs');const s=require('./system.json');s.version='$VERSION';fs.writeFileSync('./system.json',JSON.stringify(s,null,2)+'\n');console.log('Release version:',s.version)"
+
+      - name: Package the system
+        run: |
+          zip -rq pokemon-masters.zip \
+            system.json src styles templates lang packs assets \
+            -x '*/.*'
+          ls -lh pokemon-masters.zip
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: release-latest
+          name: "Pokémon Masters — latest build"
+          body: "Auto-built installable package. Add to Foundry via the manifest URL in the README."
+          prerelease: false
+          files: |
+            system.json
+            pokemon-masters.zip
