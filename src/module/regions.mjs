@@ -266,8 +266,15 @@ export class WildTileBehaviorType extends foundry.data.regionBehaviors.RegionBeh
     const max = Math.max(min, pick.max ?? this.maxLevel);
     const level = randInt(min, max);
 
-    if (this.announceOnly) await WildTileBehaviorType.announceWild.call(this, token, speciesActor, level);
-    else await WildTileBehaviorType.spawnWild.call(this, token, speciesActor, level);
+    // A real, on-map, turn-based battle: send out the trainer's lead opposite the
+    // wild and open the battle window. Lazily imported to avoid an import cycle
+    // (wildbattle → placement → regions). It falls back to the announce/catch card
+    // when the trainer has no usable Pokémon, a battle is already open, or the wild
+    // can't be created — so keep announceWild as that fallback.
+    const { startWildBattle } = await import("./wildbattle.mjs");
+    await startWildBattle(token, speciesActor, level, {
+      announce: () => WildTileBehaviorType.announceWild.call(this, token, speciesActor, level)
+    });
   }
 
   static async announceWild(token, speciesActor, level) {

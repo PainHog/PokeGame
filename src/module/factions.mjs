@@ -14,6 +14,7 @@ import { PM } from "./config.mjs";
 import { autoBattle } from "./npc.mjs";
 import { addReputation } from "./organizations.mjs";
 import { isResponsible } from "./permissions.mjs";
+import { addToParty } from "./storage.mjs";
 
 const fields = foundry.data.fields;
 const EVENTS = { TOKEN_ENTER: "tokenEnter", TOKEN_MOVE_IN: "tokenMoveIn", TOKEN_MOVE_WITHIN: "tokenMoveWithin" };
@@ -59,8 +60,10 @@ async function recoverStolen(player, faction) {
     && a.system?.trainer === player.uuid && a.getFlag("pokemon-masters", "stolenBy") === faction);
   for (const mon of stolen) {
     await mon.unsetFlag("pokemon-masters", "stolenBy");
-    const party = player.system.party ?? [];
-    if (party.length < 6 && !party.includes(mon.uuid)) await player.update({ "system.party": [...party, mon.uuid] });
+    // Route through addToParty so a full party sends the recovered Pokémon to the
+    // PC instead of dropping it (respecting the six-member cap).
+    const held = [...(player.system.party ?? []), ...(player.system.storage ?? [])];
+    if (!held.includes(mon.uuid)) await addToParty(player, mon);
     await ChatMessage.create({ speaker: { alias: "Recovered!" }, content: `<div class="pm-encounter-card"><p>💪 You got your <strong>${mon.name}</strong> back!</p></div>` });
   }
 }

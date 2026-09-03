@@ -123,13 +123,14 @@ export async function depositToDaycare(trainer, uuid) {
 /** Take a Pokémon back from the daycare (returns to party, leaves the pen). */
 export async function withdrawFromDaycare(trainer, uuid) {
   const daycare = (trainer.system.daycare ?? []).filter((u) => u !== uuid);
-  const party = trainer.system.party ?? [];
-  const update = { "system.daycare": daycare };
-  if (party.length < 6 && !party.includes(uuid)) update["system.party"] = [...party, uuid];
-  await trainer.update(update);
+  await trainer.update({ "system.daycare": daycare });
+  const mon = await fromUuid(uuid);
+  // Route through addToParty so a full party sends the withdrawn Pokémon to the PC
+  // instead of dropping it (respecting the six-member cap).
+  const held = [...(trainer.system.party ?? []), ...(trainer.system.storage ?? [])];
+  if (mon && !held.includes(uuid)) await addToParty(trainer, mon);
   try {
     const { removeToken, canPlace } = await import("./placement.mjs");
-    const mon = await fromUuid(uuid);
     if (mon) { await mon.unsetFlag("pokemon-masters", "inDaycare"); if (canvas?.scene && canPlace()) await removeToken(canvas.scene, mon); }
   } catch (err) { /* best-effort */ }
 }

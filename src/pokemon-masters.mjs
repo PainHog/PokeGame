@@ -42,6 +42,7 @@ import { registerControls } from "./module/controls.mjs";
 import { registerSpriteSystem } from "./module/sprites.mjs";
 import { registerGymApi } from "./module/gyms.mjs";
 import { registerBreedingApi } from "./module/breeding.mjs";
+import { registerWildBattle } from "./module/wildbattle.mjs";
 
 Hooks.once("init", () => {
   console.log("Pokémon Masters | Initializing system");
@@ -147,6 +148,7 @@ Hooks.once("ready", () => {
   registerTrainerChallenges();
   registerPlacementApi();
   registerWorldPop();
+  registerWildBattle();
   // Make the world fully self-service (players create/own their own Pokémon &
   // tokens with no GM approval). GM-only, one-time, idempotent.
   ensurePlayerAutonomy();

@@ -272,7 +272,9 @@ async function doEvolve(pokemon, species) {
 
 export function registerProgressionHooks() {
   Hooks.on("pmPokemonFainted", async ({ attacker, target }) => {
-    if (attacker?.type === "pokemon" && attacker.isOwner) {
+    // A throwaway wild-battle opponent never earns XP (it's deleted at battle end,
+    // and leveling it would pop a stray "wild is evolving" dialog).
+    if (attacker?.type === "pokemon" && attacker.isOwner && !attacker.getFlag("pokemon-masters", "wildBattle")) {
       await awardXp(attacker, xpFromDefeat(target));
       await awardEvs(attacker, target);
     }
